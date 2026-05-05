@@ -1,26 +1,7 @@
 {
-  "token": "MTUwMDkyMTI2NzMxNjk4MTg1MQ.GAmSKW.sxudcoae0UTfg2ZdUima-lnthMtbG3b01uBx_c",
+  "token": "MTUwMDkyMTI2NzMxNjk4MTg1MQ.GssfNM.Mrt3kUqepjsO0FolKwLM4ZEejhsdd41uTJ6OaU",
   "clientId": "1500921267316981851",
   "port": 3000,
-  "prefix": "!",
-  "dashboard": {
-    "title": "Discord Dashboard Pro",
-    "theme": "dark",
-    "accentColor": "#7c3aed"
-  },
-  "autoRole": "",
-  "protectionRole": "",
-  "welcomeChannelId": "",
-  "leaveChannelId": "",
-  "logsChannelId": "",
-  "ticketCategoryId": "",
-  "badWords": ["spam", "hate", "abuse", "toxic"],
-  "allowedLinks": ["discord.gg", "youtube.com", "github.com"],
-  "antiSpam": true,
-  "antiLinks": true,
-  "antiMention": true,
-  "antiBots": true,
-  "antiGhostPing": true,
-  "levelingEnabled": true,
-  "giveawayEnabled": true
+  "dashboardSecret": "discord-dashboard-secret-2024",
+  "inviteUrl": "https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
 }

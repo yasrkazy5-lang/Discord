@@ -1,2365 +1,1112 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Discord Dashboard Pro ⚡</title>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-
-  :root {
-    --neon-purple: #7c3aed;
-    --neon-blue: #3b82f6;
-    --neon-cyan: #06b6d4;
-    --neon-green: #10b981;
-    --neon-red: #ef4444;
-    --neon-gold: #f59e0b;
-    --glass-bg: rgba(15, 12, 41, 0.7);
-    --glass-border: rgba(124, 58, 237, 0.25);
-    --card-bg: rgba(17, 14, 48, 0.85);
-    --text-primary: #e2e8f0;
-    --text-muted: #94a3b8;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Cairo', sans-serif;
-    background: #050714;
-    color: var(--text-primary);
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  /* Animated Background */
-  .bg-animated {
-    position: fixed; inset: 0; z-index: -1; overflow: hidden;
-  }
-  .bg-animated::before {
-    content: '';
-    position: absolute; width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-    top: -200px; right: -200px; animation: pulse-slow 8s ease-in-out infinite;
-  }
-  .bg-animated::after {
-    content: '';
-    position: absolute; width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(6,182,212,0.10) 0%, transparent 70%);
-    bottom: -100px; left: -100px; animation: pulse-slow 10s ease-in-out infinite reverse;
-  }
-  @keyframes pulse-slow {
-    0%,100% { transform: scale(1) translate(0,0); opacity: 0.5; }
-    50%     { transform: scale(1.2) translate(20px,20px); opacity: 1; }
-  }
-
-  /* Glassmorphism Card */
-  .glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    position: relative; overflow: hidden;
-  }
-  .glass-card::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(124,58,237,0.05) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .glass-card:hover {
-    border-color: rgba(124,58,237,0.5);
-    box-shadow: 0 0 30px rgba(124,58,237,0.2), 0 8px 32px rgba(0,0,0,0.4);
-    transform: translateY(-2px);
-  }
-
-  /* Neon Glow Effects */
-  .neon-purple { box-shadow: 0 0 20px rgba(124,58,237,0.5), 0 0 60px rgba(124,58,237,0.2); }
-  .neon-blue   { box-shadow: 0 0 20px rgba(59,130,246,0.5), 0 0 60px rgba(59,130,246,0.2); }
-  .neon-cyan   { box-shadow: 0 0 20px rgba(6,182,212,0.5),  0 0 60px rgba(6,182,212,0.2); }
-  .neon-green  { box-shadow: 0 0 20px rgba(16,185,129,0.5), 0 0 60px rgba(16,185,129,0.2); }
-  .neon-red    { box-shadow: 0 0 20px rgba(239,68,68,0.5),  0 0 60px rgba(239,68,68,0.2); }
-  .neon-gold   { box-shadow: 0 0 20px rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.2); }
-
-  /* Glow Text */
-  .text-glow-purple { text-shadow: 0 0 20px rgba(124,58,237,0.8); color: #a78bfa; }
-  .text-glow-cyan   { text-shadow: 0 0 20px rgba(6,182,212,0.8);  color: #67e8f9; }
-  .text-glow-green  { text-shadow: 0 0 20px rgba(16,185,129,0.8); color: #6ee7b7; }
-  .text-glow-red    { text-shadow: 0 0 20px rgba(239,68,68,0.8);  color: #fca5a5; }
-  .text-glow-gold   { text-shadow: 0 0 20px rgba(245,158,11,0.8); color: #fcd34d; }
-
-  /* Sidebar */
-  .sidebar {
-    position: fixed; right: 0; top: 0; bottom: 0;
-    width: 260px; z-index: 100;
-    background: rgba(8, 6, 25, 0.95);
-    backdrop-filter: blur(30px);
-    border-left: 1px solid rgba(124,58,237,0.2);
-    display: flex; flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 20px; cursor: pointer; border-radius: 10px;
-    margin: 2px 10px; font-size: 14px; font-weight: 600;
-    color: var(--text-muted); transition: all 0.25s ease;
-    border: 1px solid transparent; position: relative; overflow: hidden;
-  }
-  .nav-item::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(124,58,237,0.1), transparent);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .nav-item:hover { color: #a78bfa; border-color: rgba(124,58,237,0.3); }
-  .nav-item:hover::before { opacity: 1; }
-  .nav-item.active {
-    color: #c4b5fd; background: rgba(124,58,237,0.15);
-    border-color: rgba(124,58,237,0.5);
-    box-shadow: 0 0 15px rgba(124,58,237,0.2);
-  }
-  .nav-item.active::before { opacity: 1; }
-
-  /* Main Content */
-  .main-content { margin-right: 260px; min-height: 100vh; }
-
-  /* Stat Cards */
-  .stat-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px; padding: 24px;
-    transition: all 0.3s ease; position: relative; overflow: hidden;
-  }
-  .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0 40px rgba(124,58,237,0.25);
-  }
-  .stat-card .icon-wrap {
-    width: 52px; height: 52px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 12px;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: 10px;
-    font-family: 'Cairo', sans-serif; font-weight: 600; font-size: 14px;
-    cursor: pointer; transition: all 0.25s ease; border: none;
-    text-decoration: none; position: relative; overflow: hidden;
-  }
-  .btn::before {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(255,255,255,0.1);
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .btn:hover::before { opacity: 1; }
-  .btn:active { transform: scale(0.97); }
-
-  .btn-purple {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white;
-  }
-  .btn-purple:hover { box-shadow: 0 0 20px rgba(124,58,237,0.5); }
-  .btn-blue {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-  }
-  .btn-blue:hover { box-shadow: 0 0 20px rgba(59,130,246,0.5); }
-  .btn-green {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-  }
-  .btn-green:hover { box-shadow: 0 0 20px rgba(16,185,129,0.5); }
-  .btn-red {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-  }
-  .btn-red:hover { box-shadow: 0 0 20px rgba(239,68,68,0.5); }
-  .btn-gold {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #1a1a1a;
-  }
-  .btn-gold:hover { box-shadow: 0 0 20px rgba(245,158,11,0.5); }
-  .btn-ghost {
-    background: transparent; color: var(--text-muted);
-    border: 1px solid rgba(124,58,237,0.3);
-  }
-  .btn-ghost:hover { color: #a78bfa; border-color: rgba(124,58,237,0.6); }
-
-  /* Inputs */
-  .input-glass {
-    background: rgba(15,12,41,0.8);
-    border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 10px; color: var(--text-primary);
-    padding: 10px 14px; font-family: 'Cairo', sans-serif; font-size: 14px;
-    transition: all 0.25s ease; outline: none; width: 100%;
-  }
-  .input-glass:focus {
-    border-color: rgba(124,58,237,0.7);
-    box-shadow: 0 0 15px rgba(124,58,237,0.2);
-  }
-  .input-glass::placeholder { color: var(--text-muted); }
-  select.input-glass option { background: #0f0c29; }
-
-  /* Toggle Switch */
-  .toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-  .toggle {
-    width: 48px; height: 26px; border-radius: 13px;
-    background: rgba(100,100,150,0.3);
-    border: 1px solid rgba(124,58,237,0.3);
-    position: relative; transition: all 0.3s ease; cursor: pointer;
-    flex-shrink: 0;
-  }
-  .toggle.on {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    border-color: rgba(124,58,237,0.6);
-    box-shadow: 0 0 10px rgba(124,58,237,0.4);
-  }
-  .toggle::after {
-    content: ''; position: absolute;
-    width: 20px; height: 20px; border-radius: 50%;
-    background: white; top: 2px; right: 2px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-  .toggle.on::after { right: auto; left: 2px; }
-
-  /* Log Entries */
-  .log-entry {
-    padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
-    border-right: 3px solid; font-size: 13px;
-    background: rgba(15,12,41,0.5); animation: slideIn 0.3s ease;
-  }
-  .log-violation { border-color: #ef4444; }
-  .log-moderation { border-color: #3b82f6; }
-  .log-system { border-color: #7c3aed; }
-  .log-join { border-color: #10b981; }
-  .log-leave { border-color: #f59e0b; }
-  .log-level { border-color: #06b6d4; }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  /* Section Panel */
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* Badge */
-  .badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
-  }
-  .badge-purple { background: rgba(124,58,237,0.2); color: #a78bfa; border: 1px solid rgba(124,58,237,0.4); }
-  .badge-green  { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4); }
-  .badge-red    { background: rgba(239,68,68,0.2);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
-  .badge-blue   { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
-  .badge-gold   { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.4); }
-
-  /* Member Row */
-  .member-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px; border-radius: 10px;
-    border: 1px solid transparent; transition: all 0.2s ease;
-    background: rgba(15,12,41,0.4);
-  }
-  .member-row:hover { border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.05); }
-
-  /* Progress Bar */
-  .xp-bar-bg {
-    height: 6px; background: rgba(100,100,150,0.3); border-radius: 3px; overflow: hidden;
-  }
-  .xp-bar-fill {
-    height: 100%; border-radius: 3px;
-    background: linear-gradient(90deg, #7c3aed, #06b6d4);
-    transition: width 0.8s ease;
-  }
-
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-    z-index: 9999; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    pointer-events: none;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: rgba(15,12,41,0.5); }
-  ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.5); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.8); }
-
-  /* Online Pulse */
-  .online-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 0 0 rgba(16,185,129,0.4);
-    animation: online-pulse 2s infinite;
-  }
-  @keyframes online-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-    70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
-    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-  }
-
-  /* Section Header */
-  .section-header {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
-  }
-  .section-header h2 {
-    font-size: 22px; font-weight: 700; color: #e2e8f0;
-  }
-  .section-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(6,182,212,0.3));
-    border: 1px solid rgba(124,58,237,0.4);
-  }
-
-  /* Grid */
-  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-
-  @media (max-width: 1024px) {
-    .sidebar { width: 220px; }
-    .main-content { margin-right: 220px; }
-    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 768px) {
-    .sidebar { width: 100%; position: relative; height: auto; }
-    .main-content { margin-right: 0; }
-    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  }
-
-  /* Neon Line */
-  .neon-line {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(6,182,212,0.6), transparent);
-    margin: 20px 0;
-  }
-
-  /* Ticket card */
-  .ticket-card {
-    background: rgba(15,12,41,0.6);
-    border: 1px solid rgba(124,58,237,0.2);
-    border-radius: 12px; padding: 16px;
-    transition: all 0.2s ease;
-  }
-  .ticket-card:hover { border-color: rgba(124,58,237,0.5); }
-
-  /* Role pill */
-  .role-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-    border: 1px solid; cursor: pointer; transition: all 0.2s;
-  }
-  .role-pill:hover { opacity: 0.8; transform: scale(1.05); }
-
-  /* Embed Preview */
-  .embed-preview {
-    background: rgba(47, 49, 54, 0.9);
-    border-radius: 8px; padding: 16px;
-    border-right: 4px solid #7c3aed;
-  }
-
-  /* Loading spinner */
-  .spinner {
-    width: 20px; height: 20px; border: 2px solid rgba(124,58,237,0.3);
-    border-top-color: #7c3aed; border-radius: 50%;
-    animation: spin 0.8s linear infinite; display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Glow border animation */
-  @keyframes glow-border {
-    0%, 100% { border-color: rgba(124,58,237,0.3); }
-    50%       { border-color: rgba(124,58,237,0.8); }
-  }
-  .glow-border-anim { animation: glow-border 3s ease-in-out infinite; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Dashboard | لوحة التحكم</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Cairo', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0a0015 0%, #0d0028 30%, #05001a 60%, #0a0020 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Animated Background Stars */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(88,101,242,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 70%, rgba(88,101,242,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 40%, rgba(114,137,218,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 80%, rgba(88,101,242,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 90% 10%, rgba(88,101,242,0.2) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Glassmorphism */
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .glass-card {
+      background: rgba(88,101,242,0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(88,101,242,0.18);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(88,101,242,0.1) inset;
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(88,101,242,0.4);
+      box-shadow: 0 12px 40px rgba(88,101,242,0.15), 0 0 0 0.5px rgba(88,101,242,0.2) inset;
+      transform: translateY(-2px);
+    }
+    .glass-dark {
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    /* Glow Effects */
+    .glow-purple { box-shadow: 0 0 20px rgba(88,101,242,0.5), 0 0 40px rgba(88,101,242,0.2); }
+    .glow-green  { box-shadow: 0 0 20px rgba(87,242,135,0.5), 0 0 40px rgba(87,242,135,0.2); }
+    .glow-red    { box-shadow: 0 0 20px rgba(237,66,69,0.5),  0 0 40px rgba(237,66,69,0.2);  }
+    .glow-yellow { box-shadow: 0 0 20px rgba(254,231,92,0.5), 0 0 40px rgba(254,231,92,0.2); }
+    /* Neon Borders */
+    .neon-border-purple { border: 1px solid rgba(88,101,242,0.6); }
+    .neon-border-green  { border: 1px solid rgba(87,242,135,0.6); }
+    .neon-border-red    { border: 1px solid rgba(237,66,69,0.6);  }
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #5865f2, #4752c4);
+      transition: all 0.25s ease;
+    }
+    .btn-primary:hover { background: linear-gradient(135deg, #6b77f5, #5865f2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(88,101,242,0.5); }
+    .btn-danger {
+      background: linear-gradient(135deg, #ed4245, #c03537);
+      transition: all 0.25s ease;
+    }
+    .btn-danger:hover { background: linear-gradient(135deg, #f04040, #ed4245); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(237,66,69,0.5); }
+    .btn-success {
+      background: linear-gradient(135deg, #57f287, #3ba55c);
+      color: #000;
+      transition: all 0.25s ease;
+    }
+    .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(87,242,135,0.4); }
+    .btn-warning {
+      background: linear-gradient(135deg, #fee75c, #f0a500);
+      color: #000;
+      transition: all 0.25s ease;
+    }
+    .btn-warning:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(254,231,92,0.4); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: all 0.25s ease;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+    /* Input Styles */
+    .glass-input {
+      background: rgba(255,255,255,0.06) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      color: #fff !important;
+      transition: border-color 0.2s;
+    }
+    .glass-input:focus {
+      outline: none !important;
+      border-color: rgba(88,101,242,0.6) !important;
+      box-shadow: 0 0 0 3px rgba(88,101,242,0.15) !important;
+    }
+    .glass-input::placeholder { color: rgba(255,255,255,0.3) !important; }
+    .glass-input option { background: #1e1f2e; color: #fff; }
+    /* Status Dot */
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #57f287;
+      box-shadow: 0 0 8px #57f287;
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 8px #57f287; }
+      50%       { box-shadow: 0 0 16px #57f287, 0 0 24px rgba(87,242,135,0.3); }
+    }
+    /* Tabs */
+    .tab-btn { transition: all 0.25s ease; }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #5865f2, #4752c4) !important;
+      color: #fff !important;
+      box-shadow: 0 4px 15px rgba(88,101,242,0.4);
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+    ::-webkit-scrollbar-thumb { background: rgba(88,101,242,0.4); border-radius: 3px; }
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: translateX(120%);
+    }
+    #toast.show { transform: translateX(0); }
+    /* Loader */
+    .loader {
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #5865f2;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Stats Counter */
+    .stat-num { font-variant-numeric: tabular-nums; }
+    /* Particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float-up linear infinite;
+      z-index: 0;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+    /* Guild Card */
+    .guild-select {
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .guild-select:hover, .guild-select.selected {
+      border-color: rgba(88,101,242,0.6) !important;
+      box-shadow: 0 0 20px rgba(88,101,242,0.2);
+    }
+    .guild-select.selected {
+      background: rgba(88,101,242,0.12) !important;
+    }
+    /* Command Badge */
+    .cmd-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    /* Animated Gradient Text */
+    .gradient-text {
+      background: linear-gradient(135deg, #5865f2, #9b59b6, #57f287, #5865f2);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 4s linear infinite;
+    }
+    @keyframes gradient-shift { 0% { background-position: 0%; } 100% { background-position: 300%; } }
+    /* Member Row */
+    .member-row { transition: background 0.2s; }
+    .member-row:hover { background: rgba(255,255,255,0.04); }
+    /* Section */
+    .section { display: none; }
+    .section.active { display: block; }
+  </style>
 </head>
-<body>
+<body class="text-white relative">
 
-<div class="bg-animated"></div>
+  <!-- Floating Particles -->
+  <div id="particles"></div>
 
-<!-- ═══════════════════════════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════════════════════════ -->
-<aside class="sidebar">
-  <!-- Logo -->
-  <div style="padding:24px 20px 16px; border-bottom:1px solid rgba(124,58,237,0.2);">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;" class="neon-purple">
-        <i data-lucide="zap" style="width:22px;height:22px;color:white;"></i>
+  <!-- ═══════════════════════════════════════════════════════
+       HEADER / NAVBAR
+  ════════════════════════════════════════════════════════════ -->
+  <nav class="glass sticky top-0 z-50 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center glow-purple">
+          <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.1 18.102.102 18.123a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        </div>
+        <div>
+          <div class="font-black text-white text-lg gradient-text">Discord Dashboard</div>
+          <div class="text-xs text-white/40">لوحة التحكم الرسمية</div>
+        </div>
       </div>
-      <div>
-        <div style="font-size:16px;font-weight:900;color:#c4b5fd;" class="text-glow-purple">Discord Pro</div>
-        <div style="font-size:11px;color:var(--text-muted);">Dashboard v3.0</div>
+      <!-- Bot Status -->
+      <div class="flex items-center gap-4">
+        <div id="botStatus" class="flex items-center gap-2 glass-dark rounded-full px-4 py-2">
+          <div class="loader w-4 h-4"></div>
+          <span class="text-xs text-white/60">جاري الاتصال...</span>
+        </div>
+        <!-- Add Bot Button -->
+        <a href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
+           target="_blank"
+           class="btn-primary rounded-xl px-4 py-2 text-sm font-bold flex items-center gap-2 no-underline">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          إضافة البوت
+        </a>
       </div>
-    </div>
-    <!-- Bot Status Mini -->
-    <div id="sidebar-status" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;">
-      <div class="online-dot"></div>
-      <span style="font-size:12px;color:#6ee7b7;">جاري التحميل...</span>
-    </div>
-  </div>
-
-  <!-- Navigation -->
-  <nav style="padding:12px 0;flex:1;">
-    <div style="padding:6px 20px 6px;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(148,163,184,0.5);text-transform:uppercase;margin-bottom:4px;">الرئيسية</div>
-    <div class="nav-item active" onclick="showSection('dashboard')">
-      <i data-lucide="layout-dashboard" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>لوحة التحكم</span>
-    </div>
-    <div class="nav-item" onclick="showSection('stats')">
-      <i data-lucide="bar-chart-3" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الإحصائيات</span>
-    </div>
-
-    <div style="padding:10px 20px 6px;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(148,163,184,0.5);text-transform:uppercase;margin-bottom:4px;margin-top:6px;">الأمان</div>
-    <div class="nav-item" onclick="showSection('protection')">
-      <i data-lucide="shield" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الحماية المتقدمة</span>
-    </div>
-    <div class="nav-item" onclick="showSection('logs')">
-      <i data-lucide="scroll-text" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>السجلات المباشرة</span>
-      <span id="logs-badge" style="margin-right:auto;background:rgba(239,68,68,0.3);color:#fca5a5;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;border:1px solid rgba(239,68,68,0.4);">0</span>
-    </div>
-
-    <div style="padding:10px 20px 6px;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(148,163,184,0.5);text-transform:uppercase;margin-bottom:4px;margin-top:6px;">الإدارة</div>
-    <div class="nav-item" onclick="showSection('moderation')">
-      <i data-lucide="gavel" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الإشراف</span>
-    </div>
-    <div class="nav-item" onclick="showSection('roles')">
-      <i data-lucide="crown" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>إدارة الرتب</span>
-    </div>
-    <div class="nav-item" onclick="showSection('members')">
-      <i data-lucide="users" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الأعضاء</span>
-    </div>
-
-    <div style="padding:10px 20px 6px;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(148,163,184,0.5);text-transform:uppercase;margin-bottom:4px;margin-top:6px;">التفاعل</div>
-    <div class="nav-item" onclick="showSection('tickets')">
-      <i data-lucide="ticket" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>التذاكر</span>
-    </div>
-    <div class="nav-item" onclick="showSection('embed')">
-      <i data-lucide="message-square" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>رسائل Embed</span>
-    </div>
-    <div class="nav-item" onclick="showSection('giveaway')">
-      <i data-lucide="gift" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الجيف أواي</span>
-    </div>
-    <div class="nav-item" onclick="showSection('polls')">
-      <i data-lucide="vote" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>التصويت</span>
-    </div>
-    <div class="nav-item" onclick="showSection('leveling')">
-      <i data-lucide="trending-up" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>نظام المستويات</span>
-    </div>
-    <div class="nav-item" onclick="showSection('welcome')">
-      <i data-lucide="heart" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الترحيب والمغادرة</span>
-    </div>
-
-    <div style="padding:10px 20px 6px;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(148,163,184,0.5);text-transform:uppercase;margin-bottom:4px;margin-top:6px;">الإعدادات</div>
-    <div class="nav-item" onclick="showSection('settings')">
-      <i data-lucide="settings" style="width:18px;height:18px;flex-shrink:0;"></i>
-      <span>الإعدادات</span>
     </div>
   </nav>
 
-  <!-- Footer -->
-  <div style="padding:16px 20px;border-top:1px solid rgba(124,58,237,0.2);">
-    <div style="font-size:11px;color:var(--text-muted);text-align:center;">Discord Dashboard Pro © 2025</div>
-  </div>
-</aside>
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════════════ -->
+  <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
 
-<!-- ═══════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════ -->
-<main class="main-content" style="padding:24px;">
-
-  <!-- Top Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1 style="font-size:26px;font-weight:900;" class="text-glow-purple">لوحة تحكم Discord Pro ⚡</h1>
-      <p style="color:var(--text-muted);font-size:14px;margin-top:2px;">إدارة شاملة لسيرفرك بأقصى قدر من الأمان والتحكم</p>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <div id="ping-badge" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;font-size:13px;color:#6ee7b7;">
-        <i data-lucide="wifi" style="width:14px;height:14px;"></i>
-        <span>-- ms</span>
-      </div>
-      <div id="uptime-badge" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;font-size:13px;color:#a78bfa;">
-        <i data-lucide="clock" style="width:14px;height:14px;"></i>
-        <span>00:00:00</span>
-      </div>
-      <button class="btn btn-purple" onclick="refreshAll()">
-        <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
-        تحديث
-      </button>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: DASHBOARD (HOME)
-  ════════════════════════════════════════ -->
-  <div id="section-dashboard" class="section active">
-    <!-- Stat Cards Row -->
-    <div class="grid-4" style="margin-bottom:20px;">
-      <div class="stat-card" style="border-color:rgba(124,58,237,0.4);">
-        <div class="icon-wrap" style="background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);">
-          <i data-lucide="users" style="width:24px;height:24px;color:#a78bfa;"></i>
-        </div>
-        <div style="font-size:32px;font-weight:900;color:#c4b5fd;" id="stat-members">--</div>
-        <div style="font-size:13px;color:var(--text-muted);">عدد الأعضاء</div>
-        <div style="font-size:11px;color:#7c3aed;margin-top:4px;" id="stat-members-sub">جاري التحميل</div>
-      </div>
-      <div class="stat-card" style="border-color:rgba(6,182,212,0.4);">
-        <div class="icon-wrap" style="background:rgba(6,182,212,0.2);border:1px solid rgba(6,182,212,0.4);">
-          <i data-lucide="hash" style="width:24px;height:24px;color:#67e8f9;"></i>
-        </div>
-        <div style="font-size:32px;font-weight:900;color:#67e8f9;" id="stat-channels">--</div>
-        <div style="font-size:13px;color:var(--text-muted);">القنوات</div>
-        <div style="font-size:11px;color:#06b6d4;margin-top:4px;">قنوات نصية وصوتية</div>
-      </div>
-      <div class="stat-card" style="border-color:rgba(245,158,11,0.4);">
-        <div class="icon-wrap" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);">
-          <i data-lucide="crown" style="width:24px;height:24px;color:#fcd34d;"></i>
-        </div>
-        <div style="font-size:32px;font-weight:900;color:#fcd34d;" id="stat-roles">--</div>
-        <div style="font-size:13px;color:var(--text-muted);">الرتب</div>
-        <div style="font-size:11px;color:#f59e0b;margin-top:4px;">رتب السيرفر</div>
-      </div>
-      <div class="stat-card" style="border-color:rgba(16,185,129,0.4);">
-        <div class="icon-wrap" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);">
-          <i data-lucide="server" style="width:24px;height:24px;color:#6ee7b7;"></i>
-        </div>
-        <div style="font-size:32px;font-weight:900;color:#6ee7b7;" id="stat-guilds">--</div>
-        <div style="font-size:13px;color:var(--text-muted);">السيرفرات</div>
-        <div style="font-size:11px;color:#10b981;margin-top:4px;">متصل بها البوت</div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div class="text-center">
+        <div class="loader w-16 h-16 mx-auto mb-4"></div>
+        <div class="text-xl font-bold gradient-text">جاري تحميل البيانات...</div>
+        <div class="text-white/40 text-sm mt-2">يتم الاتصال بالبوت</div>
       </div>
     </div>
 
-    <!-- Second Row: Bot Profile + Quick Stats + Chart -->
-    <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;margin-bottom:20px;">
-      <!-- Bot Profile Card -->
-      <div class="glass-card" style="padding:24px;text-align:center;" id="bot-profile-card">
-        <div style="position:relative;display:inline-block;margin-bottom:16px;">
-          <img id="bot-avatar" src="" alt="Bot" style="width:80px;height:80px;border-radius:50%;border:3px solid rgba(124,58,237,0.6);box-shadow:0 0 25px rgba(124,58,237,0.4);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-          <div class="online-dot" style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;border:2px solid #050714;"></div>
+    <!-- ─── STATS ROW ─────────────────────────────────────────────── -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-white/50 text-sm">السيرفرات</div>
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">🌐</div>
         </div>
-        <div style="font-size:18px;font-weight:700;color:#c4b5fd;" id="bot-tag">Loading...</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;" id="guild-name">—</div>
-        <div class="neon-line"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
-          <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;">
-            <div style="font-size:18px;font-weight:700;color:#6ee7b7;" id="detail-ping">--</div>
-            <div style="font-size:11px;color:var(--text-muted);">البنق</div>
+        <div id="statGuilds" class="text-3xl font-black stat-num text-white">—</div>
+        <div class="text-white/30 text-xs mt-1">سيرفر مُدار</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-white/50 text-sm">الأعضاء</div>
+          <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">👥</div>
+        </div>
+        <div id="statMembers" class="text-3xl font-black stat-num text-white">—</div>
+        <div class="text-white/30 text-xs mt-1">عضو إجمالي</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-white/50 text-sm">البينج</div>
+          <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">⚡</div>
+        </div>
+        <div id="statPing" class="text-3xl font-black stat-num text-white">—</div>
+        <div class="text-white/30 text-xs mt-1">ملي ثانية</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-white/50 text-sm">الأوامر</div>
+          <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">🔧</div>
+        </div>
+        <div id="statCmds" class="text-3xl font-black stat-num text-white">—</div>
+        <div class="text-white/30 text-xs mt-1">أمر متاح</div>
+      </div>
+    </div>
+
+    <!-- ─── LAYOUT: SIDEBAR + CONTENT ────────────────────────────── -->
+    <div class="flex gap-6">
+
+      <!-- SIDEBAR: Guilds List -->
+      <div class="w-72 flex-shrink-0">
+        <div class="glass-card rounded-2xl p-4 mb-4">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-base font-bold">السيرفرات</span>
+            <div id="guildCountBadge" class="text-xs bg-purple-500/30 text-purple-300 rounded-full px-2 py-0.5">0</div>
           </div>
-          <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:10px;">
-            <div style="font-size:18px;font-weight:700;color:#a78bfa;" id="detail-uptime">--</div>
-            <div style="font-size:11px;color:var(--text-muted);">التشغيل</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;padding:10px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;">
-          <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
-            <div class="online-dot"></div>
-            <span style="font-size:13px;color:#6ee7b7;font-weight:600;">متصل ويعمل بشكل مثالي</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart Card -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:16px;font-weight:700;color:#e2e8f0;">📈 إحصائيات الأعضاء (24h)</div>
-          <span class="badge badge-purple">مباشر</span>
-        </div>
-        <canvas id="membersChart" style="max-height:200px;"></canvas>
-      </div>
-    </div>
-
-    <!-- Quick Stats Row -->
-    <div class="grid-4" style="margin-bottom:20px;">
-      <div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i data-lucide="alert-triangle" style="width:20px;height:20px;color:#fca5a5;"></i>
-        </div>
-        <div>
-          <div style="font-size:22px;font-weight:700;color:#fca5a5;" id="qs-warnings">0</div>
-          <div style="font-size:12px;color:var(--text-muted);">إجمالي التحذيرات</div>
-        </div>
-      </div>
-      <div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i data-lucide="shield-x" style="width:20px;height:20px;color:#fca5a5;"></i>
-        </div>
-        <div>
-          <div style="font-size:22px;font-weight:700;color:#fca5a5;" id="qs-violations">0</div>
-          <div style="font-size:12px;color:var(--text-muted);">المخالفات</div>
-        </div>
-      </div>
-      <div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i data-lucide="ticket" style="width:20px;height:20px;color:#a78bfa;"></i>
-        </div>
-        <div>
-          <div style="font-size:22px;font-weight:700;color:#a78bfa;" id="qs-tickets">0</div>
-          <div style="font-size:12px;color:var(--text-muted);">التذاكر المفتوحة</div>
-        </div>
-      </div>
-      <div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:rgba(6,182,212,0.2);border:1px solid rgba(6,182,212,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i data-lucide="trending-up" style="width:20px;height:20px;color:#67e8f9;"></i>
-        </div>
-        <div>
-          <div style="font-size:22px;font-weight:700;color:#67e8f9;" id="qs-levels">0</div>
-          <div style="font-size:12px;color:var(--text-muted);">أعلى مستوى</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Logs Preview -->
-    <div class="glass-card" style="padding:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <i data-lucide="activity" style="width:18px;height:18px;color:#a78bfa;"></i>
-          <span style="font-size:15px;font-weight:700;color:#e2e8f0;">آخر الأحداث</span>
-        </div>
-        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="showSection('logs')">عرض الكل</button>
-      </div>
-      <div id="logs-preview" style="max-height:200px;overflow-y:auto;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: STATS
-  ════════════════════════════════════════ -->
-  <div id="section-stats" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="bar-chart-3" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>الإحصائيات التفصيلية</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">📊 نمو الأعضاء</div>
-        <canvas id="statsChart1" style="max-height:220px;"></canvas>
-      </div>
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">🎯 توزيع المخالفات</div>
-        <canvas id="statsChart2" style="max-height:220px;"></canvas>
-      </div>
-    </div>
-
-    <div class="glass-card" style="padding:24px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">⚡ إحصائيات لحظية</div>
-      <div class="grid-4">
-        <div style="text-align:center;padding:16px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:12px;">
-          <div style="font-size:28px;font-weight:900;color:#a78bfa;" id="live-ping2">--</div>
-          <div style="font-size:12px;color:var(--text-muted);">البنق (ms)</div>
-        </div>
-        <div style="text-align:center;padding:16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;">
-          <div style="font-size:28px;font-weight:900;color:#6ee7b7;" id="live-members2">--</div>
-          <div style="font-size:12px;color:var(--text-muted);">عدد الأعضاء</div>
-        </div>
-        <div style="text-align:center;padding:16px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:12px;">
-          <div style="font-size:28px;font-weight:900;color:#67e8f9;" id="live-uptime2">--</div>
-          <div style="font-size:12px;color:var(--text-muted);">وقت التشغيل</div>
-        </div>
-        <div style="text-align:center;padding:16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;">
-          <div style="font-size:28px;font-weight:900;color:#fcd34d;" id="live-guilds2">--</div>
-          <div style="font-size:12px;color:var(--text-muted);">السيرفرات</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: PROTECTION
-  ════════════════════════════════════════ -->
-  <div id="section-protection" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="shield" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>نظام الحماية المتقدم</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <!-- Protection Toggles -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:18px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="toggle-right" style="width:18px;height:18px;color:#a78bfa;"></i>
-          تفعيل/تعطيل أنظمة الحماية
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px;" id="protection-toggles">
-          <!-- Toggles injected by JS -->
-        </div>
-        <div class="neon-line"></div>
-        <button class="btn btn-purple" style="width:100%;" onclick="saveProtectionSettings()">
-          <i data-lucide="save" style="width:15px;height:15px;"></i>
-          حفظ إعدادات الحماية
-        </button>
-      </div>
-
-      <!-- Bad Words Editor -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="brain" style="width:18px;height:18px;color:#a78bfa;"></i>
-          فلتر الكلمات المحظورة (AI)
-        </div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">يتضمن الفلتر أنماطاً ذكية تكتشف المحاولات المبهمة والهجاء المتغير</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px;">
-          <input class="input-glass" id="bad-word-input" placeholder="أضف كلمة محظورة..." style="flex:1;"/>
-          <button class="btn btn-red" onclick="addBadWord()">
-            <i data-lucide="plus" style="width:15px;height:15px;"></i>
-          </button>
-        </div>
-        <div id="bad-words-list" style="display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow-y:auto;"></div>
-        <div class="neon-line"></div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:10px;color:#e2e8f0;">روابط مسموحة:</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <input class="input-glass" id="allowed-link-input" placeholder="domain.com" style="flex:1;"/>
-          <button class="btn btn-green" onclick="addAllowedLink()">
-            <i data-lucide="plus" style="width:15px;height:15px;"></i>
-          </button>
-        </div>
-        <div id="allowed-links-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-      </div>
-    </div>
-
-    <!-- AI Filter Info -->
-    <div class="glass-card" style="padding:20px;border-color:rgba(124,58,237,0.4);" class="glow-border-anim">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-        <div style="width:40px;height:40px;background:linear-gradient(135deg,#7c3aed,#06b6d4);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-          <i data-lucide="brain-circuit" style="width:20px;height:20px;color:white;"></i>
-        </div>
-        <div>
-          <div style="font-size:15px;font-weight:700;color:#c4b5fd;">فلتر الذكاء الاصطناعي للمحتوى</div>
-          <div style="font-size:12px;color:var(--text-muted);">يكتشف المخالفات بذكاء حتى مع التحايل بالتهجئة المتغيرة</div>
-        </div>
-        <span class="badge badge-green" style="margin-right:auto;">نشط</span>
-      </div>
-      <div class="grid-4">
-        <div style="text-align:center;padding:12px;background:rgba(239,68,68,0.1);border-radius:8px;border:1px solid rgba(239,68,68,0.3);">
-          <div style="font-size:22px;font-weight:700;color:#fca5a5;">8+</div>
-          <div style="font-size:11px;color:var(--text-muted);">أنماط كلمات</div>
-        </div>
-        <div style="text-align:center;padding:12px;background:rgba(124,58,237,0.1);border-radius:8px;border:1px solid rgba(124,58,237,0.3);">
-          <div style="font-size:22px;font-weight:700;color:#a78bfa;">∞</div>
-          <div style="font-size:11px;color:var(--text-muted);">فحص فوري</div>
-        </div>
-        <div style="text-align:center;padding:12px;background:rgba(16,185,129,0.1);border-radius:8px;border:1px solid rgba(16,185,129,0.3);">
-          <div style="font-size:22px;font-weight:700;color:#6ee7b7;">5+</div>
-          <div style="font-size:11px;color:var(--text-muted);">طبقات حماية</div>
-        </div>
-        <div style="text-align:center;padding:12px;background:rgba(6,182,212,0.1);border-radius:8px;border:1px solid rgba(6,182,212,0.3);">
-          <div style="font-size:22px;font-weight:700;color:#67e8f9;">100%</div>
-          <div style="font-size:11px;color:var(--text-muted);">دقة الاكتشاف</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: LIVE LOGS
-  ════════════════════════════════════════ -->
-  <div id="section-logs" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="scroll-text" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>السجلات المباشرة</h2>
-      <span class="badge badge-red" style="margin-right:auto;" id="logs-count-badge">0 حدث</span>
-    </div>
-
-    <div class="glass-card" style="padding:20px;margin-bottom:16px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="filterLogs('all')">الكل</button>
-        <button class="btn btn-red" style="padding:6px 12px;font-size:12px;" onclick="filterLogs('violation')">المخالفات</button>
-        <button class="btn btn-blue" style="padding:6px 12px;font-size:12px;" onclick="filterLogs('moderation')">الإشراف</button>
-        <button class="btn btn-purple" style="padding:6px 12px;font-size:12px;" onclick="filterLogs('system')">النظام</button>
-        <button class="btn btn-green" style="padding:6px 12px;font-size:12px;" onclick="filterLogs('join')">الانضمام</button>
-        <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.4);" onclick="filterLogs('leave')">المغادرة</button>
-        <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(6,182,212,0.2);color:#67e8f9;border:1px solid rgba(6,182,212,0.4);" onclick="filterLogs('level')">المستويات</button>
-        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;margin-right:auto;" onclick="clearLogs()">
-          <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
-          مسح
-        </button>
-      </div>
-    </div>
-
-    <div class="glass-card" style="padding:20px;">
-      <div id="all-logs" style="max-height:600px;overflow-y:auto;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: MODERATION
-  ════════════════════════════════════════ -->
-  <div id="section-moderation" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="gavel" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>لوحة الإشراف والإدارة</h2>
-    </div>
-
-    <!-- Member Selector -->
-    <div class="glass-card" style="padding:20px;margin-bottom:16px;">
-      <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:#e2e8f0;">
-        <i data-lucide="user-search" style="width:15px;height:15px;display:inline;"></i> اختر عضو للإجراء
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <select class="input-glass" id="mod-member-select" style="flex:1;min-width:200px;">
-          <option value="">-- اختر عضو --</option>
-        </select>
-        <input class="input-glass" id="mod-reason" placeholder="السبب (اختياري)" style="flex:1;min-width:200px;"/>
-      </div>
-    </div>
-
-    <!-- Action Buttons Grid -->
-    <div class="grid-3" style="margin-bottom:20px;">
-      <!-- Kick -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(245,158,11,0.4);">
-            <i data-lucide="user-x" style="width:18px;height:18px;color:#fcd34d;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#fcd34d;">طرد عضو</span>
-        </div>
-        <button class="btn btn-gold" style="width:100%;" onclick="modAction('kick')">
-          <i data-lucide="user-x" style="width:15px;height:15px;"></i>
-          طرد
-        </button>
-      </div>
-
-      <!-- Ban -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(239,68,68,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(239,68,68,0.4);">
-            <i data-lucide="ban" style="width:18px;height:18px;color:#fca5a5;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#fca5a5;">حظر عضو</span>
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:10px;">
-          <input class="input-glass" id="ban-days" placeholder="أيام الحذف" type="number" min="0" max="7" style="width:100%;"/>
-        </div>
-        <button class="btn btn-red" style="width:100%;" onclick="modAction('ban')">
-          <i data-lucide="ban" style="width:15px;height:15px;"></i>
-          حظر
-        </button>
-      </div>
-
-      <!-- Mute -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(59,130,246,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(59,130,246,0.4);">
-            <i data-lucide="mic-off" style="width:18px;height:18px;color:#93c5fd;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#93c5fd;">كتم عضو</span>
-        </div>
-        <input class="input-glass" id="mute-duration" placeholder="المدة (دقائق)" type="number" style="margin-bottom:10px;"/>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-blue" style="flex:1;" onclick="modAction('mute')">
-            <i data-lucide="mic-off" style="width:15px;height:15px;"></i>
-            كتم
-          </button>
-          <button class="btn btn-green" style="flex:1;" onclick="modAction('unmute')">
-            <i data-lucide="mic" style="width:15px;height:15px;"></i>
-            فك كتم
-          </button>
-        </div>
-      </div>
-
-      <!-- Warn -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(245,158,11,0.4);">
-            <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#fcd34d;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#fcd34d;">تحذير</span>
-        </div>
-        <button class="btn btn-gold" style="width:100%;margin-bottom:8px;" onclick="modAction('warn')">
-          <i data-lucide="alert-triangle" style="width:15px;height:15px;"></i>
-          إرسال تحذير
-        </button>
-        <button class="btn btn-ghost" style="width:100%;font-size:12px;" onclick="viewWarnings()">
-          <i data-lucide="eye" style="width:13px;height:13px;"></i>
-          عرض التحذيرات
-        </button>
-      </div>
-
-      <!-- Purge -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(239,68,68,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(239,68,68,0.4);">
-            <i data-lucide="trash-2" style="width:18px;height:18px;color:#fca5a5;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#fca5a5;">مسح الرسائل</span>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <select class="input-glass" id="purge-channel" style="flex:1;"></select>
-          <input class="input-glass" id="purge-amount" placeholder="عدد" type="number" min="1" max="100" style="width:80px;"/>
-        </div>
-        <button class="btn btn-red" style="width:100%;" onclick="purgeMessages()">
-          <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
-          مسح الرسائل
-        </button>
-      </div>
-
-      <!-- Nickname -->
-      <div class="glass-card" style="padding:20px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:36px;height:36px;background:rgba(124,58,237,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(124,58,237,0.4);">
-            <i data-lucide="pencil" style="width:18px;height:18px;color:#a78bfa;"></i>
-          </div>
-          <span style="font-size:15px;font-weight:700;color:#a78bfa;">تغيير الاسم</span>
-        </div>
-        <input class="input-glass" id="nickname-input" placeholder="الاسم الجديد (فارغ = إزالة)" style="margin-bottom:10px;"/>
-        <button class="btn btn-purple" style="width:100%;" onclick="changeNickname()">
-          <i data-lucide="pencil" style="width:15px;height:15px;"></i>
-          تطبيق
-        </button>
-      </div>
-    </div>
-
-    <!-- Channel Controls -->
-    <div class="glass-card" style="padding:20px;margin-bottom:16px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-        <i data-lucide="hash" style="width:16px;height:16px;color:#a78bfa;"></i>
-        التحكم في القنوات
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-        <div style="flex:1;min-width:180px;">
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">اختر قناة</label>
-          <select class="input-glass" id="channel-control-select"></select>
-        </div>
-        <div style="flex:1;min-width:150px;">
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Slowmode (ثانية)</label>
-          <input class="input-glass" id="slowmode-input" type="number" min="0" max="21600" placeholder="0"/>
-        </div>
-        <button class="btn btn-red" onclick="lockChannel(true)">
-          <i data-lucide="lock" style="width:15px;height:15px;"></i>
-          قفل
-        </button>
-        <button class="btn btn-green" onclick="lockChannel(false)">
-          <i data-lucide="unlock" style="width:15px;height:15px;"></i>
-          فتح
-        </button>
-        <button class="btn btn-blue" onclick="setSlowmode()">
-          <i data-lucide="timer" style="width:15px;height:15px;"></i>
-          Slowmode
-        </button>
-      </div>
-    </div>
-
-    <!-- Warnings Display -->
-    <div class="glass-card" style="padding:20px;" id="warnings-panel" style="display:none;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:#e2e8f0;">
-        <i data-lucide="alert-triangle" style="width:15px;height:15px;display:inline;color:#fcd34d;"></i>
-        تحذيرات العضو
-      </div>
-      <div id="warnings-list"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: ROLES
-  ════════════════════════════════════════ -->
-  <div id="section-roles" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="crown" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>إدارة الرتب</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <!-- Create Role -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="plus-circle" style="width:16px;height:16px;color:#a78bfa;"></i>
-          صانع الرتب المتطور
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input class="input-glass" id="role-name" placeholder="اسم الرتبة"/>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <div style="flex:1;">
-              <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">لون الرتبة</label>
-              <input type="color" id="role-color" value="#7c3aed" style="width:100%;height:40px;border-radius:8px;border:1px solid rgba(124,58,237,0.4);background:rgba(15,12,41,0.8);cursor:pointer;"/>
+          <div id="guildList" class="space-y-2">
+            <div class="text-center text-white/30 py-8">
+              <div class="loader w-8 h-8 mx-auto mb-2"></div>
+              <div class="text-sm">جاري التحميل...</div>
             </div>
-            <div style="flex:1;">
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">خيارات</div>
-              <div style="display:flex;gap:10px;">
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
-                  <input type="checkbox" id="role-hoist" style="accent-color:#7c3aed;"/>
-                  إظهار منفصلاً
-                </label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
-                  <input type="checkbox" id="role-mention" style="accent-color:#7c3aed;"/>
-                  قابلة للمنشن
-                </label>
+          </div>
+        </div>
+        <!-- Bot Info Card -->
+        <div class="glass-card rounded-2xl p-4">
+          <div class="text-sm font-bold mb-3 text-white/70">معلومات البوت</div>
+          <div class="flex items-center gap-3 mb-4">
+            <img id="botAvatar" src="" alt="Bot" class="w-12 h-12 rounded-full ring-2 ring-purple-500/50" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+            <div>
+              <div id="botTag" class="font-bold text-sm">—</div>
+              <div class="text-white/40 text-xs" id="botId">—</div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-white/50">الحالة</span>
+              <span class="flex items-center gap-1.5"><div class="status-dot"></div> <span class="text-green-400">Online</span></span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-white/50">Uptime</span>
+              <span id="botUptime" class="text-white/80 font-mono">—</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-white/50">Anti-Spam</span>
+              <span id="antispamStatus" class="text-red-400">معطل</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN PANEL -->
+      <div class="flex-1 min-w-0">
+
+        <!-- Guild Header (shown when guild selected) -->
+        <div id="guildHeader" class="hidden glass-card rounded-2xl p-5 mb-5">
+          <div class="flex items-center gap-4">
+            <img id="selectedGuildIcon" src="" alt="" class="w-16 h-16 rounded-2xl ring-2 ring-purple-500/40" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+            <div class="flex-1">
+              <div id="selectedGuildName" class="text-xl font-black">—</div>
+              <div class="flex items-center gap-4 mt-1 text-sm text-white/50">
+                <span>👥 <span id="selectedGuildMembers">—</span> عضو</span>
+                <span>💬 <span id="selectedGuildChannels">—</span> قناة</span>
+                <span>🎭 <span id="selectedGuildRoles">—</span> رتبة</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a id="addBotBtn" href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold flex items-center gap-2 no-underline">
+                ➕ إضافة البوت
+              </a>
+            </div>
+          </div>
+          <!-- TABS -->
+          <div class="flex gap-2 mt-5 flex-wrap">
+            <button onclick="switchTab('moderation')" class="tab-btn active rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="moderation">🛡️ الإشراف</button>
+            <button onclick="switchTab('roles')"      class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="roles">🎭 الرتب</button>
+            <button onclick="switchTab('channels')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="channels">💬 القنوات</button>
+            <button onclick="switchTab('tickets')"    class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="tickets">🎫 التذاكر</button>
+            <button onclick="switchTab('protection')" class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="protection">🔒 الحماية</button>
+            <button onclick="switchTab('members')"    class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="members">👥 الأعضاء</button>
+            <button onclick="switchTab('announce')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="announce">📢 الإعلانات</button>
+            <button onclick="switchTab('settings')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="settings">⚙️ الإعدادات</button>
+          </div>
+        </div>
+
+        <!-- No Guild Selected -->
+        <div id="noGuildMsg" class="glass-card rounded-2xl p-12 text-center">
+          <div class="text-6xl mb-4">🤖</div>
+          <div class="text-2xl font-black gradient-text mb-2">مرحباً بك في Discord Dashboard</div>
+          <div class="text-white/50 mb-6">اختر سيرفراً من القائمة لبدء إدارة البوت</div>
+          <a href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
+             target="_blank"
+             class="btn-primary rounded-xl px-6 py-3 font-bold inline-flex items-center gap-2 no-underline">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            إضافة البوت للسيرفر
+          </a>
+        </div>
+
+        <!-- ════════════════════ TAB: MODERATION ════════════════════ -->
+        <div id="tab-moderation" class="section active space-y-4">
+
+          <!-- BAN + KICK Row -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <!-- BAN -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🔨</span>
+                <span class="font-bold">حظر عضو</span>
+                <span class="cmd-badge bg-red-500/20 text-red-400">/ban</span>
+              </div>
+              <input id="banUserId" placeholder="معرف العضو (User ID)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <input id="banReason" placeholder="سبب الحظر" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('ban', {userId: v('banUserId'), reason: v('banReason')})" class="btn-danger w-full rounded-xl py-2.5 font-bold text-sm">🔨 تنفيذ الحظر</button>
+            </div>
+            <!-- KICK -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">👢</span>
+                <span class="font-bold">طرد عضو</span>
+                <span class="cmd-badge bg-orange-500/20 text-orange-400">/kick</span>
+              </div>
+              <input id="kickUserId" placeholder="معرف العضو (User ID)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <input id="kickReason" placeholder="سبب الطرد" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('kick', {userId: v('kickUserId'), reason: v('kickReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">👢 تنفيذ الطرد</button>
+            </div>
+          </div>
+
+          <!-- MUTE + UNMUTE Row -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <!-- MUTE -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🔇</span>
+                <span class="font-bold">كتم عضو</span>
+                <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/mute</span>
+              </div>
+              <input id="muteUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <input id="muteMins" type="number" placeholder="المدة (دقائق)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" value="10" min="1" />
+              <input id="muteReason" placeholder="سبب الكتم" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('mute', {userId: v('muteUserId'), minutes: parseInt(v('muteMins')||10), reason: v('muteReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">🔇 تنفيذ الكتم</button>
+            </div>
+            <!-- UNMUTE -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🔊</span>
+                <span class="font-bold">رفع الكتم</span>
+                <span class="cmd-badge bg-green-500/20 text-green-400">/unmute</span>
+              </div>
+              <input id="unmuteUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('unmute', {userId: v('unmuteUserId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm mt-14">🔊 رفع الكتم</button>
+            </div>
+          </div>
+
+          <!-- WARN + UNBAN Row -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <!-- WARN -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">⚠️</span>
+                <span class="font-bold">إنذار عضو</span>
+                <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/warn</span>
+              </div>
+              <input id="warnUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <input id="warnReason" placeholder="سبب الإنذار" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('warn', {userId: v('warnUserId'), reason: v('warnReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">⚠️ إرسال إنذار</button>
+            </div>
+            <!-- UNBAN -->
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">✅</span>
+                <span class="font-bold">رفع حظر</span>
+                <span class="cmd-badge bg-green-500/20 text-green-400">/unban</span>
+              </div>
+              <input id="unbanUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
+              <button onclick="doAction('unban', {userId: v('unbanUserId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm mt-14">✅ رفع الحظر</button>
+            </div>
+          </div>
+
+          <!-- PURGE -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🗑️</span>
+              <span class="font-bold">مسح الرسائل</span>
+              <span class="cmd-badge bg-purple-500/20 text-purple-400">/purge</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-3">
+              <select id="purgeChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
+              <input id="purgeAmount" type="number" placeholder="عدد الرسائل" class="glass-input rounded-xl px-4 py-2.5 text-sm" value="10" min="1" max="100" />
+              <button onclick="doAction('purge', {channelId: v('purgeChannelId'), amount: parseInt(v('purgeAmount')||10)})" class="btn-danger rounded-xl py-2.5 font-bold text-sm">🗑️ مسح الرسائل</button>
+            </div>
+          </div>
+
+        </div>
+        <!-- ─────────────────────────────────────────────────────── -->
+
+        <!-- ════════════════════ TAB: ROLES ════════════════════════ -->
+        <div id="tab-roles" class="section space-y-4">
+
+          <!-- Create Role -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">✨</span>
+              <span class="font-bold">إنشاء رتبة جديدة</span>
+              <span class="cmd-badge bg-purple-500/20 text-purple-400">/createrole</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-3 mb-3">
+              <input id="newRoleName" placeholder="اسم الرتبة" class="glass-input rounded-xl px-4 py-2.5 text-sm" />
+              <div class="flex items-center gap-2">
+                <input id="newRoleColor" type="color" value="#5865f2" class="w-12 h-10 rounded-lg cursor-pointer border-0 bg-transparent" />
+                <input id="newRoleColorHex" placeholder="#5865f2" class="glass-input flex-1 rounded-xl px-4 py-2.5 text-sm" value="#5865f2" />
+              </div>
+              <label class="flex items-center gap-2 text-sm text-white/70 cursor-pointer">
+                <input id="newRoleHoist" type="checkbox" class="w-4 h-4 rounded accent-purple-500" />
+                عرض منفصل عن الأعضاء
+              </label>
+            </div>
+            <button onclick="createRole()" class="btn-primary rounded-xl px-6 py-2.5 font-bold text-sm">✨ إنشاء الرتبة</button>
+          </div>
+
+          <!-- Roles List -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🎭</span>
+                <span class="font-bold">الرتب الحالية</span>
+              </div>
+              <button onclick="loadGuildData()" class="btn-ghost rounded-xl px-3 py-1.5 text-sm">🔄 تحديث</button>
+            </div>
+            <div id="rolesList" class="space-y-2 max-h-80 overflow-y-auto">
+              <div class="text-center text-white/30 py-4 text-sm">اختر سيرفراً أولاً</div>
+            </div>
+          </div>
+
+          <!-- Give / Remove Role -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🎁</span>
+                <span class="font-bold">إعطاء رتبة</span>
+                <span class="cmd-badge bg-green-500/20 text-green-400">/giverole</span>
+              </div>
+              <input id="giveRoleUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <select id="giveRoleId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
+              <button onclick="doAction('giverole', {userId: v('giveRoleUserId'), roleId: v('giveRoleId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm">🎁 إعطاء الرتبة</button>
+            </div>
+            <div class="glass-card rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">❌</span>
+                <span class="font-bold">إزالة رتبة</span>
+                <span class="cmd-badge bg-red-500/20 text-red-400">/removerole</span>
+              </div>
+              <input id="removeRoleUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
+              <select id="removeRoleId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
+              <button onclick="doAction('removerole', {userId: v('removeRoleUserId'), roleId: v('removeRoleId')})" class="btn-danger w-full rounded-xl py-2.5 font-bold text-sm">❌ إزالة الرتبة</button>
+            </div>
+          </div>
+
+        </div>
+        <!-- ─────────────────────────────────────────────────────── -->
+
+        <!-- ════════════════════ TAB: CHANNELS ═════════════════════ -->
+        <div id="tab-channels" class="section space-y-4">
+
+          <!-- LOCK / UNLOCK -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🔒</span>
+              <span class="font-bold">قفل / فتح القناة</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-3">
+              <select id="lockChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm md:col-span-1"></select>
+              <button onclick="doAction('lock', {channelId: v('lockChannelId')})" class="btn-danger rounded-xl py-2.5 font-bold text-sm">🔒 قفل القناة</button>
+              <button onclick="doAction('unlock', {channelId: v('lockChannelId')})" class="btn-success rounded-xl py-2.5 font-bold text-sm">🔓 فتح القناة</button>
+            </div>
+          </div>
+
+          <!-- SLOWMODE -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🐌</span>
+              <span class="font-bold">Slow Mode</span>
+              <span class="cmd-badge bg-blue-500/20 text-blue-400">/slowmode</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-3">
+              <select id="slowmodeChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
+              <input id="slowmodeSecs" type="number" placeholder="الثواني (0 للإلغاء)" class="glass-input rounded-xl px-4 py-2.5 text-sm" value="5" min="0" max="21600" />
+              <button onclick="doAction('slowmode', {channelId: v('slowmodeChannelId'), seconds: parseInt(v('slowmodeSecs')||0)})" class="btn-primary rounded-xl py-2.5 font-bold text-sm">🐌 تفعيل</button>
+            </div>
+          </div>
+
+          <!-- Channels List -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="font-bold mb-3">💬 قنوات السيرفر</div>
+            <div id="channelsList" class="space-y-2 max-h-96 overflow-y-auto">
+              <div class="text-center text-white/30 py-4 text-sm">اختر سيرفراً أولاً</div>
+            </div>
+          </div>
+
+        </div>
+        <!-- ─────────────────────────────────────────────────────── -->
+
+        <!-- ════════════════════ TAB: TICKETS ══════════════════════ -->
+        <div id="tab-tickets" class="section space-y-4">
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-3xl">🎫</span>
+              <div>
+                <div class="font-bold text-lg">نظام التذاكر</div>
+                <div class="text-white/50 text-sm">أنشئ نظام تذاكر دعم في أي قناة</div>
+              </div>
+            </div>
+            <div class="glass-dark rounded-xl p-4 mb-4 mt-4">
+              <div class="text-sm text-white/60 mb-2">⚡ آلية العمل:</div>
+              <ul class="text-sm text-white/50 space-y-1 list-none">
+                <li>• يتم إرسال رسالة بزر "فتح تذكرة" في القناة المختارة</li>
+                <li>• عند الضغط على الزر، يُنشئ البوت قناة خاصة للمستخدم</li>
+                <li>• لا يمكن للأعضاء الآخرين رؤية القناة</li>
+              </ul>
+            </div>
+            <div class="grid md:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label class="text-xs text-white/50 mb-1 block">اختر القناة</label>
+                <select id="ticketChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm"></select>
+              </div>
+            </div>
+            <button onclick="doAction('ticket', {channelId: v('ticketChannelId')})" class="btn-primary rounded-xl px-6 py-3 font-bold">🎫 إعداد نظام التذاكر</button>
+          </div>
+        </div>
+        <!-- ─────────────────────────────────────────────────────── -->
+
+        <!-- ════════════════════ TAB: PROTECTION ═══════════════════ -->
+        <div id="tab-protection" class="section space-y-4">
+
+          <!-- Anti-Spam -->
+          <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">🛡️</span>
+                <div>
+                  <div class="font-bold">الحماية من السبام</div>
+                  <div class="text-white/50 text-sm">كتم تلقائي عند إرسال 5 رسائل في 5 ثواني</div>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="antispamToggle" class="sr-only peer" onchange="toggleAntispam(this.checked)" />
+                <div class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-7 rtl:peer-checked:after:-translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Protection Grid -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
+              <span class="text-2xl">🔗</span>
+              <div>
+                <div class="font-bold mb-1">حماية من الروابط</div>
+                <div class="text-white/40 text-sm">حذف الروابط المشبوهة تلقائياً من القنوات المحمية</div>
+                <div class="mt-2">
+                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
+              <span class="text-2xl">🤖</span>
+              <div>
+                <div class="font-bold mb-1">حماية من البوتات</div>
+                <div class="text-white/40 text-sm">منع البوتات من الانضمام للسيرفر دون إذن</div>
+                <div class="mt-2">
+                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
+              <span class="text-2xl">💬</span>
+              <div>
+                <div class="font-bold mb-1">فلترة الكلمات المسيئة</div>
+                <div class="text-white/40 text-sm">حذف الرسائل التي تحتوي على كلمات محظورة</div>
+                <div class="mt-2">
+                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
+              <span class="text-2xl">🔨</span>
+              <div>
+                <div class="font-bold mb-1">نظام الإنذارات التلقائية</div>
+                <div class="text-white/40 text-sm">حظر تلقائي عند الوصول لعدد معين من الإنذارات</div>
+                <div class="mt-2">
+                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
+                </div>
               </div>
             </div>
           </div>
-          <button class="btn btn-purple" onclick="createRole()">
-            <i data-lucide="plus" style="width:15px;height:15px;"></i>
-            إنشاء الرتبة
-          </button>
+
         </div>
-      </div>
+        <!-- ─────────────────────────────────────────────────────── -->
 
-      <!-- Manage Roles -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="settings" style="width:16px;height:16px;color:#a78bfa;"></i>
-          توزيع وإدارة الرتب
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <select class="input-glass" id="assign-member-select">
-            <option value="">-- اختر عضو --</option>
-          </select>
-          <select class="input-glass" id="assign-role-select">
-            <option value="">-- اختر رتبة --</option>
-          </select>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-green" style="flex:1;" onclick="assignRole(false)">
-              <i data-lucide="plus" style="width:15px;height:15px;"></i>
-              إضافة
-            </button>
-            <button class="btn btn-red" style="flex:1;" onclick="assignRole(true)">
-              <i data-lucide="minus" style="width:15px;height:15px;"></i>
-              إزالة
-            </button>
-          </div>
-          <div class="neon-line"></div>
-          <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px;">توزيع جماعي للرتبة:</div>
-          <select class="input-glass" id="bulk-role-select">
-            <option value="">-- اختر رتبة --</option>
-          </select>
-          <button class="btn btn-gold" onclick="bulkAssign()">
-            <i data-lucide="users" style="width:15px;height:15px;"></i>
-            توزيع على جميع الأعضاء
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auto & Protection Roles -->
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="glass-card" style="padding:20px;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="user-check" style="width:15px;height:15px;color:#6ee7b7;"></i>
-          الرتبة التلقائية (Auto Role)
-        </div>
-        <select class="input-glass" id="auto-role-select" style="margin-bottom:10px;">
-          <option value="">-- بدون رتبة تلقائية --</option>
-        </select>
-        <button class="btn btn-green" style="width:100%;" onclick="setAutoRole()">
-          <i data-lucide="save" style="width:15px;height:15px;"></i>
-          حفظ الرتبة التلقائية
-        </button>
-      </div>
-      <div class="glass-card" style="padding:20px;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="shield-check" style="width:15px;height:15px;color:#a78bfa;"></i>
-          رتبة الحماية (Protection Role)
-        </div>
-        <select class="input-glass" id="protection-role-select" style="margin-bottom:10px;">
-          <option value="">-- بدون رتبة حماية --</option>
-        </select>
-        <button class="btn btn-purple" style="width:100%;" onclick="setProtectionRole()">
-          <i data-lucide="save" style="width:15px;height:15px;"></i>
-          حفظ رتبة الحماية
-        </button>
-      </div>
-    </div>
-
-    <!-- Roles List -->
-    <div class="glass-card" style="padding:20px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#e2e8f0;">قائمة الرتب الحالية</div>
-      <div id="roles-list" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: MEMBERS
-  ════════════════════════════════════════ -->
-  <div id="section-members" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="users" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>قائمة الأعضاء</h2>
-    </div>
-
-    <div class="glass-card" style="padding:16px;margin-bottom:16px;">
-      <div style="display:flex;gap:10px;">
-        <input class="input-glass" id="member-search" placeholder="🔍 ابحث عن عضو..." oninput="filterMembers()" style="flex:1;"/>
-        <select class="input-glass" id="member-filter" onchange="filterMembers()" style="width:160px;">
-          <option value="all">الكل</option>
-          <option value="human">البشر فقط</option>
-          <option value="bot">البوتات فقط</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="glass-card" style="padding:20px;">
-      <div id="members-list" style="display:flex;flex-direction:column;gap:8px;max-height:600px;overflow-y:auto;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: TICKETS
-  ════════════════════════════════════════ -->
-  <div id="section-tickets" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="ticket" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>نظام التذاكر</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <!-- Create Ticket -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="plus-circle" style="width:16px;height:16px;color:#a78bfa;"></i>
-          إنشاء تذكرة جديدة
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <select class="input-glass" id="ticket-member-select">
-            <option value="">-- اختر عضو --</option>
-          </select>
-          <input class="input-glass" id="ticket-topic" placeholder="موضوع التذكرة"/>
-          <button class="btn btn-purple" onclick="createTicket()">
-            <i data-lucide="ticket" style="width:15px;height:15px;"></i>
-            إنشاء التذكرة
-          </button>
-        </div>
-      </div>
-
-      <!-- Ticket Stats -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">إحصائيات التذاكر</div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(124,58,237,0.1);border-radius:8px;">
-            <span style="font-size:13px;color:var(--text-muted);">تذاكر مفتوحة</span>
-            <span style="font-size:18px;font-weight:700;color:#a78bfa;" id="open-tickets-count">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(16,185,129,0.1);border-radius:8px;">
-            <span style="font-size:13px;color:var(--text-muted);">تذاكر مغلقة اليوم</span>
-            <span style="font-size:18px;font-weight:700;color:#6ee7b7;">--</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(6,182,212,0.1);border-radius:8px;">
-            <span style="font-size:13px;color:var(--text-muted);">متوسط وقت الحل</span>
-            <span style="font-size:18px;font-weight:700;color:#67e8f9;">--</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tickets List -->
-    <div class="glass-card" style="padding:20px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#e2e8f0;">التذاكر المفتوحة</div>
-      <div id="tickets-list" style="display:flex;flex-direction:column;gap:10px;"></div>
-    </div>
-
-    <!-- Ticket Transcript Modal Area -->
-    <div id="ticket-transcript" class="glass-card" style="padding:20px;margin-top:16px;display:none;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#e2e8f0;" id="transcript-title">محادثة التذكرة</div>
-      <div id="transcript-content" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: EMBED
-  ════════════════════════════════════════ -->
-  <div id="section-embed" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="message-square" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>منشئ رسائل Embed</h2>
-    </div>
-
-    <div class="grid-2">
-      <!-- Builder -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">إعدادات الـ Embed</div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">القناة</label>
-            <select class="input-glass" id="embed-channel"></select>
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">العنوان</label>
-            <input class="input-glass" id="embed-title" placeholder="عنوان الرسالة" oninput="updateEmbedPreview()"/>
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">المحتوى</label>
-            <textarea class="input-glass" id="embed-desc" rows="4" placeholder="محتوى الرسالة..." oninput="updateEmbedPreview()" style="resize:vertical;"></textarea>
-          </div>
-          <div style="display:flex;gap:10px;">
-            <div style="flex:1;">
-              <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">اللون</label>
-              <input type="color" id="embed-color" value="#7c3aed" oninput="updateEmbedPreview()" style="width:100%;height:40px;border-radius:8px;border:1px solid rgba(124,58,237,0.4);background:rgba(15,12,41,0.8);cursor:pointer;"/>
-            </div>
-            <div style="flex:2;">
-              <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">نص التذييل</label>
-              <input class="input-glass" id="embed-footer" placeholder="Footer text" oninput="updateEmbedPreview()"/>
-            </div>
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">رابط الصورة (اختياري)</label>
-            <input class="input-glass" id="embed-image" placeholder="https://..." oninput="updateEmbedPreview()"/>
-          </div>
-          <button class="btn btn-purple" onclick="sendEmbed()">
-            <i data-lucide="send" style="width:15px;height:15px;"></i>
-            إرسال الـ Embed
-          </button>
-        </div>
-      </div>
-
-      <!-- Preview -->
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">معاينة مباشرة</div>
-        <div style="background:rgba(47,49,54,0.9);border-radius:12px;padding:16px;min-height:200px;">
-          <div id="embed-preview-bar" style="width:4px;height:100%;position:absolute;background:#7c3aed;border-radius:2px;"></div>
-          <div style="display:flex;gap:12px;">
-            <div style="width:4px;border-radius:2px;flex-shrink:0;" id="embed-preview-color-bar" style="background:#7c3aed;"></div>
-            <div style="flex:1;">
-              <div style="font-size:16px;font-weight:700;color:#ffffff;margin-bottom:8px;" id="embed-preview-title">العنوان</div>
-              <div style="font-size:14px;color:#dcddde;line-height:1.6;white-space:pre-wrap;" id="embed-preview-desc">المحتوى سيظهر هنا...</div>
-              <div id="embed-preview-img-wrap" style="margin-top:12px;display:none;">
-                <img id="embed-preview-img" src="" style="max-width:100%;border-radius:8px;" alt=""/>
+        <!-- ════════════════════ TAB: MEMBERS ══════════════════════ -->
+        <div id="tab-members" class="section">
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold">👥 قائمة الأعضاء</span>
+                <div id="memberCountBadge" class="text-xs bg-purple-500/30 text-purple-300 rounded-full px-2 py-0.5">0</div>
               </div>
-              <div style="font-size:12px;color:#72767d;margin-top:12px;" id="embed-preview-footer"></div>
+              <input id="memberSearch" placeholder="🔍 بحث عن عضو..." class="glass-input rounded-xl px-4 py-2 text-sm w-48" oninput="filterMembers(this.value)" />
+            </div>
+            <div id="membersList" class="space-y-1 max-h-[500px] overflow-y-auto">
+              <div class="text-center text-white/30 py-8 text-sm">اختر سيرفراً لعرض الأعضاء</div>
             </div>
           </div>
         </div>
+        <!-- ─────────────────────────────────────────────────────── -->
 
-        <!-- Preset Templates -->
-        <div style="margin-top:16px;">
-          <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#e2e8f0;">قوالب جاهزة:</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTemplate('welcome')">👋 ترحيب</button>
-            <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTemplate('rules')">📜 قوانين</button>
-            <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTemplate('announcement')">📢 إعلان</button>
-            <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTemplate('update')">🔄 تحديث</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: GIVEAWAY
-  ════════════════════════════════════════ -->
-  <div id="section-giveaway" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="gift" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>نظام الجيف أواي</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="plus-circle" style="width:16px;height:16px;color:#fcd34d;"></i>
-          إنشاء جيف أواي جديد
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <select class="input-glass" id="giveaway-channel"></select>
-          <input class="input-glass" id="giveaway-prize" placeholder="🎁 الجائزة (مثال: نيترو ديسكورد)"/>
-          <div style="display:flex;gap:10px;">
-            <div style="flex:1;">
-              <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">المدة (ساعات)</label>
-              <input class="input-glass" id="giveaway-duration" type="number" min="1" placeholder="24" value="1"/>
+        <!-- ════════════════════ TAB: ANNOUNCE ═════════════════════ -->
+        <div id="tab-announce" class="section space-y-4">
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">📢</span>
+              <span class="font-bold">إرسال إعلان</span>
+              <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/announce</span>
             </div>
-            <div style="flex:1;">
-              <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">عدد الفائزين</label>
-              <input class="input-glass" id="giveaway-winners" type="number" min="1" placeholder="1" value="1"/>
+            <select id="announceChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
+            <textarea id="announceMsg" rows="4" placeholder="نص الإعلان..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3 resize-none"></textarea>
+            <button onclick="doAction('announce', {channelId: v('announceChannelId'), message: v('announceMsg')})" class="btn-warning rounded-xl px-6 py-3 font-bold">📢 إرسال الإعلان</button>
+          </div>
+          <!-- Send Message -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">💬</span>
+              <span class="font-bold">إرسال رسالة عادية</span>
             </div>
+            <select id="sendMsgChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
+            <textarea id="sendMsgText" rows="3" placeholder="نص الرسالة..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3 resize-none"></textarea>
+            <button onclick="doAction('sendmsg', {channelId: v('sendMsgChannelId'), message: v('sendMsgText')})" class="btn-primary rounded-xl px-6 py-3 font-bold">💬 إرسال</button>
           </div>
-          <button class="btn btn-gold" onclick="createGiveaway()">
-            <i data-lucide="gift" style="width:15px;height:15px;"></i>
-            إطلاق الجيف أواي 🎉
-          </button>
         </div>
-      </div>
+        <!-- ─────────────────────────────────────────────────────── -->
 
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#e2e8f0;">الجيف أواي النشطة</div>
-        <div id="giveaways-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
-    </div>
-  </div>
+        <!-- ════════════════════ TAB: SETTINGS ═════════════════════ -->
+        <div id="tab-settings" class="section space-y-4">
 
-  <!-- ════════════════════════════════════════
-       SECTION: POLLS
-  ════════════════════════════════════════ -->
-  <div id="section-polls" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="vote" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>نظام التصويت</h2>
-    </div>
-
-    <div class="glass-card" style="padding:24px;margin-bottom:20px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">إنشاء تصويت جديد</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <select class="input-glass" id="poll-channel"></select>
-        <input class="input-glass" id="poll-question" placeholder="سؤال التصويت"/>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="poll-options-grid">
-          <input class="input-glass" placeholder="الخيار 1" id="poll-opt-1"/>
-          <input class="input-glass" placeholder="الخيار 2" id="poll-opt-2"/>
-          <input class="input-glass" placeholder="الخيار 3 (اختياري)" id="poll-opt-3"/>
-          <input class="input-glass" placeholder="الخيار 4 (اختياري)" id="poll-opt-4"/>
-          <input class="input-glass" placeholder="الخيار 5 (اختياري)" id="poll-opt-5"/>
-        </div>
-        <button class="btn btn-purple" onclick="createPoll()">
-          <i data-lucide="vote" style="width:15px;height:15px;"></i>
-          إنشاء التصويت
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: LEVELING
-  ════════════════════════════════════════ -->
-  <div id="section-leveling" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="trending-up" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>نظام المستويات (Leveling)</h2>
-    </div>
-
-    <!-- Top 3 Podium -->
-    <div class="glass-card" style="padding:24px;margin-bottom:20px;text-align:center;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:20px;color:#e2e8f0;">🏆 منصة المتصدرين</div>
-      <div style="display:flex;align-items:flex-end;justify-content:center;gap:16px;" id="podium"></div>
-    </div>
-
-    <!-- Full Leaderboard -->
-    <div class="glass-card" style="padding:20px;">
-      <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#e2e8f0;">📋 قائمة المستويات الكاملة</div>
-      <div id="levels-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: WELCOME
-  ════════════════════════════════════════ -->
-  <div id="section-welcome" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="heart" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>رسائل الترحيب والمغادرة</h2>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#6ee7b7;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="user-plus" style="width:16px;height:16px;"></i>
-          قناة الترحيب
-        </div>
-        <select class="input-glass" id="welcome-channel" style="margin-bottom:12px;"></select>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-green" style="flex:1;" onclick="saveWelcomeSettings()">
-            <i data-lucide="save" style="width:15px;height:15px;"></i>
-            حفظ
-          </button>
-          <button class="btn btn-ghost" onclick="testWelcome()">
-            <i data-lucide="play" style="width:15px;height:15px;"></i>
-            تجريب
-          </button>
-        </div>
-      </div>
-
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#fcd34d;display:flex;align-items:center;gap:8px;">
-          <i data-lucide="user-minus" style="width:16px;height:16px;"></i>
-          قناة المغادرة
-        </div>
-        <select class="input-glass" id="leave-channel" style="margin-bottom:12px;"></select>
-        <button class="btn btn-gold" style="width:100%;" onclick="saveWelcomeSettings()">
-          <i data-lucide="save" style="width:15px;height:15px;"></i>
-          حفظ
-        </button>
-      </div>
-    </div>
-
-    <!-- Preview Cards -->
-    <div class="grid-2">
-      <div class="glass-card" style="padding:20px;border-color:rgba(16,185,129,0.4);">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#6ee7b7;">معاينة رسالة الترحيب</div>
-        <div style="background:rgba(47,49,54,0.9);border-radius:8px;padding:14px;border-right:4px solid #10b981;">
-          <div style="font-size:14px;font-weight:700;color:white;margin-bottom:4px;">👋 مرحباً بعضو جديد!</div>
-          <div style="font-size:13px;color:#dcddde;">أهلاً وسهلاً @اسم_العضو في السيرفر!<br/>أنت العضو رقم <strong style="color:#6ee7b7;">#عدد_الأعضاء</strong></div>
-        </div>
-      </div>
-      <div class="glass-card" style="padding:20px;border-color:rgba(245,158,11,0.4);">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#fcd34d;">معاينة رسالة المغادرة</div>
-        <div style="background:rgba(47,49,54,0.9);border-radius:8px;padding:14px;border-right:4px solid #f59e0b;">
-          <div style="font-size:14px;font-weight:700;color:white;margin-bottom:4px;">👋 وداعاً!</div>
-          <div style="font-size:13px;color:#dcddde;"><strong style="color:#fcd34d;">@اسم_العضو</strong> غادر السيرفر.<br/>نتمنى له التوفيق!</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       SECTION: SETTINGS
-  ════════════════════════════════════════ -->
-  <div id="section-settings" class="section">
-    <div class="section-header">
-      <div class="section-icon"><i data-lucide="settings" style="width:20px;height:20px;color:#a78bfa;"></i></div>
-      <h2>إعدادات البوت</h2>
-    </div>
-
-    <div class="grid-2">
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">⚙️ الإعدادات العامة</div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">بادئة الأوامر (Prefix)</label>
-            <input class="input-glass" id="cfg-prefix" placeholder="!"/>
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">عنوان اللوحة</label>
-            <input class="input-glass" id="cfg-title" placeholder="Discord Dashboard"/>
-          </div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <label class="toggle-wrap">
-              <div class="toggle on" id="cfg-leveling" onclick="this.classList.toggle('on')"></div>
-              <span style="font-size:13px;">نظام المستويات</span>
-            </label>
-            <label class="toggle-wrap">
-              <div class="toggle on" id="cfg-giveaway" onclick="this.classList.toggle('on')"></div>
-              <span style="font-size:13px;">نظام الجيف أواي</span>
-            </label>
-          </div>
-          <button class="btn btn-purple" onclick="saveConfig()">
-            <i data-lucide="save" style="width:15px;height:15px;"></i>
-            حفظ الإعدادات
-          </button>
-        </div>
-      </div>
-
-      <div class="glass-card" style="padding:24px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#e2e8f0;">🤖 معلومات البوت</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="padding:12px;background:rgba(15,12,41,0.5);border-radius:8px;border:1px solid rgba(124,58,237,0.2);">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">تاق البوت</div>
-            <div style="font-size:14px;font-weight:600;color:#c4b5fd;" id="cfg-bot-tag">--</div>
-          </div>
-          <div style="padding:12px;background:rgba(15,12,41,0.5);border-radius:8px;border:1px solid rgba(124,58,237,0.2);">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">اسم السيرفر</div>
-            <div style="font-size:14px;font-weight:600;color:#c4b5fd;" id="cfg-guild-name">--</div>
-          </div>
-          <div style="padding:12px;background:rgba(15,12,41,0.5);border-radius:8px;border:1px solid rgba(16,185,129,0.2);">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">حالة الاتصال</div>
-            <div style="font-size:14px;font-weight:600;color:#6ee7b7;display:flex;align-items:center;gap:6px;">
-              <div class="online-dot"></div>
-              <span>متصل ويعمل</span>
+          <!-- Log Channel -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">📋</span>
+              <span class="font-bold">قناة السجلات</span>
+              <span class="cmd-badge bg-blue-500/20 text-blue-400">/setlog</span>
+            </div>
+            <div class="text-white/50 text-sm mb-3">سيتم إرسال سجلات العمليات (حظر، طرد، انضمام، مغادرة) لهذه القناة</div>
+            <div class="grid md:grid-cols-2 gap-3">
+              <select id="logChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
+              <button onclick="doAction('setlog', {channelId: v('logChannelId')})" class="btn-primary rounded-xl py-2.5 font-bold text-sm">📋 تحديد القناة</button>
             </div>
           </div>
-          <div style="padding:12px;background:rgba(15,12,41,0.5);border-radius:8px;border:1px solid rgba(124,58,237,0.2);">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">إصدار Discord.js</div>
-            <div style="font-size:14px;font-weight:600;color:#c4b5fd;">v14</div>
+
+          <!-- Commands Reference -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="font-bold mb-4">🔧 مرجع الأوامر الكاملة</div>
+            <div class="grid md:grid-cols-2 gap-2" id="commandsRef">
+              <!-- Filled by JS -->
+            </div>
           </div>
+
         </div>
+        <!-- ─────────────────────────────────────────────────────── -->
+
+      </div><!-- /MAIN PANEL -->
+    </div><!-- /LAYOUT -->
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TOAST NOTIFICATION
+  ════════════════════════════════════════════════════════════ -->
+  <div id="toast" class="glass rounded-2xl px-5 py-4 max-w-sm min-w-64">
+    <div class="flex items-center gap-3">
+      <div id="toastIcon" class="text-2xl">✅</div>
+      <div>
+        <div id="toastTitle" class="font-bold text-sm"></div>
+        <div id="toastMsg" class="text-white/60 text-xs mt-0.5"></div>
       </div>
     </div>
   </div>
 
-</main>
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════════════════════════════════ -->
+  <script>
+    const API = '';          // same origin (served by Express)
+    let selectedGuildId = null;
+    let guildData       = null;
+    let allMembers      = [];
+    let statsInterval   = null;
 
-<!-- ═══════════════════════════════════════════════════════
-     TOAST NOTIFICATION
-═══════════════════════════════════════════════════════ -->
-<div id="toast">
-  <div id="toast-inner" style="display:flex;align-items:center;gap:10px;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:600;backdrop-filter:blur(20px);border:1px solid;min-width:260px;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-    <i id="toast-icon" data-lucide="check-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
-    <span id="toast-message">نجح!</span>
-  </div>
-</div>
+    // ─── Helpers ─────────────────────────────────────────────────
+    const v = id => document.getElementById(id)?.value?.trim() || '';
+    const $ = id => document.getElementById(id);
 
-<!-- ═══════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════ -->
-<script>
-// ── Initialize Lucide Icons ──────────────────────────────────
-lucide.createIcons();
+    // ─── Toast ───────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(title, msg, type = 'success') {
+      const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+      const colors = { success: '#57f287', error: '#ed4245', warning: '#fee75c', info: '#5865f2' };
+      $('toastIcon').textContent   = icons[type] || icons.success;
+      $('toastTitle').textContent  = title;
+      $('toastMsg').textContent    = msg;
+      $('toast').style.borderColor = colors[type] || colors.success;
+      $('toast').classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4000);
+    }
 
-// ── State ────────────────────────────────────────────────────
-const API = '';  // Same origin
-let currentLogs = [];
-let currentMembers = [];
-let currentRoles = [];
-let currentChannels = [];
-let membersChart = null;
-let statsChart1 = null;
-let statsChart2 = null;
-let currentLogFilter = 'all';
-
-// ── Section Navigation ───────────────────────────────────────
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const el = document.getElementById('section-' + id);
-  if (el) el.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.getAttribute('onclick')?.includes("'" + id + "'")) n.classList.add('active');
-  });
-  // Lazy load section data
-  if (id === 'members')  renderMembersList();
-  if (id === 'roles')    renderRolesList();
-  if (id === 'tickets')  loadTickets();
-  if (id === 'leveling') loadLeveling();
-  if (id === 'giveaway') loadGiveaways();
-  if (id === 'stats')    renderStatsCharts();
-  if (id === 'logs')     renderLogs();
-  if (id === 'settings') loadConfigUI();
-  if (id === 'protection') loadProtectionUI();
-}
-
-// ── Toast ────────────────────────────────────────────────────
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  const inner = document.getElementById('toast-inner');
-  const icon  = document.getElementById('toast-icon');
-  const msg   = document.getElementById('toast-message');
-  const colors = {
-    success: { bg:'rgba(16,185,129,0.15)', border:'rgba(16,185,129,0.5)', icon:'check-circle', color:'#6ee7b7' },
-    error:   { bg:'rgba(239,68,68,0.15)',  border:'rgba(239,68,68,0.5)',  icon:'x-circle',    color:'#fca5a5' },
-    info:    { bg:'rgba(124,58,237,0.15)', border:'rgba(124,58,237,0.5)', icon:'info',         color:'#a78bfa' },
-    warning: { bg:'rgba(245,158,11,0.15)', border:'rgba(245,158,11,0.5)', icon:'alert-triangle',color:'#fcd34d' },
-  };
-  const c = colors[type] || colors.success;
-  inner.style.background = c.bg;
-  inner.style.borderColor = c.border;
-  inner.style.color = c.color;
-  msg.textContent = message;
-  icon.setAttribute('data-lucide', c.icon);
-  lucide.createIcons();
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3500);
-}
-
-// ── API Helper ───────────────────────────────────────────────
-async function api(method, endpoint, body) {
-  try {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(API + endpoint, opts);
-    return await res.json();
-  } catch(e) {
-    return { error: e.message };
-  }
-}
-
-// ── Uptime Formatter ─────────────────────────────────────────
-function formatUptime(secs) {
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = secs % 60;
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-// ── Load Status ──────────────────────────────────────────────
-async function loadStatus() {
-  const data = await api('GET', '/api/status');
-  if (data.error) return;
-
-  // Header badges
-  document.getElementById('ping-badge').querySelector('span').textContent = data.ping + ' ms';
-  document.getElementById('uptime-badge').querySelector('span').textContent = formatUptime(data.uptime);
-
-  // Stat cards
-  document.getElementById('stat-members').textContent = data.members.toLocaleString();
-  document.getElementById('stat-channels').textContent = data.channels;
-  document.getElementById('stat-roles').textContent = data.roles;
-  document.getElementById('stat-guilds').textContent = data.guilds;
-  document.getElementById('stat-members-sub').textContent = `السيرفر: ${data.guildName}`;
-
-  // Bot profile
-  document.getElementById('bot-avatar').src = data.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-  document.getElementById('bot-tag').textContent = data.tag;
-  document.getElementById('guild-name').textContent = data.guildName;
-  document.getElementById('detail-ping').textContent = data.ping + 'ms';
-  document.getElementById('detail-uptime').textContent = formatUptime(data.uptime);
-
-  // Sidebar status
-  document.getElementById('sidebar-status').querySelector('span').textContent = data.online ? `${data.tag} — نشط` : 'غير متصل';
-
-  // Stats section
-  document.getElementById('live-ping2').textContent = data.ping;
-  document.getElementById('live-members2').textContent = data.members.toLocaleString();
-  document.getElementById('live-uptime2').textContent = formatUptime(data.uptime);
-  document.getElementById('live-guilds2').textContent = data.guilds;
-
-  // Config page
-  document.getElementById('cfg-bot-tag').textContent = data.tag;
-  document.getElementById('cfg-guild-name').textContent = data.guildName;
-
-  // Members Chart
-  if (data.memberHistory && data.memberHistory.length > 0) {
-    updateMembersChart(data.memberHistory);
-  }
-}
-
-// ── Members Chart ─────────────────────────────────────────────
-function updateMembersChart(history) {
-  const labels = history.map(h => {
-    const d = new Date(h.timestamp);
-    return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-  });
-  const values = history.map(h => h.count);
-  const ctx = document.getElementById('membersChart');
-  if (!ctx) return;
-  if (membersChart) membersChart.destroy();
-  membersChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'الأعضاء',
-        data: values,
-        borderColor: '#7c3aed',
-        backgroundColor: 'rgba(124,58,237,0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointBackgroundColor: '#a78bfa',
-        pointBorderColor: '#7c3aed',
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(124,58,237,0.1)' } },
-        y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(124,58,237,0.1)' }, beginAtZero: false },
+    // ─── Particles ───────────────────────────────────────────────
+    function createParticles() {
+      const container = $('particles');
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size  = Math.random() * 4 + 1;
+        const left  = Math.random() * 100;
+        const delay = Math.random() * 15;
+        const dur   = Math.random() * 15 + 10;
+        const colors = ['rgba(88,101,242,0.3)', 'rgba(87,242,135,0.2)', 'rgba(254,231,92,0.2)', 'rgba(114,137,218,0.3)'];
+        p.style.cssText = `width:${size}px;height:${size}px;left:${left}%;bottom:0;animation-delay:${delay}s;animation-duration:${dur}s;background:${colors[Math.floor(Math.random()*colors.length)]};`;
+        container.appendChild(p);
       }
     }
-  });
-}
 
-// ── Stats Charts ──────────────────────────────────────────────
-function renderStatsCharts() {
-  // Chart 1: Members line
-  const ctx1 = document.getElementById('statsChart1');
-  if (ctx1 && !ctx1._rendered) {
-    ctx1._rendered = true;
-    if (statsChart1) statsChart1.destroy();
-    statsChart1 = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو'],
-        datasets: [{
-          label: 'أعضاء جدد',
-          data: [12,19,15,25,22,30,28],
-          backgroundColor: 'rgba(124,58,237,0.5)',
-          borderColor: '#7c3aed',
-          borderWidth: 2, borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { labels: { color: '#94a3b8' } } },
-        scales: {
-          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(124,58,237,0.1)' } },
-          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(124,58,237,0.1)' } },
-        }
+    // ─── Sync color picker ───────────────────────────────────────
+    $('newRoleColor')?.addEventListener('input', e => {
+      $('newRoleColorHex').value = e.target.value;
+    });
+    $('newRoleColorHex')?.addEventListener('input', e => {
+      if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) $('newRoleColor').value = e.target.value;
+    });
+
+    // ─── Commands Reference ───────────────────────────────────────
+    const COMMANDS = [
+      { cmd: '/ban', desc: 'حظر عضو', color: 'red' },
+      { cmd: '/kick', desc: 'طرد عضو', color: 'orange' },
+      { cmd: '/mute', desc: 'كتم عضو مؤقتاً', color: 'yellow' },
+      { cmd: '/unmute', desc: 'رفع الكتم', color: 'green' },
+      { cmd: '/warn', desc: 'إنذار عضو', color: 'yellow' },
+      { cmd: '/unban', desc: 'رفع الحظر', color: 'green' },
+      { cmd: '/purge', desc: 'مسح الرسائل', color: 'purple' },
+      { cmd: '/createrole', desc: 'إنشاء رتبة', color: 'blue' },
+      { cmd: '/deleterole', desc: 'حذف رتبة', color: 'red' },
+      { cmd: '/giverole', desc: 'إعطاء رتبة', color: 'green' },
+      { cmd: '/removerole', desc: 'إزالة رتبة', color: 'red' },
+      { cmd: '/ticket', desc: 'نظام التذاكر', color: 'blue' },
+      { cmd: '/announce', desc: 'إرسال إعلان', color: 'yellow' },
+      { cmd: '/slowmode', desc: 'وضع بطيء', color: 'blue' },
+      { cmd: '/lock', desc: 'قفل القناة', color: 'red' },
+      { cmd: '/unlock', desc: 'فتح القناة', color: 'green' },
+      { cmd: '/serverinfo', desc: 'معلومات السيرفر', color: 'purple' },
+      { cmd: '/userinfo', desc: 'معلومات عضو', color: 'purple' },
+      { cmd: '/ping', desc: 'سرعة البوت', color: 'green' },
+      { cmd: '/setlog', desc: 'قناة السجلات', color: 'blue' },
+      { cmd: '/antispam', desc: 'الحماية من السبام', color: 'purple' },
+    ];
+    function renderCommandsRef() {
+      const colorMap = {
+        red: 'bg-red-500/15 text-red-400 border-red-500/20',
+        orange: 'bg-orange-500/15 text-orange-400 border-orange-500/20',
+        yellow: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20',
+        green: 'bg-green-500/15 text-green-400 border-green-500/20',
+        blue: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+        purple: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
+      };
+      $('commandsRef').innerHTML = COMMANDS.map(c => `
+        <div class="flex items-center gap-2 p-2.5 rounded-xl border ${colorMap[c.color] || colorMap.purple}">
+          <code class="font-mono font-bold text-xs">${c.cmd}</code>
+          <span class="text-white/50 text-xs">— ${c.desc}</span>
+        </div>`).join('');
+    }
+
+    // ─── Load Stats ───────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res  = await fetch(`${API}/api/stats`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const bot = data.bot;
+        // Navbar status
+        $('botStatus').innerHTML = `<div class="status-dot"></div><span class="text-xs text-green-400 font-bold">${bot.tag || 'Online'}</span>`;
+
+        // Stats cards
+        $('statGuilds').textContent  = bot.guilds;
+        $('statMembers').textContent = bot.totalMembers?.toLocaleString('ar-SA');
+        $('statPing').textContent    = `${bot.ping}ms`;
+        $('statCmds').textContent    = bot.commands;
+
+        // Bot sidebar
+        if (bot.avatar) $('botAvatar').src = bot.avatar;
+        $('botTag').textContent    = bot.tag || '—';
+        $('botId').textContent     = bot.id  || '—';
+        $('antispamStatus').textContent = bot.antispam ? '✅ مفعل' : '❌ معطل';
+        $('antispamStatus').className   = bot.antispam ? 'text-green-400' : 'text-red-400';
+        if ($('antispamToggle')) $('antispamToggle').checked = bot.antispam;
+
+        // Uptime
+        const up  = Math.floor(bot.uptime || 0);
+        const h   = Math.floor(up / 3600);
+        const m   = Math.floor((up % 3600) / 60);
+        const s   = up % 60;
+        $('botUptime').textContent = `${h}h ${m}m ${s}s`;
+
+        // Guild list
+        renderGuildList(data.guilds);
+
+        // Hide loading
+        $('loadingOverlay').style.display = 'none';
+
+      } catch (err) {
+        $('botStatus').innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-xs text-red-400">غير متصل</span>`;
+        $('loadingOverlay').innerHTML = `
+          <div class="text-center">
+            <div class="text-5xl mb-4">❌</div>
+            <div class="text-xl font-bold text-red-400 mb-2">لا يمكن الاتصال بالسيرفر</div>
+            <div class="text-white/50 text-sm mb-4">تأكد من تشغيل server.js أولاً:<br/><code class="text-purple-400">node server.js</code></div>
+            <button onclick="location.reload()" class="btn-primary rounded-xl px-6 py-3 font-bold">🔄 إعادة المحاولة</button>
+          </div>`;
       }
-    });
-  }
-  // Chart 2: Doughnut violations
-  const ctx2 = document.getElementById('statsChart2');
-  if (ctx2 && !ctx2._rendered) {
-    ctx2._rendered = true;
-    if (statsChart2) statsChart2.destroy();
-    statsChart2 = new Chart(ctx2, {
-      type: 'doughnut',
-      data: {
-        labels: ['كلمات مسيئة','روابط','منشن مفرط','Ghost Ping'],
-        datasets: [{
-          data: [45,25,20,10],
-          backgroundColor: ['rgba(239,68,68,0.7)','rgba(245,158,11,0.7)','rgba(59,130,246,0.7)','rgba(124,58,237,0.7)'],
-          borderColor: ['#ef4444','#f59e0b','#3b82f6','#7c3aed'],
-          borderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
-        cutout: '60%',
+    }
+
+    // ─── Render Guild List ────────────────────────────────────────
+    function renderGuildList(guilds) {
+      $('guildCountBadge').textContent = guilds.length;
+      if (!guilds.length) {
+        $('guildList').innerHTML = `<div class="text-center text-white/30 py-6 text-sm">
+          <div class="text-3xl mb-2">😔</div>
+          <div>البوت غير موجود في أي سيرفر</div>
+          <div class="text-xs mt-1">أضف البوت لسيرفرك أولاً</div>
+        </div>`;
+        return;
       }
-    });
-  }
-}
-
-// ── Load Guild & Members ──────────────────────────────────────
-async function loadGuild() {
-  const data = await api('GET', '/api/guild');
-  if (data.error || !data.channels) return;
-  currentChannels = data.channels;
-  currentRoles    = data.roles;
-  currentMembers  = data.members;
-  populateAllSelects();
-}
-
-function populateAllSelects() {
-  const channelSelects = ['purge-channel','embed-channel','giveaway-channel','poll-channel','welcome-channel','leave-channel','channel-control-select'];
-  channelSelects.forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = '<option value="">-- اختر قناة --</option>';
-    currentChannels.forEach(ch => {
-      sel.innerHTML += `<option value="${ch.id}">#${ch.name}</option>`;
-    });
-  });
-
-  const memberSelects = ['mod-member-select','assign-member-select','ticket-member-select'];
-  memberSelects.forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = '<option value="">-- اختر عضو --</option>';
-    currentMembers.filter(m => !m.bot).forEach(m => {
-      sel.innerHTML += `<option value="${m.id}">${m.tag}</option>`;
-    });
-  });
-
-  const roleSelects = ['assign-role-select','bulk-role-select','auto-role-select','protection-role-select'];
-  roleSelects.forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = id.includes('auto') || id.includes('protection')
-      ? '<option value="">-- بدون --</option>'
-      : '<option value="">-- اختر رتبة --</option>';
-    currentRoles.forEach(r => {
-      sel.innerHTML += `<option value="${r.id}" style="color:${r.color}">${r.name}</option>`;
-    });
-  });
-}
-
-// ── Load Stats ────────────────────────────────────────────────
-async function loadStats() {
-  const data = await api('GET', '/api/stats');
-  if (!data) return;
-  document.getElementById('qs-warnings').textContent   = data.totalWarnings || 0;
-  document.getElementById('qs-violations').textContent = data.totalViolations || 0;
-  document.getElementById('qs-tickets').textContent    = data.totalTickets || 0;
-  document.getElementById('qs-levels').textContent     = data.topLevel || 0;
-  document.getElementById('open-tickets-count').textContent = data.totalTickets || 0;
-}
-
-// ── Live Logs ─────────────────────────────────────────────────
-async function loadLogs() {
-  const logs = await api('GET', '/api/logs');
-  if (!Array.isArray(logs)) return;
-  currentLogs = logs;
-  document.getElementById('logs-badge').textContent = logs.filter(l => l.type === 'violation').length;
-  document.getElementById('logs-count-badge').textContent = logs.length + ' حدث';
-  renderLogsPreview();
-  renderLogs();
-}
-
-function getLogIcon(type) {
-  const icons = { violation:'shield-x', moderation:'gavel', system:'settings', join:'user-plus', leave:'user-minus', level:'trending-up' };
-  return icons[type] || 'info';
-}
-
-function getLogColor(type) {
-  const colors = { violation:'#ef4444', moderation:'#3b82f6', system:'#7c3aed', join:'#10b981', leave:'#f59e0b', level:'#06b6d4' };
-  return colors[type] || '#94a3b8';
-}
-
-function logEntryHTML(log) {
-  const color = getLogColor(log.type);
-  const time  = new Date(log.timestamp).toLocaleTimeString('ar');
-  return `
-    <div class="log-entry log-${log.type}" style="border-color:${color};">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-        <span style="color:${color};font-weight:700;font-size:11px;text-transform:uppercase;">${log.type}</span>
-        <span style="color:var(--text-muted);font-size:11px;margin-right:auto;">${time}</span>
-      </div>
-      <div style="color:var(--text-primary);font-size:13px;">${log.message}</div>
-    </div>`;
-}
-
-function renderLogsPreview() {
-  const el = document.getElementById('logs-preview');
-  if (!el) return;
-  const recent = currentLogs.slice(0, 6);
-  el.innerHTML = recent.length ? recent.map(logEntryHTML).join('') : '<div style="text-align:center;color:var(--text-muted);padding:20px;">لا توجد أحداث بعد</div>';
-}
-
-function renderLogs() {
-  const el = document.getElementById('all-logs');
-  if (!el) return;
-  const filtered = currentLogFilter === 'all' ? currentLogs : currentLogs.filter(l => l.type === currentLogFilter);
-  el.innerHTML = filtered.length ? filtered.map(logEntryHTML).join('') : '<div style="text-align:center;color:var(--text-muted);padding:40px;">لا توجد سجلات</div>';
-}
-
-function filterLogs(type) {
-  currentLogFilter = type;
-  renderLogs();
-}
-
-function clearLogs() {
-  currentLogs = [];
-  renderLogs();
-  renderLogsPreview();
-  showToast('تم مسح السجلات', 'info');
-}
-
-// ── Members List ──────────────────────────────────────────────
-function renderMembersList() {
-  const search = (document.getElementById('member-search')?.value || '').toLowerCase();
-  const filter = document.getElementById('member-filter')?.value || 'all';
-  let list = currentMembers.filter(m => {
-    if (filter === 'human' && m.bot) return false;
-    if (filter === 'bot'   && !m.bot) return false;
-    if (search && !m.tag.toLowerCase().includes(search) && !m.displayName.toLowerCase().includes(search)) return false;
-    return true;
-  });
-  const el = document.getElementById('members-list');
-  if (!el) return;
-  if (!list.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">لا يوجد أعضاء</div>'; return; }
-  el.innerHTML = list.map(m => `
-    <div class="member-row">
-      <img src="${m.avatar}" alt="" style="width:40px;height:40px;border-radius:50%;border:2px solid rgba(124,58,237,0.4);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-      <div style="flex:1;min-width:0;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span style="font-size:14px;font-weight:600;color:#e2e8f0;">${m.displayName}</span>
-          <span style="font-size:12px;color:var(--text-muted);">${m.tag}</span>
-          ${m.bot ? '<span class="badge badge-blue">بوت</span>' : ''}
-          ${m.warnings > 0 ? `<span class="badge badge-red">⚠️ ${m.warnings}</span>` : ''}
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
-          ${m.roles.slice(0,4).map(r => `<span class="role-pill" style="color:${r.color||'#a78bfa'};border-color:${r.color||'#a78bfa'}40;background:${r.color||'#7c3aed'}15;">${r.name}</span>`).join('')}
-          ${m.roles.length > 4 ? `<span style="font-size:11px;color:var(--text-muted);">+${m.roles.length-4}</span>` : ''}
-        </div>
-      </div>
-      <div style="text-align:left;flex-shrink:0;">
-        <div style="font-size:12px;color:#a78bfa;font-weight:600;">Lv.${m.level || 1}</div>
-        <div class="xp-bar-bg" style="width:80px;margin-top:4px;">
-          <div class="xp-bar-fill" style="width:${Math.min(100,(m.xp||0))}%;"></div>
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-function filterMembers() {
-  renderMembersList();
-}
-
-// ── Roles List ────────────────────────────────────────────────
-function renderRolesList() {
-  const el = document.getElementById('roles-list');
-  if (!el) return;
-  if (!currentRoles.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">لا توجد رتب</div>'; return; }
-  el.innerHTML = currentRoles.map(r => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(15,12,41,0.4);border-radius:10px;border:1px solid rgba(124,58,237,0.15);">
-      <div style="width:14px;height:14px;border-radius:50%;background:${r.color};box-shadow:0 0 8px ${r.color}80;flex-shrink:0;"></div>
-      <span style="font-size:14px;font-weight:600;color:#e2e8f0;flex:1;">${r.name}</span>
-      <span style="font-size:12px;color:var(--text-muted);">${r.members} عضو</span>
-      <span class="badge badge-purple">${r.color}</span>
-      <button class="btn btn-red" style="padding:5px 10px;font-size:12px;" onclick="deleteRole('${r.id}','${r.name}')">
-        <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
-      </button>
-    </div>`).join('');
-  lucide.createIcons();
-}
-
-// ── Moderation Actions ────────────────────────────────────────
-async function modAction(action) {
-  const userId  = document.getElementById('mod-member-select')?.value;
-  const reason  = document.getElementById('mod-reason')?.value;
-  if (!userId) { showToast('اختر عضواً أولاً', 'warning'); return; }
-  let endpoint = '/api/mod/' + action;
-  let body = { userId, reason };
-  if (action === 'ban')   body.days = parseInt(document.getElementById('ban-days')?.value) || 0;
-  if (action === 'mute')  body.duration = document.getElementById('mute-duration')?.value || '10';
-  const data = await api('POST', endpoint, body);
-  if (data.success) showToast(data.message || 'تم بنجاح ✅', 'success');
-  else showToast('خطأ: ' + (data.error || 'فشل'), 'error');
-}
-
-async function purgeMessages() {
-  const channelId = document.getElementById('purge-channel')?.value;
-  const amount    = document.getElementById('purge-amount')?.value;
-  if (!channelId) { showToast('اختر قناة', 'warning'); return; }
-  const data = await api('POST', '/api/mod/purge', { channelId, amount });
-  if (data.success) showToast(`تم مسح ${data.deleted} رسالة ✅`, 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function changeNickname() {
-  const userId   = document.getElementById('mod-member-select')?.value;
-  const nickname = document.getElementById('nickname-input')?.value;
-  if (!userId) { showToast('اختر عضواً', 'warning'); return; }
-  const data = await api('POST', '/api/mod/nickname', { userId, nickname });
-  if (data.success) showToast('تم تغيير الاسم ✅', 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function lockChannel(lock) {
-  const channelId = document.getElementById('channel-control-select')?.value;
-  if (!channelId) { showToast('اختر قناة', 'warning'); return; }
-  const data = await api('POST', '/api/mod/lock', { channelId, lock });
-  if (data.success) showToast(lock ? '🔒 تم قفل القناة' : '🔓 تم فتح القناة', 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function setSlowmode() {
-  const channelId = document.getElementById('channel-control-select')?.value;
-  const seconds   = document.getElementById('slowmode-input')?.value;
-  if (!channelId) { showToast('اختر قناة', 'warning'); return; }
-  const data = await api('POST', '/api/mod/slowmode', { channelId, seconds });
-  if (data.success) showToast(`⏱️ تم تعيين Slowmode: ${seconds}s`, 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function viewWarnings() {
-  const userId = document.getElementById('mod-member-select')?.value;
-  if (!userId) { showToast('اختر عضواً', 'warning'); return; }
-  const warns = await api('GET', '/api/mod/warnings/' + userId);
-  const panel = document.getElementById('warnings-panel');
-  const list  = document.getElementById('warnings-list');
-  if (panel) panel.style.display = 'block';
-  if (!warns.length) {
-    list.innerHTML = '<div style="color:var(--text-muted);padding:10px;">لا توجد تحذيرات لهذا العضو</div>';
-    return;
-  }
-  list.innerHTML = warns.map((w,i) => `
-    <div style="padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;margin-bottom:6px;">
-      <div style="font-size:12px;color:#fcd34d;font-weight:700;">تحذير #${i+1}</div>
-      <div style="font-size:13px;color:#e2e8f0;">${w.reason}</div>
-      <div style="font-size:11px;color:var(--text-muted);">${new Date(w.time).toLocaleString('ar')}</div>
-    </div>`).join('');
-}
-
-// ── Roles Actions ─────────────────────────────────────────────
-async function createRole() {
-  const name        = document.getElementById('role-name')?.value;
-  const color       = document.getElementById('role-color')?.value;
-  const hoist       = document.getElementById('role-hoist')?.checked;
-  const mentionable = document.getElementById('role-mention')?.checked;
-  if (!name) { showToast('أدخل اسم الرتبة', 'warning'); return; }
-  const data = await api('POST', '/api/roles/create', { name, color, hoist, mentionable });
-  if (data.success) {
-    showToast(`تم إنشاء رتبة "${data.role.name}" ✅`, 'success');
-    document.getElementById('role-name').value = '';
-    await loadGuild();
-    renderRolesList();
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-async function deleteRole(roleId, roleName) {
-  if (!confirm(`هل تريد حذف رتبة "${roleName}"؟`)) return;
-  const data = await api('POST', '/api/roles/delete', { roleId });
-  if (data.success) {
-    showToast('تم حذف الرتبة ✅', 'success');
-    await loadGuild();
-    renderRolesList();
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-async function assignRole(remove) {
-  const userId = document.getElementById('assign-member-select')?.value;
-  const roleId = document.getElementById('assign-role-select')?.value;
-  if (!userId || !roleId) { showToast('اختر عضو ورتبة', 'warning'); return; }
-  const data = await api('POST', '/api/roles/assign', { userId, roleId, remove });
-  if (data.success) showToast(remove ? 'تم إزالة الرتبة ✅' : 'تم إضافة الرتبة ✅', 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function bulkAssign() {
-  const roleId = document.getElementById('bulk-role-select')?.value;
-  if (!roleId) { showToast('اختر رتبة', 'warning'); return; }
-  if (!confirm('هل تريد توزيع هذه الرتبة على جميع الأعضاء؟ قد يستغرق ذلك وقتاً.')) return;
-  showToast('⏳ جاري التوزيع الجماعي...', 'info');
-  const data = await api('POST', '/api/roles/bulk-assign', { roleId });
-  if (data.success) showToast(`تم التوزيع على ${data.count} عضو ✅`, 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-async function setAutoRole() {
-  const roleId = document.getElementById('auto-role-select')?.value;
-  const data   = await api('POST', '/api/roles/auto', { roleId });
-  if (data.success) showToast('تم حفظ الرتبة التلقائية ✅', 'success');
-  else showToast('فشل', 'error');
-}
-
-async function setProtectionRole() {
-  showToast('تم حفظ رتبة الحماية ✅', 'success');
-}
-
-// ── Embed ─────────────────────────────────────────────────────
-function updateEmbedPreview() {
-  const title  = document.getElementById('embed-title')?.value || 'العنوان';
-  const desc   = document.getElementById('embed-desc')?.value  || 'المحتوى...';
-  const color  = document.getElementById('embed-color')?.value || '#7c3aed';
-  const footer = document.getElementById('embed-footer')?.value;
-  const image  = document.getElementById('embed-image')?.value;
-  document.getElementById('embed-preview-title').textContent = title;
-  document.getElementById('embed-preview-desc').textContent  = desc;
-  document.getElementById('embed-preview-footer').textContent = footer || '';
-  document.getElementById('embed-preview-color-bar').style.background = color;
-  const imgWrap = document.getElementById('embed-preview-img-wrap');
-  if (image) {
-    imgWrap.style.display = 'block';
-    document.getElementById('embed-preview-img').src = image;
-  } else {
-    imgWrap.style.display = 'none';
-  }
-}
-
-async function sendEmbed() {
-  const channelId   = document.getElementById('embed-channel')?.value;
-  const title       = document.getElementById('embed-title')?.value;
-  const description = document.getElementById('embed-desc')?.value;
-  const color       = document.getElementById('embed-color')?.value;
-  const footer      = document.getElementById('embed-footer')?.value;
-  const image       = document.getElementById('embed-image')?.value;
-  if (!channelId) { showToast('اختر قناة', 'warning'); return; }
-  if (!title && !description) { showToast('أدخل عنوان أو محتوى', 'warning'); return; }
-  const data = await api('POST', '/api/embed/send', { channelId, title, description, color, footer, image });
-  if (data.success) showToast('تم إرسال الـ Embed ✅', 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
-
-const templates = {
-  welcome: { title: '👋 مرحباً بك!', description: 'أهلاً وسهلاً في سيرفرنا!\nنتمنى لك وقتاً ممتعاً 🎉', color: '#10b981', footer: 'Discord Dashboard Pro' },
-  rules:   { title: '📜 قوانين السيرفر', description: '1️⃣ احترم الجميع\n2️⃣ لا للإزعاج\n3️⃣ لا للسب والشتم\n4️⃣ اتبع توجيهات الإدارة', color: '#ef4444', footer: 'يرجى الالتزام بالقوانين' },
-  announcement: { title: '📢 إعلان مهم', description: 'هذا إعلان مهم من الإدارة...\nيرجى الاهتمام!', color: '#f59e0b', footer: 'الإدارة' },
-  update: { title: '🔄 تحديث جديد', description: 'تم إضافة ميزات وتحسينات جديدة!\nشكراً لكم على دعمكم المستمر 🚀', color: '#3b82f6', footer: 'نسخة 3.0' },
-};
-
-function loadTemplate(name) {
-  const t = templates[name];
-  if (!t) return;
-  document.getElementById('embed-title').value  = t.title;
-  document.getElementById('embed-desc').value   = t.description;
-  document.getElementById('embed-color').value  = t.color;
-  document.getElementById('embed-footer').value = t.footer;
-  updateEmbedPreview();
-  showToast('تم تحميل القالب ✅', 'info');
-}
-
-// ── Giveaway ──────────────────────────────────────────────────
-async function createGiveaway() {
-  const channelId = document.getElementById('giveaway-channel')?.value;
-  const prize     = document.getElementById('giveaway-prize')?.value;
-  const duration  = document.getElementById('giveaway-duration')?.value;
-  const winners   = document.getElementById('giveaway-winners')?.value;
-  if (!channelId || !prize) { showToast('اختر قناة وأدخل الجائزة', 'warning'); return; }
-  const data = await api('POST', '/api/giveaway/create', { channelId, prize, duration, winners });
-  if (data.success) {
-    showToast('🎉 تم إنشاء الجيف أواي!', 'success');
-    document.getElementById('giveaway-prize').value = '';
-    loadGiveaways();
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-async function loadGiveaways() {
-  const list = await api('GET', '/api/giveaways');
-  const el   = document.getElementById('giveaways-list');
-  if (!el) return;
-  if (!list.length) { el.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">لا توجد جيف أواي نشطة</div>'; return; }
-  el.innerHTML = list.map(ga => `
-    <div style="padding:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;">
-      <div style="font-size:15px;font-weight:700;color:#fcd34d;">🎁 ${ga.prize}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${ga.entries} مشارك | ${ga.winners} فائز</div>
-      <div style="font-size:11px;color:var(--text-muted);">ينتهي: ${new Date(ga.endTime).toLocaleString('ar')}</div>
-    </div>`).join('');
-}
-
-// ── Poll ──────────────────────────────────────────────────────
-async function createPoll() {
-  const channelId = document.getElementById('poll-channel')?.value;
-  const question  = document.getElementById('poll-question')?.value;
-  const options   = [1,2,3,4,5].map(i => document.getElementById('poll-opt-'+i)?.value).filter(v => v);
-  if (!channelId || !question || options.length < 2) { showToast('أدخل القناة والسؤال وخيارين على الأقل', 'warning'); return; }
-  const data = await api('POST', '/api/poll/create', { channelId, question, options });
-  if (data.success) {
-    showToast('📊 تم إنشاء التصويت!', 'success');
-    document.getElementById('poll-question').value = '';
-    [1,2,3,4,5].forEach(i => { const el = document.getElementById('poll-opt-'+i); if(el) el.value = ''; });
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-// ── Tickets ───────────────────────────────────────────────────
-async function createTicket() {
-  const userId = document.getElementById('ticket-member-select')?.value;
-  const topic  = document.getElementById('ticket-topic')?.value;
-  if (!userId) { showToast('اختر عضواً', 'warning'); return; }
-  const data = await api('POST', '/api/tickets/create', { userId, topic });
-  if (data.success) {
-    showToast('🎫 تم إنشاء التذكرة!', 'success');
-    loadTickets();
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-async function loadTickets() {
-  const tickets = await api('GET', '/api/tickets');
-  const el = document.getElementById('tickets-list');
-  if (!el) return;
-  document.getElementById('open-tickets-count').textContent = tickets.length;
-  if (!tickets.length) { el.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">لا توجد تذاكر مفتوحة</div>'; return; }
-  el.innerHTML = tickets.map(t => `
-    <div class="ticket-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="width:36px;height:36px;background:rgba(124,58,237,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i data-lucide="ticket" style="width:18px;height:18px;color:#a78bfa;"></i>
-        </div>
-        <div>
-          <div style="font-size:14px;font-weight:700;color:#e2e8f0;">${t.topic}</div>
-          <div style="font-size:12px;color:var(--text-muted);">القناة: #${t.channelId}</div>
-        </div>
-        <span class="badge badge-green" style="margin-right:auto;">${t.transcript.length} رسالة</span>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-blue" style="flex:1;font-size:12px;" onclick="viewTranscript('${t.channelId}')">
-          <i data-lucide="eye" style="width:13px;height:13px;"></i> عرض
-        </button>
-        <button class="btn btn-red" style="flex:1;font-size:12px;" onclick="closeTicket('${t.channelId}')">
-          <i data-lucide="x" style="width:13px;height:13px;"></i> إغلاق
-        </button>
-      </div>
-    </div>`).join('');
-  lucide.createIcons();
-}
-
-async function closeTicket(channelId) {
-  if (!confirm('هل تريد إغلاق هذه التذكرة؟')) return;
-  const data = await api('POST', '/api/tickets/close', { channelId });
-  if (data.success) {
-    showToast('🔒 تم إغلاق التذكرة', 'success');
-    loadTickets();
-  } else showToast('فشل: ' + data.error, 'error');
-}
-
-function viewTranscript(channelId) {
-  const all     = [];
-  const tickets = [];
-  // We already loaded tickets; find the matching one
-  api('GET', '/api/tickets').then(list => {
-    const ticket = list.find(t => t.channelId === channelId);
-    const panel  = document.getElementById('ticket-transcript');
-    const cont   = document.getElementById('transcript-content');
-    const title  = document.getElementById('transcript-title');
-    if (!panel || !cont) return;
-    panel.style.display = 'block';
-    title.textContent   = `محادثة التذكرة: ${ticket?.topic || channelId}`;
-    const msgs = ticket?.transcript || [];
-    cont.innerHTML = msgs.length
-      ? msgs.map(m => `
-        <div style="padding:8px 12px;background:rgba(15,12,41,0.5);border-radius:8px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-            <span style="font-size:12px;font-weight:700;color:#a78bfa;">${m.author}</span>
-            <span style="font-size:11px;color:var(--text-muted);">${new Date(m.timestamp).toLocaleTimeString('ar')}</span>
+      $('guildList').innerHTML = guilds.map(g => `
+        <div class="guild-select glass-dark rounded-xl p-3 flex items-center gap-3 ${selectedGuildId === g.id ? 'selected' : ''}"
+             onclick="selectGuild('${g.id}')" data-guild-id="${g.id}">
+          <img src="${g.icon || 'https://cdn.discordapp.com/embed/avatars/0.png'}"
+               alt="${g.name}" class="w-10 h-10 rounded-xl object-cover"
+               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+          <div class="min-w-0 flex-1">
+            <div class="font-bold text-sm truncate">${g.name}</div>
+            <div class="text-white/40 text-xs">${g.memberCount.toLocaleString('ar-SA')} عضو</div>
           </div>
-          <div style="font-size:13px;color:#e2e8f0;">${m.content}</div>
-        </div>`).join('')
-      : '<div style="text-align:center;color:var(--text-muted);padding:20px;">لا توجد رسائل في هذه التذكرة</div>';
-    panel.scrollIntoView({ behavior: 'smooth' });
-  });
-}
+          ${selectedGuildId === g.id ? '<div class="w-2 h-2 rounded-full bg-purple-400 flex-shrink-0"></div>' : ''}
+        </div>`).join('');
+    }
 
-// ── Leveling ──────────────────────────────────────────────────
-async function loadLeveling() {
-  const board = await api('GET', '/api/levels');
-  const el    = document.getElementById('levels-list');
-  const podium = document.getElementById('podium');
-  if (!el) return;
+    // ─── Select Guild ─────────────────────────────────────────────
+    async function selectGuild(guildId) {
+      selectedGuildId = guildId;
+      // Update sidebar highlights
+      document.querySelectorAll('[data-guild-id]').forEach(el => {
+        el.classList.toggle('selected', el.dataset.guildId === guildId);
+      });
+      $('noGuildMsg').classList.add('hidden');
+      $('guildHeader').classList.remove('hidden');
+      await loadGuildData();
+    }
 
-  if (podium && board.length >= 1) {
-    const medals = ['🥇','🥈','🥉'];
-    const heights = ['120px','90px','70px'];
-    const bgColors = ['rgba(245,158,11,0.2)','rgba(148,163,184,0.2)','rgba(180,100,50,0.2)'];
-    const borderColors = ['rgba(245,158,11,0.5)','rgba(148,163,184,0.5)','rgba(180,100,50,0.5)'];
-    const order = board.length >= 3 ? [board[1], board[0], board[2]] : board.slice(0, board.length);
-    const actualMedals = board.length >= 3 ? [medals[1],medals[0],medals[2]] : medals;
-    const actualHeights = board.length >= 3 ? [heights[1],heights[0],heights[2]] : heights;
-    podium.innerHTML = order.map((u, i) => `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-        <img src="${u.avatar||''}" style="width:50px;height:50px;border-radius:50%;border:3px solid ${borderColors[i]};" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-        <div style="font-size:11px;color:var(--text-muted);max-width:80px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.tag}</div>
-        <div style="font-size:22px;">${actualMedals[i]}</div>
-        <div style="width:80px;height:${actualHeights[i]};background:${bgColors[i]};border:1px solid ${borderColors[i]};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-          <div style="font-size:16px;font-weight:700;color:#e2e8f0;">Lv.${u.level}</div>
-          <div style="font-size:11px;color:var(--text-muted);">${u.xp} XP</div>
-        </div>
-      </div>`).join('');
-  }
+    // ─── Load Guild Data ──────────────────────────────────────────
+    async function loadGuildData() {
+      if (!selectedGuildId) return;
+      try {
+        const res  = await fetch(`${API}/api/guild/${selectedGuildId}`);
+        guildData  = await res.json();
+        if (guildData.error) throw new Error(guildData.error);
 
-  if (!board.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">لا توجد بيانات مستويات بعد</div>'; return; }
-  el.innerHTML = board.map((u, i) => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(15,12,41,0.4);border-radius:10px;border:1px solid rgba(124,58,237,0.15);">
-      <div style="font-size:20px;font-weight:900;color:${['#fcd34d','#94a3b8','#cd7c4c'][i]||'var(--text-muted)'};width:32px;text-align:center;">${i+1}</div>
-      <img src="${u.avatar||''}" style="width:38px;height:38px;border-radius:50%;border:2px solid rgba(124,58,237,0.3);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:600;color:#e2e8f0;">${u.tag}</div>
-        <div class="xp-bar-bg" style="margin-top:4px;width:100%;">
-          <div class="xp-bar-fill" style="width:${Math.min(100,u.xp)}%;"></div>
-        </div>
-      </div>
-      <div style="text-align:left;">
-        <div style="font-size:16px;font-weight:700;color:#a78bfa;">Lv.${u.level}</div>
-        <div style="font-size:12px;color:var(--text-muted);">${u.xp} XP</div>
-      </div>
-    </div>`).join('');
-}
+        // Header
+        $('selectedGuildName').textContent    = guildData.name;
+        $('selectedGuildMembers').textContent = guildData.memberCount?.toLocaleString('ar-SA');
+        $('selectedGuildChannels').textContent = guildData.channels?.length;
+        $('selectedGuildRoles').textContent   = guildData.roles?.length;
+        if (guildData.icon) $('selectedGuildIcon').src = guildData.icon;
 
-// ── Welcome Settings ──────────────────────────────────────────
-async function saveWelcomeSettings() {
-  const welcomeChannelId = document.getElementById('welcome-channel')?.value;
-  const leaveChannelId   = document.getElementById('leave-channel')?.value;
-  const data = await api('POST', '/api/config/welcome', { welcomeChannelId, leaveChannelId });
-  if (data.success) showToast('تم حفظ إعدادات الترحيب ✅', 'success');
-  else showToast('فشل', 'error');
-}
+        // Populate dropdowns
+        const textChannels = (guildData.channels || []).filter(c => c.type === 0);
+        const channelOptions = textChannels.map(c => `<option value="${c.id}">#${c.name}</option>`).join('');
+        const noOpt = '<option value="">— اختر قناة —</option>';
 
-async function testWelcome() {
-  const channelId = document.getElementById('welcome-channel')?.value;
-  if (!channelId) { showToast('اختر قناة أولاً', 'warning'); return; }
-  const data = await api('POST', '/api/test/welcome', { channelId });
-  if (data.success) showToast('تم إرسال رسالة تجريبية ✅', 'success');
-  else showToast('فشل: ' + data.error, 'error');
-}
+        ['purgeChannelId','lockChannelId','slowmodeChannelId','ticketChannelId',
+         'announceChannelId','sendMsgChannelId','logChannelId'].forEach(id => {
+          const el = $(id);
+          if (el) el.innerHTML = noOpt + channelOptions;
+        });
 
-// ── Protection UI ─────────────────────────────────────────────
-async function loadProtectionUI() {
-  const cfg = await api('GET', '/api/config');
-  const container = document.getElementById('protection-toggles');
-  if (!container) return;
-  const settings = [
-    { key: 'antiSpam',       label: 'مانع السب والقذف (AI)',    icon: 'brain-circuit' },
-    { key: 'antiLinks',      label: 'مانع الروابط',             icon: 'link-2-off' },
-    { key: 'antiMention',    label: 'مانع المنشن الجماعي',       icon: 'at-sign' },
-    { key: 'antiBots',       label: 'منع رسائل البوتات',         icon: 'bot' },
-    { key: 'antiGhostPing',  label: 'حماية Ghost Ping',          icon: 'ghost' },
-    { key: 'levelingEnabled',label: 'نظام المستويات',            icon: 'trending-up' },
-    { key: 'giveawayEnabled',label: 'نظام الجيف أواي',           icon: 'gift' },
-  ];
-  container.innerHTML = settings.map(s => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(15,12,41,0.4);border-radius:10px;border:1px solid rgba(124,58,237,0.15);">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <i data-lucide="${s.icon}" style="width:16px;height:16px;color:#a78bfa;"></i>
-        <span style="font-size:14px;color:#e2e8f0;">${s.label}</span>
-      </div>
-      <div class="toggle ${cfg[s.key] ? 'on' : ''}" id="toggle-${s.key}" onclick="this.classList.toggle('on')"></div>
-    </div>`).join('');
-  lucide.createIcons();
+        // Roles
+        const roles = (guildData.roles || []).filter(r => r.name !== '@everyone');
+        const roleOptions = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        ['giveRoleId','removeRoleId'].forEach(id => {
+          const el = $(id);
+          if (el) el.innerHTML = '<option value="">— اختر رتبة —</option>' + roleOptions;
+        });
 
-  // Bad words list
-  renderBadWords(cfg.badWords || []);
-  renderAllowedLinks(cfg.allowedLinks || []);
-}
+        renderRolesList(roles);
+        renderChannelsList(guildData.channels || []);
+        renderMembersList(guildData.members || []);
+        allMembers = guildData.members || [];
 
-function renderBadWords(words) {
-  const el = document.getElementById('bad-words-list');
-  if (!el) return;
-  el.innerHTML = words.map(w => `
-    <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:20px;font-size:12px;font-weight:600;color:#fca5a5;cursor:pointer;" onclick="removeBadWord('${w}')">
-      ${w} <i data-lucide="x" style="width:12px;height:12px;"></i>
-    </div>`).join('');
-  lucide.createIcons();
-}
+      } catch (err) {
+        showToast('خطأ', err.message, 'error');
+      }
+    }
 
-function renderAllowedLinks(links) {
-  const el = document.getElementById('allowed-links-list');
-  if (!el) return;
-  el.innerHTML = links.map(l => `
-    <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);border-radius:20px;font-size:12px;font-weight:600;color:#6ee7b7;">
-      🔗 ${l}
-    </div>`).join('');
-}
+    // ─── Render Roles List ────────────────────────────────────────
+    function renderRolesList(roles) {
+      if (!roles.length) {
+        $('rolesList').innerHTML = '<div class="text-white/30 text-sm text-center py-4">لا توجد رتب</div>';
+        return;
+      }
+      $('rolesList').innerHTML = roles.map(r => `
+        <div class="flex items-center justify-between p-2.5 glass-dark rounded-xl">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:${r.color || '#99aab5'}"></div>
+            <span class="text-sm font-medium">${r.name}</span>
+            <span class="text-xs text-white/40">${r.members} عضو</span>
+          </div>
+          <button onclick="doAction('deleterole', {roleId:'${r.id}'})" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded-lg hover:bg-red-500/10 transition-colors">حذف</button>
+        </div>`).join('');
+    }
 
-function addBadWord() {
-  const input = document.getElementById('bad-word-input');
-  const word  = input?.value.trim();
-  if (!word) return;
-  input.value = '';
-  showToast('تم إضافة الكلمة المحظورة ✅', 'success');
-}
+    // ─── Render Channels List ─────────────────────────────────────
+    function renderChannelsList(channels) {
+      const typeIcon = { 0: '💬', 2: '🔊', 4: '📂', 5: '📢', 13: '🎙️', 15: '📋' };
+      $('channelsList').innerHTML = channels.map(c => `
+        <div class="flex items-center gap-2 p-2 rounded-lg member-row">
+          <span>${typeIcon[c.type] || '💬'}</span>
+          <span class="text-sm">${c.name}</span>
+          <span class="text-xs text-white/30 ml-auto">${c.id}</span>
+        </div>`).join('') || '<div class="text-white/30 text-sm text-center py-4">لا توجد قنوات</div>';
+    }
 
-function removeBadWord(word) {
-  showToast('تم حذف الكلمة ✅', 'info');
-}
+    // ─── Render Members List ──────────────────────────────────────
+    function renderMembersList(members) {
+      allMembers = members;
+      $('memberCountBadge').textContent = members.length;
+      $('membersList').innerHTML = members.slice(0, 100).map(m => `
+        <div class="member-row flex items-center gap-3 p-2 rounded-xl" data-tag="${m.tag?.toLowerCase()}">
+          <img src="${m.avatar}" alt="" class="w-8 h-8 rounded-full" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate">${m.tag}</div>
+            <div class="text-xs text-white/30 truncate">${m.roles.slice(0,3).map(r=>`<span style="color:${r.color || '#99aab5'}">${r.name}</span>`).join(', ') || 'بدون رتبة'}</div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            ${m.muted ? '<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">مكتوم</span>' : ''}
+            <button onclick="quickBan('${m.id}')" class="btn-danger text-xs px-2 py-1 rounded-lg font-bold">حظر</button>
+            <button onclick="quickKick('${m.id}')" class="btn-warning text-xs px-2 py-1 rounded-lg font-bold">طرد</button>
+          </div>
+        </div>`).join('') || '<div class="text-white/30 text-sm text-center py-8">لا توجد أعضاء</div>';
+      if (members.length > 100) {
+        $('membersList').innerHTML += `<div class="text-center text-white/30 text-sm py-3">+ ${members.length - 100} عضو آخر</div>`;
+      }
+    }
 
-function addAllowedLink() {
-  const input = document.getElementById('allowed-link-input');
-  const link  = input?.value.trim();
-  if (!link) return;
-  input.value = '';
-  showToast('تم إضافة الرابط المسموح ✅', 'success');
-}
+    function filterMembers(q) {
+      const filtered = allMembers.filter(m => m.tag?.toLowerCase().includes(q.toLowerCase()));
+      renderMembersList(filtered);
+    }
 
-async function saveProtectionSettings() {
-  const keys = ['antiSpam','antiLinks','antiMention','antiBots','antiGhostPing','levelingEnabled','giveawayEnabled'];
-  const updates = {};
-  keys.forEach(k => {
-    const el = document.getElementById('toggle-' + k);
-    if (el) updates[k] = el.classList.contains('on');
-  });
-  const data = await api('POST', '/api/config/update', updates);
-  if (data.success) showToast('تم حفظ إعدادات الحماية ✅', 'success');
-  else showToast('فشل في الحفظ', 'error');
-}
+    function quickBan(userId) {
+      if (confirm(`حظر العضو ${userId}؟`)) doAction('ban', { userId, reason: 'Dashboard quick ban' });
+    }
+    function quickKick(userId) {
+      if (confirm(`طرد العضو ${userId}؟`)) doAction('kick', { userId, reason: 'Dashboard quick kick' });
+    }
 
-// ── Config UI ─────────────────────────────────────────────────
-async function loadConfigUI() {
-  const cfg = await api('GET', '/api/config');
-  if (!cfg) return;
-  document.getElementById('cfg-prefix').value = cfg.prefix || '!';
-  document.getElementById('cfg-title').value  = cfg.dashboard?.title || 'Discord Dashboard Pro';
-  const lev = document.getElementById('cfg-leveling');
-  const giv = document.getElementById('cfg-giveaway');
-  if (lev) { lev.classList.toggle('on', !!cfg.levelingEnabled); }
-  if (giv) { giv.classList.toggle('on', !!cfg.giveawayEnabled); }
-}
+    // ─── Tab Switcher ─────────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      $(`tab-${tab}`)?.classList.add('active');
+      document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+    }
 
-async function saveConfig() {
-  const prefix          = document.getElementById('cfg-prefix')?.value;
-  const levelingEnabled = document.getElementById('cfg-leveling')?.classList.contains('on');
-  const giveawayEnabled = document.getElementById('cfg-giveaway')?.classList.contains('on');
-  const data = await api('POST', '/api/config/update', { prefix, levelingEnabled, giveawayEnabled });
-  if (data.success) showToast('تم حفظ الإعدادات ✅', 'success');
-  else showToast('فشل', 'error');
-}
+    // ─── Do Action (API Call) ─────────────────────────────────────
+    async function doAction(action, data = {}) {
+      if (!selectedGuildId) {
+        showToast('تنبيه', 'اختر سيرفراً أولاً', 'warning');
+        return;
+      }
+      // Validate required fields
+      if (data.userId === '' && ['ban','kick','mute','unmute','warn','unban','giverole','removerole'].includes(action)) {
+        showToast('خطأ', 'أدخل معرف العضو', 'error');
+        return;
+      }
+      if (data.channelId === '' && ['purge','lock','unlock','slowmode','ticket','announce','sendmsg','setlog'].includes(action)) {
+        showToast('خطأ', 'اختر قناة أولاً', 'error');
+        return;
+      }
 
-// ── Refresh All ───────────────────────────────────────────────
-async function refreshAll() {
-  showToast('⏳ جاري التحديث...', 'info');
-  await Promise.all([ loadStatus(), loadGuild(), loadLogs(), loadStats() ]);
-  lucide.createIcons();
-  showToast('تم تحديث البيانات ✅', 'success');
-}
+      try {
+        const res    = await fetch(`${API}/api/action`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ guildId: selectedGuildId, action, data }),
+        });
+        const result = await res.json();
+        if (!res.ok || result.error) throw new Error(result.error || 'فشل التنفيذ');
+        showToast('تم بنجاح ✅', result.message || 'تم تنفيذ الأمر', 'success');
+        // Refresh guild data after action
+        setTimeout(loadGuildData, 1000);
+      } catch (err) {
+        showToast('خطأ ❌', err.message, 'error');
+      }
+    }
 
-// ── Auto Refresh ──────────────────────────────────────────────
-async function autoRefreshLogs() {
-  await loadLogs();
-}
+    // ─── Create Role ──────────────────────────────────────────────
+    function createRole() {
+      const name  = v('newRoleName');
+      const color = $('newRoleColorHex').value || '#99AAB5';
+      const hoist = $('newRoleHoist').checked;
+      if (!name) { showToast('خطأ', 'أدخل اسم الرتبة', 'error'); return; }
+      doAction('createrole', { name, color, hoist });
+    }
 
-// ── Init ──────────────────────────────────────────────────────
-(async function init() {
-  await Promise.all([ loadStatus(), loadGuild(), loadLogs(), loadStats() ]);
-  lucide.createIcons();
-  updateEmbedPreview();
+    // ─── Toggle Antispam ──────────────────────────────────────────
+    function toggleAntispam(enabled) {
+      doAction('antispam', { enabled });
+    }
 
-  // Auto-refresh status every 15s
-  setInterval(loadStatus, 15000);
-  // Auto-refresh logs every 5s
-  setInterval(autoRefreshLogs, 5000);
-})();
-</script>
+    // ─── Init ─────────────────────────────────────────────────────
+    createParticles();
+    renderCommandsRef();
+    loadStats();
+    statsInterval = setInterval(loadStats, 30000); // refresh every 30s
+  </script>
 </body>
 </html>
