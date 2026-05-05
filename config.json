@@ -1,0 +1,23 @@
+{
+  "token": "",
+  "clientId": "",
+  "guildId": "",
+  "port": 3000,
+  "dashboardSecret": "afrm_super_secret_key_2024",
+  "prefix": "!",
+  "welcomeChannelId": "",
+  "leaveChannelId": "",
+  "logChannelId": "",
+  "ticketCategoryId": "",
+  "levelRoles": {},
+  "autoRole": "",
+  "protectedRole": "",
+  "badWords": ["سب", "شتيمة", "لعن", "كلب", "حمار", "غبي", "بلهاء", "ابن الكلب", "الله يلعن", "يلعن ابوك"],
+  "bannedDomains": ["discord.gg", "t.me", "bit.ly"],
+  "aiModeration": true,
+  "antiSpam": true,
+  "antiGhostPing": true,
+  "maxMentions": 5,
+  "slowmodeDefault": 3,
+  "embedColor": "#7c3aed"
+}

@@ -2,2591 +2,1491 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>🎛️ لوحة تحكم البوت | Discord Bot Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AFRM Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-/* ══════════════════════════════════════════════════════════════
-   CSS VARIABLES & RESET
-══════════════════════════════════════════════════════════════ */
-:root {
-  --bg-primary:   #0d0f13;
-  --bg-secondary: #161b22;
-  --bg-card:      #1c2128;
-  --bg-hover:     #21262d;
-  --bg-input:     #0d1117;
-  --accent:       #5865F2;
-  --accent2:      #7289DA;
-  --accent-glow:  rgba(88,101,242,0.25);
-  --green:        #57F287;
-  --red:          #ED4245;
-  --yellow:       #FEE75C;
-  --orange:       #E67E22;
-  --purple:       #9B59B6;
-  --cyan:         #00D8FF;
-  --text-primary: #E6EDF3;
-  --text-muted:   #7D8590;
-  --text-dim:     #484F58;
-  --border:       #30363D;
-  --border-glow:  rgba(88,101,242,0.4);
-  --shadow:       0 8px 32px rgba(0,0,0,0.5);
-  --radius:       12px;
-  --radius-sm:    8px;
-  --transition:   0.2s ease;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-html { scroll-behavior:smooth; }
-body {
-  font-family: 'Segoe UI', 'Cairo', Tahoma, Arial, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-::-webkit-scrollbar { width:6px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius:3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-/* ══════════════════════════════════════════════════════════════
-   LAYOUT
-══════════════════════════════════════════════════════════════ */
-.app { display:flex; min-height:100vh; }
-
-/* SIDEBAR */
-.sidebar {
-  width: 260px;
-  min-height: 100vh;
-  background: var(--bg-secondary);
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; right: 0;
-  z-index: 100;
-  transition: var(--transition);
-}
-.sidebar-logo {
-  padding: 20px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.sidebar-logo .logo-icon {
-  width: 44px; height: 44px;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px var(--accent-glow);
-}
-.sidebar-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-.sidebar-logo .logo-sub  { font-size: 11px; color: var(--text-muted); }
-
-.bot-mini-card {
-  margin: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.bot-avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  position: relative;
-  flex-shrink: 0;
-}
-.bot-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
-.status-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  border: 2px solid var(--bg-card);
-  position: absolute;
-  bottom: 0; left: 0;
-}
-.status-dot.online  { background: var(--green); }
-.status-dot.offline { background: var(--red); }
-.bot-info-mini { flex: 1; min-width: 0; }
-.bot-tag  { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.bot-ping { font-size: 11px; color: var(--text-muted); }
-
-.nav-section { padding: 8px 12px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); font-weight: 600; }
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 16px;
-  margin: 2px 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 14px;
-  color: var(--text-muted);
-  text-decoration: none;
-}
-.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
-.nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--border-glow); }
-.nav-item .nav-icon { font-size: 16px; width: 20px; text-align:center; flex-shrink:0; }
-.nav-item .nav-badge {
-  margin-right: auto;
-  background: var(--red);
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 12px;
-  border-top: 1px solid var(--border);
-}
-
-/* MAIN */
-.main {
-  margin-right: 260px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* TOP BAR */
-.topbar {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.topbar-title { font-size: 18px; font-weight: 700; flex: 1; }
-.live-badge {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(87,242,135,0.1);
-  border: 1px solid rgba(87,242,135,0.3);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: var(--green);
-}
-.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation: pulse 2s infinite; }
-
-/* PAGE CONTENT */
-.page { display: none; padding: 24px; }
-.page.active { display: block; }
-
-/* ══════════════════════════════════════════════════════════════
-   CARDS & COMPONENTS
-══════════════════════════════════════════════════════════════ */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: var(--transition);
-}
-.card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
-.card-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); flex: 1; }
-.card-body { padding: 16px 20px; }
-.card-icon { font-size: 18px; }
-
-/* GRID */
-.grid { display: grid; gap: 16px; }
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
-.grid-5 { grid-template-columns: repeat(5, 1fr); }
-.grid-auto { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-
-/* STAT CARDS */
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
-  transition: var(--transition);
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 100%; height: 3px;
-}
-.stat-card.blue::before   { background: var(--accent); }
-.stat-card.green::before  { background: var(--green); }
-.stat-card.red::before    { background: var(--red); }
-.stat-card.yellow::before { background: var(--yellow); }
-.stat-card.purple::before { background: var(--purple); }
-.stat-card.cyan::before   { background: var(--cyan); }
-.stat-card.orange::before { background: var(--orange); }
-
-.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.stat-top { display: flex; align-items: center; justify-content: space-between; }
-.stat-icon { font-size: 24px; }
-.stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
-.stat-label { font-size: 12px; color: var(--text-muted); }
-.stat-trend { font-size: 11px; display: flex; align-items: center; gap: 4px; }
-.stat-trend.up   { color: var(--green); }
-.stat-trend.down { color: var(--red); }
-
-/* BUTTONS */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  transition: var(--transition);
-  white-space: nowrap;
-}
-.btn:active { transform: scale(0.97); }
-.btn-primary   { background: var(--accent); color: white; }
-.btn-primary:hover { background: #4752c4; box-shadow: 0 4px 16px var(--accent-glow); }
-.btn-success   { background: var(--green); color: #000; }
-.btn-success:hover { opacity: 0.85; }
-.btn-danger    { background: var(--red); color: white; }
-.btn-danger:hover  { opacity: 0.85; }
-.btn-warning   { background: var(--yellow); color: #000; }
-.btn-warning:hover { opacity: 0.85; }
-.btn-ghost     { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
-.btn-purple    { background: var(--purple); color: white; }
-.btn-cyan      { background: var(--cyan); color: #000; }
-.btn-sm  { padding: 5px 10px; font-size: 12px; }
-.btn-lg  { padding: 10px 22px; font-size: 15px; }
-.btn-full { width: 100%; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* INPUTS */
-.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.form-row   { display: flex; gap: 12px; }
-.form-row > * { flex: 1; }
-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
-input[type="text"],
-input[type="password"],
-input[type="number"],
-input[type="url"],
-input[type="color"],
-select,
-textarea {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: inherit;
-  padding: 8px 12px;
-  width: 100%;
-  outline: none;
-  transition: var(--transition);
-}
-input:focus, select:focus, textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-input[type="color"] { padding: 4px; height: 36px; cursor: pointer; }
-textarea { resize: vertical; min-height: 70px; }
-select { cursor: pointer; }
-select option { background: var(--bg-card); }
-
-/* TOGGLE */
-.toggle-wrap { display: flex; align-items: center; gap: 10px; }
-.toggle {
-  width: 42px; height: 22px;
-  background: var(--border);
-  border-radius: 11px;
-  cursor: pointer;
-  position: relative;
-  transition: var(--transition);
-  flex-shrink: 0;
-}
-.toggle.on { background: var(--accent); }
-.toggle::after {
-  content: '';
-  position: absolute;
-  width: 16px; height: 16px;
-  background: white;
-  border-radius: 50%;
-  top: 3px; right: 3px;
-  transition: var(--transition);
-}
-.toggle.on::after { right: calc(100% - 19px); }
-
-/* TAGS */
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.tag-blue   { background: rgba(88,101,242,0.15); color: var(--accent); border: 1px solid rgba(88,101,242,0.3); }
-.tag-green  { background: rgba(87,242,135,0.12); color: var(--green);  border: 1px solid rgba(87,242,135,0.3); }
-.tag-red    { background: rgba(237,66,69,0.12);  color: var(--red);    border: 1px solid rgba(237,66,69,0.3); }
-.tag-yellow { background: rgba(254,231,92,0.12); color: var(--yellow); border: 1px solid rgba(254,231,92,0.3); }
-.tag-purple { background: rgba(155,89,182,0.12); color: var(--purple); border: 1px solid rgba(155,89,182,0.3); }
-.tag-cyan   { background: rgba(0,216,255,0.1);   color: var(--cyan);   border: 1px solid rgba(0,216,255,0.3); }
-
-/* TABLE */
-.table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.table th { text-align: right; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-hover); }
-.table td { padding: 10px 14px; border-bottom: 1px solid rgba(48,54,61,0.5); vertical-align: middle; }
-.table tr:hover td { background: var(--bg-hover); }
-.table tr:last-child td { border-bottom: none; }
-
-/* ALERTS */
-.alert {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.alert-success { background: rgba(87,242,135,0.1);  border: 1px solid rgba(87,242,135,0.3);  color: var(--green); }
-.alert-error   { background: rgba(237,66,69,0.1);   border: 1px solid rgba(237,66,69,0.3);   color: var(--red); }
-.alert-info    { background: rgba(88,101,242,0.1);  border: 1px solid rgba(88,101,242,0.3);  color: var(--accent); }
-.alert-warning { background: rgba(254,231,92,0.1);  border: 1px solid rgba(254,231,92,0.3);  color: var(--yellow); }
-
-/* TERMINAL/LOG */
-.log-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 12px;
-  height: 180px;
-  overflow-y: auto;
-  direction: ltr;
-}
-.log-line { margin-bottom: 3px; display: flex; gap: 8px; }
-.log-time { color: var(--text-dim); flex-shrink: 0; }
-.log-green  { color: var(--green); }
-.log-red    { color: var(--red); }
-.log-yellow { color: var(--yellow); }
-.log-blue   { color: var(--accent); }
-.log-cyan   { color: var(--cyan); }
-
-/* PING CHART */
-.ping-bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 50px; }
-.ping-bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; transition: var(--transition); }
-
-/* TOKEN CONNECT */
-.connect-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-.connect-modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 40px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-  animation: slideUp 0.4s ease;
-}
-.connect-logo {
-  width: 80px; height: 80px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 40px;
-  box-shadow: 0 8px 32px var(--accent-glow);
-}
-.connect-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px; }
-.connect-sub   { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
-
-/* NOTIFICATIONS */
-.notif-stack {
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
-}
-.notif {
-  padding: 12px 16px;
-  border-radius: var(--radius);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 260px;
-  box-shadow: var(--shadow);
-  pointer-events: all;
-  animation: slideInLeft 0.3s ease;
-  border-right: 3px solid;
-}
-.notif.success { background: var(--bg-card); border-color: var(--green); }
-.notif.error   { background: var(--bg-card); border-color: var(--red); }
-.notif.info    { background: var(--bg-card); border-color: var(--accent); }
-.notif.warning { background: var(--bg-card); border-color: var(--yellow); }
-.notif-icon { font-size: 16px; }
-
-/* ANIMATIONS */
-@keyframes pulse {
-  0%,100% { opacity:1; transform:scale(1); }
-  50% { opacity:0.5; transform:scale(1.3); }
-}
-@keyframes slideUp {
-  from { opacity:0; transform:translateY(30px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes slideInLeft {
-  from { opacity:0; transform:translateX(-20px); }
-  to   { opacity:1; transform:translateX(0); }
-}
-@keyframes fadeOut {
-  from { opacity:1; }
-  to   { opacity:0; transform:translateX(-20px); }
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.spin { animation: spin 1s linear infinite; }
-.fade-out { animation: fadeOut 0.3s ease forwards; }
-
-/* PROGRESS BAR */
-.progress-wrap { background: var(--bg-input); border-radius: 4px; height: 8px; overflow: hidden; }
-.progress-bar  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.5s ease; }
-
-/* MEMBERS LIST */
-.member-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-.member-item:last-child { border-bottom: none; }
-.member-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.member-name { font-size: 13px; font-weight: 600; }
-.member-role { font-size: 11px; color: var(--text-muted); }
-
-/* EVENT LOG */
-.event-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(48,54,61,0.5);
-  font-size: 12px;
-}
-.event-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-.event-text { flex: 1; color: var(--text-muted); }
-.event-text strong { color: var(--text-primary); }
-.event-time { color: var(--text-dim); font-size: 10px; flex-shrink: 0; }
-
-/* SECTION TITLES */
-.section-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-dim);
-  font-weight: 700;
-  margin-bottom: 12px;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* DIVIDER */
-.divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-/* GUILD SELECTOR */
-.guild-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: var(--transition);
-  margin-bottom: 8px;
-}
-.guild-card:hover, .guild-card.selected { border-color: var(--accent); background: var(--accent-glow); }
-.guild-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.guild-icon img { width:100%; height:100%; border-radius:12px; object-fit:cover; }
-.guild-name    { font-size: 14px; font-weight: 600; }
-.guild-members { font-size: 12px; color: var(--text-muted); }
-
-/* WARN CARD */
-.warn-entry {
-  background: rgba(254,231,92,0.05);
-  border: 1px solid rgba(254,231,92,0.2);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.warn-number {
-  width: 28px; height: 28px;
-  background: rgba(254,231,92,0.15);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
-  color: var(--yellow);
-  flex-shrink: 0;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1100px) {
-  .grid-5 { grid-template-columns: repeat(3, 1fr); }
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 800px) {
-  .sidebar { width: 60px; }
-  .sidebar .logo-text, .sidebar .logo-sub, .sidebar .bot-info-mini, .sidebar .nav-section, .nav-item span:not(.nav-icon) { display: none; }
-  .nav-item { justify-content: center; padding: 10px; }
-  .main { margin-right: 60px; }
-  .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .form-row { flex-direction: column; }
-}
-
-/* GLOW EFFECTS */
-.glow-blue   { box-shadow: 0 0 16px rgba(88,101,242,0.4); }
-.glow-green  { box-shadow: 0 0 16px rgba(87,242,135,0.4); }
-.glow-red    { box-shadow: 0 0 16px rgba(237,66,69,0.4); }
-.glow-yellow { box-shadow: 0 0 16px rgba(254,231,92,0.4); }
-
-/* ROLE COLOR DOT */
-.role-color { width:12px; height:12px; border-radius:50%; display:inline-block; flex-shrink:0; }
-
-/* EMBED PREVIEW */
-.embed-preview {
-  border-right: 4px solid var(--accent);
-  background: var(--bg-input);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 12px;
-  margin-top: 12px;
-}
-.embed-preview .ep-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-.embed-preview .ep-desc  { font-size: 13px; color: var(--text-muted); }
-
-/* UPTIME SEGMENTS */
-.uptime-segs { display:flex; gap:3px; margin-top:8px; }
-.uptime-seg  { flex:1; height:6px; border-radius:3px; }
-
-/* NO DATA */
-.no-data { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
-.no-data .nd-icon { font-size:40px; margin-bottom:10px; }
+  :root {
+    --neon-purple: #a855f7;
+    --neon-cyan:   #22d3ee;
+    --neon-pink:   #ec4899;
+    --neon-green:  #4ade80;
+    --neon-orange: #fb923c;
+    --glass-bg:    rgba(15,10,30,0.6);
+    --glass-border:rgba(168,85,247,0.25);
+    --dark-bg:     #050510;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Cairo',sans-serif;
+    background:var(--dark-bg);
+    color:#e2e8f0;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* Animated background */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(168,85,247,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 90% 90%, rgba(34,211,238,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(236,72,153,0.05) 0%, transparent 70%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes bgPulse {
+    0%  { opacity:0.7; }
+    100%{ opacity:1.0; }
+  }
+  /* Glass cards */
+  .glass {
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-radius:16px;
+    transition:all .3s ease;
+  }
+  .glass:hover { border-color:rgba(168,85,247,0.5); box-shadow:0 0 30px rgba(168,85,247,0.1); }
+  /* Neon buttons */
+  .btn-neon {
+    background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(34,211,238,0.1));
+    border:1px solid var(--neon-purple);
+    color:#e2e8f0; border-radius:10px;
+    padding:8px 18px; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-size:14px; font-weight:600;
+    transition:all .3s ease; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-neon:hover {
+    background:linear-gradient(135deg,rgba(168,85,247,0.5),rgba(34,211,238,0.3));
+    box-shadow:0 0 20px rgba(168,85,247,0.5),0 0 40px rgba(168,85,247,0.2);
+    transform:translateY(-2px);
+  }
+  .btn-red  { border-color:var(--neon-pink);  background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(239,68,68,0.1)); }
+  .btn-red:hover  { box-shadow:0 0 20px rgba(236,72,153,0.5); }
+  .btn-green{ border-color:var(--neon-green); background:linear-gradient(135deg,rgba(74,222,128,0.2),rgba(34,211,238,0.1)); }
+  .btn-green:hover{ box-shadow:0 0 20px rgba(74,222,128,0.5); }
+  .btn-cyan { border-color:var(--neon-cyan);  background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(168,85,247,0.1)); }
+  .btn-cyan:hover { box-shadow:0 0 20px rgba(34,211,238,0.5); }
+  .btn-orange{ border-color:var(--neon-orange); background:linear-gradient(135deg,rgba(251,146,60,0.2),rgba(236,72,153,0.1)); }
+  .btn-orange:hover{ box-shadow:0 0 20px rgba(251,146,60,0.5); }
+  /* Inputs */
+  .inp {
+    background:rgba(10,5,25,0.8);
+    border:1px solid rgba(168,85,247,0.3);
+    border-radius:10px; padding:8px 14px;
+    color:#e2e8f0; font-family:'Cairo',sans-serif; font-size:14px;
+    width:100%; outline:none; transition:all .3s;
+  }
+  .inp:focus { border-color:var(--neon-purple); box-shadow:0 0 15px rgba(168,85,247,0.3); }
+  select.inp option { background:#0f0a1e; }
+  /* Sidebar */
+  #sidebar {
+    width:260px; min-height:100vh; position:fixed; right:0; top:0; z-index:100;
+    background:rgba(8,4,20,0.9); border-left:1px solid rgba(168,85,247,0.2);
+    backdrop-filter:blur(30px); padding:20px 0;
+    display:flex; flex-direction:column;
+  }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:11px 22px; margin:2px 10px; border-radius:12px;
+    cursor:pointer; transition:all .3s; font-size:15px; font-weight:600;
+    color:#94a3b8; border:1px solid transparent;
+  }
+  .nav-item:hover { background:rgba(168,85,247,0.15); color:#e2e8f0; border-color:rgba(168,85,247,0.3); }
+  .nav-item.active { background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(34,211,238,0.1)); color:#e2e8f0; border-color:var(--neon-purple); box-shadow:0 0 15px rgba(168,85,247,0.2); }
+  /* Stat cards */
+  .stat-card { padding:20px; display:flex; flex-direction:column; gap:8px; }
+  .stat-value { font-size:32px; font-weight:900; font-family:'JetBrains Mono',monospace; }
+  .stat-label { font-size:13px; color:#64748b; font-weight:600; }
+  /* Log badges */
+  .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-KICK    { background:rgba(251,146,60,0.2); color:#fb923c; border:1px solid #fb923c44; }
+  .badge-BAN     { background:rgba(239,68,68,0.2);  color:#ef4444; border:1px solid #ef444444; }
+  .badge-MUTE    { background:rgba(168,85,247,0.2); color:#a855f7; border:1px solid #a855f744; }
+  .badge-WARN    { background:rgba(234,179,8,0.2);  color:#eab308; border:1px solid #eab30844; }
+  .badge-BAD_WORD{ background:rgba(236,72,153,0.2); color:#ec4899; border:1px solid #ec489944; }
+  .badge-SPAM    { background:rgba(249,115,22,0.2); color:#f97316; border:1px solid #f9731644; }
+  .badge-JOIN    { background:rgba(74,222,128,0.2); color:#4ade80; border:1px solid #4ade8044; }
+  .badge-LEAVE   { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #f8717144; }
+  .badge-LEVEL_UP{ background:rgba(34,211,238,0.2); color:#22d3ee; border:1px solid #22d3ee44; }
+  .badge-GHOST_PING{ background:rgba(125,211,252,0.2); color:#7dd3fc; border:1px solid #7dd3fc44; }
+  .badge-SYSTEM  { background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid #94a3b844; }
+  .badge-default { background:rgba(168,85,247,0.2); color:#a855f7; border:1px solid #a855f744; }
+  /* Tabs */
+  .tab { padding:8px 18px; border-radius:10px; cursor:pointer; font-weight:700; font-size:13px; transition:all .3s; color:#64748b; }
+  .tab.active { background:rgba(168,85,247,0.25); color:#a855f7; border:1px solid #a855f755; }
+  /* Toast */
+  #toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; }
+  .toast-msg { padding:12px 24px; border-radius:12px; font-weight:700; font-size:14px; margin-top:8px; animation:toastIn .3s ease; }
+  .toast-ok  { background:rgba(74,222,128,0.2); border:1px solid #4ade80; color:#4ade80; }
+  .toast-err { background:rgba(239,68,68,0.2);  border:1px solid #ef4444; color:#ef4444; }
+  @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  /* Chart bars */
+  .bar-fill { transition:width 1s ease; }
+  /* Ping dot */
+  .ping-dot { width:10px; height:10px; border-radius:50%; background:#4ade80; animation:pingPulse 2s infinite; }
+  @keyframes pingPulse { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.6)} 50%{box-shadow:0 0 0 8px rgba(74,222,128,0)} }
+  /* Scroll */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(168,85,247,0.4); border-radius:3px; }
+  /* Content */
+  #main { margin-right:260px; padding:28px; min-height:100vh; }
+  .section { display:none; }
+  .section.active { display:block; animation:fadeIn .4s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  /* Glow text */
+  .glow-purple { color:var(--neon-purple); text-shadow:0 0 15px rgba(168,85,247,0.7); }
+  .glow-cyan   { color:var(--neon-cyan);   text-shadow:0 0 15px rgba(34,211,238,0.7); }
+  .glow-green  { color:var(--neon-green);  text-shadow:0 0 15px rgba(74,222,128,0.7); }
+  .glow-pink   { color:var(--neon-pink);   text-shadow:0 0 15px rgba(236,72,153,0.7); }
+  /* Toggle */
+  .toggle { position:relative; width:48px; height:26px; }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:rgba(168,85,247,0.2); border-radius:13px; cursor:pointer; border:1px solid rgba(168,85,247,0.4); transition:.3s; }
+  .toggle-slider::before { content:''; position:absolute; width:20px; height:20px; border-radius:50%; background:#64748b; top:2px; right:2px; transition:.3s; }
+  .toggle input:checked + .toggle-slider { background:rgba(168,85,247,0.5); }
+  .toggle input:checked + .toggle-slider::before { transform:translateX(-22px); background:var(--neon-purple); box-shadow:0 0 8px var(--neon-purple); }
+  /* Section Header */
+  .sec-header { font-size:22px; font-weight:900; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+  /* Grid */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr 1fr}}
+  @media(max-width:900px){#sidebar{width:60px}.nav-label{display:none}#main{margin-right:60px}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+  /* Member row */
+  .member-row { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; transition:.3s; }
+  .member-row:hover { background:rgba(168,85,247,0.1); }
+  /* Ticket card */
+  .ticket-card { padding:16px; cursor:pointer; transition:.3s; }
+  .ticket-card:hover { border-color:rgba(34,211,238,0.5); }
+  /* Role chip */
+  .role-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     TOKEN CONNECT OVERLAY
-═══════════════════════════════════════════════════════════ -->
-<div class="connect-overlay" id="connectOverlay">
-  <div class="connect-modal">
-    <div class="connect-logo">🤖</div>
-    <div class="connect-title">لوحة تحكم البوت</div>
-    <div class="connect-sub">أدخل توكن البوت الخاص بك لبدء التشغيل والتحكم الكامل</div>
-    <div id="connectAlert"></div>
-    <div class="form-group">
-      <label>🔑 توكن البوت (Bot Token)</label>
-      <input type="password" id="tokenInput" placeholder="أدخل توكن البوت هنا..." style="font-family:monospace;font-size:12px;"/>
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <!-- Logo -->
+  <div style="padding:0 22px 20px; border-bottom:1px solid rgba(168,85,247,0.2)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#a855f7,#22d3ee);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(168,85,247,0.5)">
+        <i data-lucide="shield-check" style="width:22px;height:22px;color:#fff"></i>
+      </div>
+      <div class="nav-label">
+        <div style="font-weight:900;font-size:18px;background:linear-gradient(135deg,#a855f7,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AFRM</div>
+        <div style="font-size:11px;color:#64748b;margin-top:-2px">Dashboard v2</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>🌐 رابط السيرفر (API URL)</label>
-      <input type="text" id="apiUrlInput" value="http://localhost:3000" placeholder="http://localhost:3000"/>
+  </div>
+  <!-- Bot status chip -->
+  <div style="padding:12px 22px;border-bottom:1px solid rgba(168,85,247,0.15)">
+    <div style="display:flex;align-items:center;gap:8px" id="bot-status-bar">
+      <div class="ping-dot"></div>
+      <span class="nav-label" id="bot-tag-nav" style="font-size:13px;color:#94a3b8">Connecting...</span>
     </div>
-    <button class="btn btn-primary btn-full btn-lg" onclick="connectBot()" id="connectBtn">
-      <span>🚀</span> ربط البوت
-    </button>
-    <div style="margin-top:12px;font-size:11px;color:var(--text-dim);text-align:center;">
-      التوكن محفوظ في المتصفح فقط ولا يُرسل لأي مكان غير السيرفر المحلي
+  </div>
+  <!-- Nav items -->
+  <div style="flex:1;overflow-y:auto;padding:10px 0;margin-top:8px">
+    <div class="nav-item active" onclick="navigate('overview')">
+      <i data-lucide="layout-dashboard" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">نظرة عامة</span>
+    </div>
+    <div class="nav-item" onclick="navigate('moderation')">
+      <i data-lucide="gavel" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الإشراف</span>
+    </div>
+    <div class="nav-item" onclick="navigate('protection')">
+      <i data-lucide="shield" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الحماية</span>
+    </div>
+    <div class="nav-item" onclick="navigate('roles')">
+      <i data-lucide="crown" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الرتب</span>
+    </div>
+    <div class="nav-item" onclick="navigate('members')">
+      <i data-lucide="users" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الأعضاء</span>
+    </div>
+    <div class="nav-item" onclick="navigate('tickets')">
+      <i data-lucide="ticket" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">التذاكر</span>
+    </div>
+    <div class="nav-item" onclick="navigate('embed')">
+      <i data-lucide="mail" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الإمبيد</span>
+    </div>
+    <div class="nav-item" onclick="navigate('giveaway')">
+      <i data-lucide="gift" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">Giveaway</span>
+    </div>
+    <div class="nav-item" onclick="navigate('polls')">
+      <i data-lucide="bar-chart-2" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">التصويت</span>
+    </div>
+    <div class="nav-item" onclick="navigate('levels')">
+      <i data-lucide="trending-up" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الليفلات</span>
+    </div>
+    <div class="nav-item" onclick="navigate('logs')">
+      <i data-lucide="scroll" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">السجلات</span>
+    </div>
+    <div class="nav-item" onclick="navigate('settings')">
+      <i data-lucide="settings-2" style="width:18px;height:18px;flex-shrink:0"></i><span class="nav-label">الإعدادات</span>
+    </div>
+  </div>
+  <!-- Ping display -->
+  <div style="padding:14px 22px;border-top:1px solid rgba(168,85,247,0.15)">
+    <div style="font-size:12px;color:#64748b;display:flex;justify-content:space-between;align-items:center">
+      <span class="nav-label">Ping</span>
+      <span id="ping-display" class="nav-label" style="color:var(--neon-green);font-family:'JetBrains Mono';font-weight:700">--ms</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN CONTENT ═══════════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ─────────────────── OVERVIEW ─────────────────────────────── -->
+<section id="sec-overview" class="section active">
+  <div class="sec-header">
+    <i data-lucide="layout-dashboard" style="width:26px;height:26px;color:var(--neon-purple)"></i>
+    <span class="glow-purple">نظرة عامة</span>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="glass stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="stat-value glow-purple" id="stat-members">--</div>
+          <div class="stat-label">إجمالي الأعضاء</div>
+        </div>
+        <div style="background:rgba(168,85,247,0.15);padding:10px;border-radius:12px;border:1px solid rgba(168,85,247,0.3)">
+          <i data-lucide="users" style="width:22px;height:22px;color:var(--neon-purple)"></i>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#4ade80">
+        <span id="stat-humans">--</span> بشر · <span id="stat-bots">--</span> بوت
+      </div>
+    </div>
+    <div class="glass stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="stat-value glow-cyan" id="stat-ping">--</div>
+          <div class="stat-label">زمن الاستجابة (ms)</div>
+        </div>
+        <div style="background:rgba(34,211,238,0.15);padding:10px;border-radius:12px;border:1px solid rgba(34,211,238,0.3)">
+          <i data-lucide="activity" style="width:22px;height:22px;color:var(--neon-cyan)"></i>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#64748b">WebSocket Ping</div>
+    </div>
+    <div class="glass stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="stat-value glow-green" id="stat-uptime">--</div>
+          <div class="stat-label">وقت التشغيل</div>
+        </div>
+        <div style="background:rgba(74,222,128,0.15);padding:10px;border-radius:12px;border:1px solid rgba(74,222,128,0.3)">
+          <i data-lucide="clock" style="width:22px;height:22px;color:var(--neon-green)"></i>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#64748b">منذ آخر إعادة تشغيل</div>
+    </div>
+    <div class="glass stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="stat-value glow-pink" id="stat-guilds">--</div>
+          <div class="stat-label">السيرفرات</div>
+        </div>
+        <div style="background:rgba(236,72,153,0.15);padding:10px;border-radius:12px;border:1px solid rgba(236,72,153,0.3)">
+          <i data-lucide="server" style="width:22px;height:22px;color:var(--neon-pink)"></i>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#64748b"><span id="stat-channels">--</span> روم · <span id="stat-roles">--</span> رتبة</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- Log types chart -->
+    <div class="glass" style="padding:20px">
+      <div style="font-weight:800;font-size:16px;margin-bottom:16px;color:var(--neon-cyan)">📊 نوع المخالفات</div>
+      <div id="log-chart" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+    <!-- Top levelers -->
+    <div class="glass" style="padding:20px">
+      <div style="font-weight:800;font-size:16px;margin-bottom:16px;color:var(--neon-purple)">🏆 أعلى المستويات</div>
+      <div id="top-levels" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+
+  <!-- Recent logs preview -->
+  <div class="glass" style="padding:20px">
+    <div style="font-weight:800;font-size:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--neon-orange)">📋 آخر الأحداث</span>
+      <button class="btn-neon btn-cyan" onclick="navigate('logs')"><i data-lucide="external-link" style="width:14px;height:14px"></i> كل السجلات</button>
+    </div>
+    <div id="recent-logs-preview"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── MODERATION ───────────────────────────── -->
+<section id="sec-moderation" class="section">
+  <div class="sec-header">
+    <i data-lucide="gavel" style="width:26px;height:26px;color:var(--neon-orange)"></i>
+    <span class="glow-pink">الإشراف</span>
+  </div>
+
+  <!-- Tab row -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <div class="tab active" id="mod-tab-member" onclick="modTab('member')">👤 إجراء على عضو</div>
+    <div class="tab" id="mod-tab-channel" onclick="modTab('channel')">📺 إجراء على روم</div>
+    <div class="tab" id="mod-tab-voice" onclick="modTab('voice')">🔊 نقل صوتي</div>
+  </div>
+
+  <!-- Member actions -->
+  <div id="mod-member" class="glass" style="padding:22px;margin-bottom:16px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:16px">🎯 إجراءات على الأعضاء</div>
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">معرّف العضو (ID)</label>
+        <input class="inp" id="mod-uid" placeholder="123456789012345678"/>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">السبب</label>
+        <input class="inp" id="mod-reason" placeholder="اكتب السبب..."/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-neon btn-orange" onclick="doMod('kick')"><i data-lucide="user-x" style="width:15px;height:15px"></i> طرد</button>
+      <button class="btn-neon btn-red" onclick="doMod('ban')"><i data-lucide="ban" style="width:15px;height:15px"></i> حظر</button>
+      <button class="btn-neon" onclick="doMod('unban')"><i data-lucide="user-check" style="width:15px;height:15px"></i> فك حظر</button>
+      <button class="btn-neon btn-cyan" onclick="doModMute()"><i data-lucide="mic-off" style="width:15px;height:15px"></i> كتم</button>
+      <button class="btn-neon btn-green" onclick="doMod('unmute')"><i data-lucide="mic" style="width:15px;height:15px"></i> فك كتم</button>
+      <button class="btn-neon btn-orange" onclick="doMod('warn')"><i data-lucide="alert-triangle" style="width:15px;height:15px"></i> تحذير</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1">
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">نك نيم جديد</label>
+        <input class="inp" id="mod-nick" placeholder="النك نيم الجديد..."/>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">مدة الكتم (دقائق)</label>
+        <input class="inp" id="mod-mute-dur" type="number" placeholder="10" value="10"/>
+      </div>
+      <button class="btn-neon" style="margin-top:22px" onclick="doMod('nickname')"><i data-lucide="edit" style="width:15px;height:15px"></i> تغيير النك</button>
+    </div>
+  </div>
+
+  <!-- Channel actions -->
+  <div id="mod-channel" class="glass" style="padding:22px;margin-bottom:16px;display:none">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-purple);margin-bottom:16px">📺 إجراءات على الرووم</div>
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الروم</label>
+        <select class="inp" id="mod-channel-sel"><option value="">-- اختر روم --</option></select>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">عدد الرسائل للمسح</label>
+        <input class="inp" id="mod-clear-n" type="number" placeholder="10" value="10"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn-neon btn-red" onclick="doChannel('lock')"><i data-lucide="lock" style="width:15px;height:15px"></i> قفل الروم</button>
+      <button class="btn-neon btn-green" onclick="doChannel('unlock')"><i data-lucide="unlock" style="width:15px;height:15px"></i> فتح الروم</button>
+      <button class="btn-neon btn-orange" onclick="doChannel('clear')"><i data-lucide="trash-2" style="width:15px;height:15px"></i> مسح الرسائل</button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="flex:1">
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">Slowmode (ثواني)</label>
+        <input class="inp" id="mod-slowmode" type="number" placeholder="3" value="3"/>
+      </div>
+      <button class="btn-neon btn-cyan" style="margin-top:22px" onclick="doChannel('slowmode')"><i data-lucide="timer" style="width:15px;height:15px"></i> تعديل Slowmode</button>
+    </div>
+  </div>
+
+  <!-- Voice move -->
+  <div id="mod-voice" class="glass" style="padding:22px;display:none">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-green);margin-bottom:16px">🔊 نقل عضو صوتياً</div>
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">معرّف العضو</label>
+        <input class="inp" id="mod-move-uid" placeholder="ID العضو"/>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">ID الروم الصوتي</label>
+        <input class="inp" id="mod-move-ch" placeholder="ID الروم الصوتي"/>
+      </div>
+    </div>
+    <button class="btn-neon btn-green" onclick="doMove()"><i data-lucide="move-right" style="width:15px;height:15px"></i> نقل العضو</button>
+  </div>
+</section>
+
+<!-- ─────────────────── PROTECTION ───────────────────────────── -->
+<section id="sec-protection" class="section">
+  <div class="sec-header">
+    <i data-lucide="shield" style="width:26px;height:26px;color:var(--neon-green)"></i>
+    <span class="glow-green">الحماية المتقدمة</span>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- Toggles -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:18px">⚙️ إعدادات الحماية</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">🤖 ذكاء اصطناعي (Anti-Profanity)</div>
+            <div style="font-size:12px;color:#64748b">كشف الألفاظ المسيئة بالـ AI</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tog-ai" onchange="updateProt()"><div class="toggle-slider"></div></label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">🔗 مانع الروابط</div>
+            <div style="font-size:12px;color:#64748b">حذف الروابط المحظورة</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tog-link" onchange="updateProt()"><div class="toggle-slider"></div></label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">📢 مانع المنشن الجماعي</div>
+            <div style="font-size:12px;color:#64748b">منع ذكر أكثر من الحد المسموح</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tog-mention" onchange="updateProt()"><div class="toggle-slider"></div></label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">💬 مانع الإرسال السريع</div>
+            <div style="font-size:12px;color:#64748b">Anti-Spam تلقائي</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tog-spam" onchange="updateProt()"><div class="toggle-slider"></div></label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">👻 مانع Ghost Ping</div>
+            <div style="font-size:12px;color:#64748b">كشف الذكر المحذوف</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tog-ghost" onchange="updateProt()"><div class="toggle-slider"></div></label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+          <label style="font-size:13px;color:#64748b;white-space:nowrap">حد المنشن:</label>
+          <input class="inp" id="max-mentions" type="number" value="5" style="width:80px"/>
+          <button class="btn-neon btn-cyan" onclick="updateProt()"><i data-lucide="save" style="width:14px;height:14px"></i> حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bad words editor -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-pink);margin-bottom:14px">🚫 قائمة الكلمات المحظورة</div>
+      <div id="badwords-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;max-height:150px;overflow-y:auto"></div>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="new-badword" placeholder="أضف كلمة محظورة..."/>
+        <button class="btn-neon btn-red" onclick="addBadWord()"><i data-lucide="plus" style="width:15px;height:15px"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live violation log -->
+  <div class="glass" style="padding:22px">
+    <div style="font-weight:800;font-size:16px;color:var(--neon-orange);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <div class="ping-dot"></div>
+      سجل المخالفات المباشر
+    </div>
+    <div id="prot-logs" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── ROLES ─────────────────────────────────── -->
+<section id="sec-roles" class="section">
+  <div class="sec-header">
+    <i data-lucide="crown" style="width:26px;height:26px;color:var(--neon-orange)"></i>
+    <span class="glow-pink">إدارة الرتب</span>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- Create role -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:14px">✨ إنشاء رتبة جديدة</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input class="inp" id="role-name" placeholder="اسم الرتبة"/>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label style="font-size:13px;color:#64748b">اللون:</label>
+          <input type="color" id="role-color" value="#a855f7" style="width:50px;height:36px;border-radius:8px;border:1px solid rgba(168,85,247,0.4);background:transparent;cursor:pointer;padding:2px"/>
+        </div>
+        <div style="display:flex;gap:20px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="role-hoist" style="accent-color:#a855f7"/> عرض منفصلاً
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="role-mention" style="accent-color:#a855f7"/> قابلة للذكر
+          </label>
+        </div>
+        <button class="btn-neon btn-green" onclick="createRole()"><i data-lucide="plus-circle" style="width:15px;height:15px"></i> إنشاء الرتبة</button>
+      </div>
+    </div>
+    <!-- Give/Remove/Mass -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-purple);margin-bottom:14px">🎁 توزيع الرتب</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">معرّف العضو</label>
+          <input class="inp" id="give-role-uid" placeholder="User ID"/>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">اختر الرتبة</label>
+          <select class="inp" id="give-role-sel"><option value="">-- اختر رتبة --</option></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-neon btn-green" onclick="giveRole()"><i data-lucide="plus" style="width:14px;height:14px"></i> منح</button>
+          <button class="btn-neon btn-red" onclick="removeRole()"><i data-lucide="minus" style="width:14px;height:14px"></i> سحب</button>
+          <button class="btn-neon btn-cyan" onclick="massGiveRole()"><i data-lucide="users" style="width:14px;height:14px"></i> توزيع جماعي</button>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">رتبة تلقائية للقادمين</label>
+          <select class="inp" id="auto-role-sel" onchange="setAutoRole()"><option value="">-- بدون --</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Roles list -->
+  <div class="glass" style="padding:22px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-orange);margin-bottom:14px">📋 قائمة الرتب</div>
+    <div id="roles-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── MEMBERS ───────────────────────────────── -->
+<section id="sec-members" class="section">
+  <div class="sec-header">
+    <i data-lucide="users" style="width:26px;height:26px;color:var(--neon-cyan)"></i>
+    <span class="glow-cyan">الأعضاء</span>
+  </div>
+  <div class="glass" style="padding:16px;margin-bottom:16px">
+    <div style="display:flex;gap:10px;align-items:center">
+      <input class="inp" id="member-search" placeholder="🔍 ابحث باسم أو ID..." oninput="filterMembers()" style="flex:1"/>
+      <button class="btn-neon btn-cyan" onclick="loadMembers()"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> تحديث</button>
+    </div>
+  </div>
+  <div class="glass" style="padding:16px">
+    <div id="members-list" style="display:flex;flex-direction:column;gap:4px;max-height:500px;overflow-y:auto"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── TICKETS ───────────────────────────────── -->
+<section id="sec-tickets" class="section">
+  <div class="sec-header">
+    <i data-lucide="ticket" style="width:26px;height:26px;color:var(--neon-cyan)"></i>
+    <span class="glow-cyan">التذاكر</span>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- Create ticket -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-green);margin-bottom:14px">🎫 إنشاء تذكرة</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input class="inp" id="ticket-uid" placeholder="معرّف العضو (ID)"/>
+        <input class="inp" id="ticket-topic" placeholder="موضوع التذكرة..."/>
+        <button class="btn-neon btn-green" onclick="createTicket()"><i data-lucide="plus-circle" style="width:15px;height:15px"></i> فتح تذكرة</button>
+      </div>
+    </div>
+    <!-- Ticket stats -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-orange);margin-bottom:14px">📊 إحصائيات التذاكر</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between"><span>مفتوحة:</span><span class="glow-green" id="t-open" style="font-weight:700;font-family:'JetBrains Mono'">0</span></div>
+        <div style="display:flex;justify-content:space-between"><span>مغلقة:</span><span class="glow-pink" id="t-closed" style="font-weight:700;font-family:'JetBrains Mono'">0</span></div>
+        <div style="display:flex;justify-content:space-between"><span>الإجمالي:</span><span class="glow-cyan" id="t-total" style="font-weight:700;font-family:'JetBrains Mono'">0</span></div>
+      </div>
+    </div>
+  </div>
+  <!-- Tickets list -->
+  <div class="glass" style="padding:16px">
+    <div style="font-weight:800;font-size:15px;margin-bottom:14px;color:var(--neon-purple)">📋 جميع التذاكر</div>
+    <div id="tickets-list" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto"></div>
+  </div>
+  <!-- Ticket viewer modal -->
+  <div id="ticket-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center;display:none">
+    <div class="glass" style="width:600px;max-height:80vh;display:flex;flex-direction:column">
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(168,85,247,0.2);display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;font-size:16px" id="tmodal-title">التذكرة</div>
+        <button onclick="closeTicketModal()" style="background:none;border:none;cursor:pointer;color:#ef4444"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+      </div>
+      <div id="tmodal-messages" style="padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="padding:16px;border-top:1px solid rgba(168,85,247,0.2)">
+        <button class="btn-neon btn-red" id="tmodal-close-btn">🔒 إغلاق التذكرة</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── EMBED ─────────────────────────────────── -->
+<section id="sec-embed" class="section">
+  <div class="sec-header">
+    <i data-lucide="mail" style="width:26px;height:26px;color:var(--neon-purple)"></i>
+    <span class="glow-purple">إرسال Embed</span>
+  </div>
+  <div class="grid-2">
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:14px">✏️ بناء الإمبيد</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الروم</label>
+          <select class="inp" id="emb-ch"><option value="">-- اختر روم --</option></select>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">العنوان</label>
+          <input class="inp" id="emb-title" placeholder="عنوان الإمبيد" oninput="previewEmbed()"/>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">المحتوى</label>
+          <textarea class="inp" id="emb-desc" rows="4" placeholder="النص الرئيسي..." oninput="previewEmbed()" style="resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label style="font-size:13px;color:#64748b">اللون:</label>
+          <input type="color" id="emb-color" value="#a855f7" oninput="previewEmbed()" style="width:50px;height:36px;border-radius:8px;border:1px solid rgba(168,85,247,0.4);background:transparent;cursor:pointer;padding:2px"/>
+        </div>
+        <input class="inp" id="emb-footer" placeholder="نص الفوتر (اختياري)" oninput="previewEmbed()"/>
+        <input class="inp" id="emb-image" placeholder="رابط صورة (اختياري)" oninput="previewEmbed()"/>
+        <button class="btn-neon btn-purple" onclick="sendEmbed()"><i data-lucide="send" style="width:15px;height:15px"></i> إرسال الإمبيد</button>
+      </div>
+    </div>
+    <!-- Live preview -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-orange);margin-bottom:14px">👁️ معاينة مباشرة</div>
+      <div id="emb-preview" style="border-radius:8px;padding:16px;border-right:4px solid #a855f7;background:rgba(20,10,50,0.8)">
+        <div id="prev-title" style="font-weight:800;font-size:16px;margin-bottom:8px">العنوان...</div>
+        <div id="prev-desc" style="color:#94a3b8;font-size:14px;line-height:1.6">المحتوى...</div>
+        <div id="prev-footer" style="font-size:12px;color:#475569;margin-top:12px;padding-top:8px;border-top:1px solid rgba(168,85,247,0.2)"></div>
+        <div id="prev-image-wrap" style="display:none;margin-top:10px"><img id="prev-image" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover"/></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── GIVEAWAY ──────────────────────────────── -->
+<section id="sec-giveaway" class="section">
+  <div class="sec-header">
+    <i data-lucide="gift" style="width:26px;height:26px;color:var(--neon-orange)"></i>
+    <span class="glow-pink">نظام Giveaway</span>
+  </div>
+  <div class="glass" style="padding:22px;max-width:560px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:16px">🎉 إنشاء Giveaway</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الروم</label>
+        <select class="inp" id="gw-ch"><option value="">-- اختر روم --</option></select>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الجائزة</label>
+        <input class="inp" id="gw-prize" placeholder="مثال: Nitro لمدة شهر 🎮"/>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">المدة (دقائق)</label>
+          <input class="inp" id="gw-duration" type="number" value="60"/>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">عدد الفائزين</label>
+          <input class="inp" id="gw-winners" type="number" value="1"/>
+        </div>
+      </div>
+      <button class="btn-neon btn-orange" onclick="startGiveaway()"><i data-lucide="gift" style="width:15px;height:15px"></i> بدء الـ Giveaway</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── POLLS ─────────────────────────────────── -->
+<section id="sec-polls" class="section">
+  <div class="sec-header">
+    <i data-lucide="bar-chart-2" style="width:26px;height:26px;color:var(--neon-cyan)"></i>
+    <span class="glow-cyan">نظام التصويت</span>
+  </div>
+  <div class="glass" style="padding:22px;max-width:560px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-purple);margin-bottom:16px">📊 إنشاء تصويت</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الروم</label>
+        <select class="inp" id="poll-ch"><option value="">-- اختر روم --</option></select>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">السؤال</label>
+        <input class="inp" id="poll-q" placeholder="ما رأيك في..."/>
+      </div>
+      <div>
+        <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">الخيارات (مفصولة بفاصلة)</label>
+        <input class="inp" id="poll-opts" placeholder="نعم, لا, ربما"/>
+      </div>
+      <button class="btn-neon btn-cyan" onclick="createPoll()"><i data-lucide="bar-chart-2" style="width:15px;height:15px"></i> إنشاء التصويت</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── LEVELS ────────────────────────────────── -->
+<section id="sec-levels" class="section">
+  <div class="sec-header">
+    <i data-lucide="trending-up" style="width:26px;height:26px;color:var(--neon-green)"></i>
+    <span class="glow-green">نظام الليفلات</span>
+  </div>
+  <div class="glass" style="padding:22px;margin-bottom:20px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:14px">🏆 أعلى اللاعبين</div>
+    <div id="leaderboard" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto"></div>
+  </div>
+  <div class="glass" style="padding:22px">
+    <div style="font-weight:800;font-size:15px;color:var(--neon-purple);margin-bottom:14px">🎖️ رتب المستويات</div>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <input class="inp" id="lvl-role-level" type="number" placeholder="المستوى"/>
+      <select class="inp" id="lvl-role-sel" style="flex:1"><option value="">-- اختر رتبة --</option></select>
+      <button class="btn-neon btn-green" onclick="setLevelRole()"><i data-lucide="plus" style="width:14px;height:14px"></i></button>
+    </div>
+    <div id="level-roles-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── LOGS ──────────────────────────────────── -->
+<section id="sec-logs" class="section">
+  <div class="sec-header">
+    <i data-lucide="scroll" style="width:26px;height:26px;color:var(--neon-orange)"></i>
+    <span class="glow-pink">السجلات المباشرة</span>
+  </div>
+  <div class="glass" style="padding:16px;margin-bottom:16px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="tab active" id="lf-all" onclick="logFilter('all')">الكل</button>
+      <button class="tab" id="lf-BAN" onclick="logFilter('BAN')">حظر</button>
+      <button class="tab" id="lf-KICK" onclick="logFilter('KICK')">طرد</button>
+      <button class="tab" id="lf-MUTE" onclick="logFilter('MUTE')">كتم</button>
+      <button class="tab" id="lf-WARN" onclick="logFilter('WARN')">تحذير</button>
+      <button class="tab" id="lf-BAD_WORD" onclick="logFilter('BAD_WORD')">ألفاظ</button>
+      <button class="tab" id="lf-SPAM" onclick="logFilter('SPAM')">سبام</button>
+      <button class="tab" id="lf-JOIN" onclick="logFilter('JOIN')">انضمام</button>
+    </div>
+  </div>
+  <div class="glass" style="padding:16px">
+    <div id="logs-list" style="display:flex;flex-direction:column;gap:6px;max-height:550px;overflow-y:auto"></div>
+  </div>
+</section>
+
+<!-- ─────────────────── SETTINGS ──────────────────────────────── -->
+<section id="sec-settings" class="section">
+  <div class="sec-header">
+    <i data-lucide="settings-2" style="width:26px;height:26px;color:var(--neon-purple)"></i>
+    <span class="glow-purple">الإعدادات</span>
+  </div>
+  <div class="grid-2">
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-cyan);margin-bottom:16px">📺 قنوات النظام</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">روم الترحيب</label>
+          <select class="inp" id="cfg-welcome"><option value="">-- لا شيء --</option></select>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">روم المغادرة</label>
+          <select class="inp" id="cfg-leave"><option value="">-- لا شيء --</option></select>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">روم السجلات (Logs)</label>
+          <select class="inp" id="cfg-logs"><option value="">-- لا شيء --</option></select>
+        </div>
+        <div>
+          <label style="font-size:13px;color:#64748b;display:block;margin-bottom:5px">فئة التذاكر</label>
+          <input class="inp" id="cfg-ticket-cat" placeholder="Category ID"/>
+        </div>
+        <button class="btn-neon btn-green" onclick="saveSettings()"><i data-lucide="save" style="width:15px;height:15px"></i> حفظ الإعدادات</button>
+      </div>
+    </div>
+    <!-- Info card -->
+    <div class="glass" style="padding:22px">
+      <div style="font-weight:800;font-size:15px;color:var(--neon-purple);margin-bottom:16px">🤖 معلومات البوت</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(168,85,247,0.07);border-radius:8px">
+          <span style="color:#64748b">الاسم:</span><span id="info-tag" style="font-weight:700">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(34,211,238,0.07);border-radius:8px">
+          <span style="color:#64748b">البينج:</span><span id="info-ping" style="font-weight:700;font-family:'JetBrains Mono'">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(74,222,128,0.07);border-radius:8px">
+          <span style="color:#64748b">وقت التشغيل:</span><span id="info-uptime" style="font-weight:700;font-family:'JetBrains Mono'">--</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(251,146,60,0.07);border-radius:8px">
+          <span style="color:#64748b">السيرفرات:</span><span id="info-guilds" style="font-weight:700;font-family:'JetBrains Mono'">--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ── TOAST ─────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ══ BOT CONNECT OVERLAY ══════════════════════════════════════ -->
+<div id="connect-overlay" style="
+  position:fixed;inset:0;z-index:9000;
+  background:radial-gradient(ellipse 80% 70% at 50% 40%,rgba(168,85,247,0.18) 0%,#050510 70%);
+  display:flex;align-items:center;justify-content:center;
+">
+  <div style="width:480px;animation:fadeIn .5s ease">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#a855f7,#22d3ee);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 50px rgba(168,85,247,0.55)">
+        <i data-lucide="shield-check" style="width:38px;height:38px;color:#fff"></i>
+      </div>
+      <div style="font-size:30px;font-weight:900;background:linear-gradient(135deg,#a855f7,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AFRM Dashboard</div>
+      <div style="color:#64748b;margin-top:6px;font-size:14px">وصّل بوتك للبدء — يُحفظ التوكن محلياً تلقائياً</div>
+    </div>
+    <!-- Card -->
+    <div class="glass" style="padding:28px">
+      <!-- Connection status -->
+      <div id="conn-status-bar" style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);margin-bottom:20px;transition:.3s">
+        <i data-lucide="wifi-off" id="conn-status-icon" style="width:16px;height:16px;color:#fb923c;flex-shrink:0"></i>
+        <span id="conn-status-text" style="font-size:13px;font-weight:700;color:#fb923c">البوت غير متصل</span>
+      </div>
+      <!-- Token -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:7px;font-weight:700">🔑 توكن البوت <span style="color:#ef4444">*</span></label>
+        <div style="position:relative">
+          <input class="inp" id="conn-token" type="password" placeholder="MTAxMjM0NTY3ODkwMTIz..."
+            style="padding-right:14px;padding-left:44px;font-family:'JetBrains Mono';font-size:13px;letter-spacing:.5px"
+            onkeydown="if(event.key==='Enter') connectBot()"/>
+          <button onclick="toggleTokenVis()" id="tok-vis-btn"
+            style="position:absolute;left:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#64748b">
+            <i data-lucide="eye-off" id="tok-vis-icon" style="width:16px;height:16px"></i>
+          </button>
+        </div>
+        <div style="font-size:11px;color:#475569;margin-top:5px">⚠️ يُحفظ في config.json فقط — لا يُرسل لأي خادم خارجي</div>
+      </div>
+      <!-- Guild ID -->
+      <div style="margin-bottom:20px">
+        <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:7px;font-weight:700">🏠 معرّف السيرفر (Guild ID)</label>
+        <input class="inp" id="conn-guild" placeholder="123456789012345678"
+          style="font-family:'JetBrains Mono';font-size:13px"
+          onkeydown="if(event.key==='Enter') connectBot()"/>
+        <div style="font-size:11px;color:#475569;margin-top:5px">Discord → Developer Mode → كليك يمين على السيرفر → Copy Server ID</div>
+      </div>
+      <!-- Connect btn -->
+      <button id="conn-btn" class="btn-neon btn-green" onclick="connectBot()"
+        style="width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:12px;margin-bottom:12px">
+        <i data-lucide="zap" style="width:17px;height:17px"></i> اتصل بالبوت
+      </button>
+      <!-- Session check -->
+      <div style="text-align:center">
+        <button onclick="checkExistingSession(true)"
+          style="background:none;border:none;cursor:pointer;color:#64748b;font-size:13px;font-family:'Cairo';text-decoration:underline">
+          يوجد توكن محفوظ — ادخل مباشرةً ←
+        </button>
+      </div>
+    </div>
+    <!-- Help box -->
+    <div style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15)">
+      <div style="font-size:12px;font-weight:700;color:var(--neon-cyan);margin-bottom:7px">📋 كيف أحصل على التوكن؟</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.9">
+        1. <a href="https://discord.com/developers/applications" target="_blank" style="color:var(--neon-purple)">discord.com/developers</a> → تطبيقك<br/>
+        2. قسم <b style="color:#94a3b8">Bot</b> → <b style="color:#94a3b8">Reset Token</b> → انسخ<br/>
+        3. فعّل <b style="color:#94a3b8">Message Content Intent</b> و <b style="color:#94a3b8">Server Members Intent</b>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     NOTIFICATION STACK
-═══════════════════════════════════════════════════════════ -->
-<div class="notif-stack" id="notifStack"></div>
-
-<!-- ═══════════════════════════════════════════════════════════
-     APP LAYOUT
-═══════════════════════════════════════════════════════════ -->
-<div class="app">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">🎛️</div>
-      <div>
-        <div class="logo-text">Bot Dashboard</div>
-        <div class="logo-sub">لوحة التحكم الكاملة</div>
-      </div>
-    </div>
-
-    <div class="bot-mini-card">
-      <div class="bot-avatar" id="sideAvatar">
-        🤖
-        <span class="status-dot offline" id="statusDot"></span>
-      </div>
-      <div class="bot-info-mini">
-        <div class="bot-tag" id="sideTag">غير متصل</div>
-        <div class="bot-ping" id="sidePing">—</div>
-      </div>
-    </div>
-
-    <nav>
-      <div class="nav-section">الرئيسية</div>
-      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
-        <span class="nav-icon">📊</span><span>لوحة التحكم</span>
-      </div>
-      <div class="nav-item" onclick="showPage('servers')" id="nav-servers">
-        <span class="nav-icon">🌐</span><span>السيرفرات</span>
-      </div>
-
-      <div class="nav-section">الإشراف</div>
-      <div class="nav-item" onclick="showPage('moderation')" id="nav-moderation">
-        <span class="nav-icon">🛡️</span><span>الإشراف</span>
-      </div>
-      <div class="nav-item" onclick="showPage('warns')" id="nav-warns">
-        <span class="nav-icon">⚠️</span><span>التحذيرات</span>
-        <span class="nav-badge" id="warnsCount">0</span>
-      </div>
-      <div class="nav-item" onclick="showPage('automod')" id="nav-automod">
-        <span class="nav-icon">🤖</span><span>الرقابة الذكية</span>
-      </div>
-
-      <div class="nav-section">الأنظمة</div>
-      <div class="nav-item" onclick="showPage('roles')" id="nav-roles">
-        <span class="nav-icon">👑</span><span>الرتب</span>
-      </div>
-      <div class="nav-item" onclick="showPage('welcome')" id="nav-welcome">
-        <span class="nav-icon">👋</span><span>الترحيب والمغادرة</span>
-      </div>
-      <div class="nav-item" onclick="showPage('tickets')" id="nav-tickets">
-        <span class="nav-icon">🎫</span><span>نظام التذاكر</span>
-      </div>
-      <div class="nav-item" onclick="showPage('autoresponse')" id="nav-autoresponse">
-        <span class="nav-icon">💬</span><span>الردود التلقائية</span>
-      </div>
-      <div class="nav-item" onclick="showPage('giveaway')" id="nav-giveaway">
-        <span class="nav-icon">🎉</span><span>المسابقات</span>
-      </div>
-
-      <div class="nav-section">الإعدادات</div>
-      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
-        <span class="nav-icon">⚙️</span><span>إعدادات البوت</span>
-      </div>
-      <div class="nav-item" onclick="showPage('logs')" id="nav-logs">
-        <span class="nav-icon">📋</span><span>سجل الأحداث</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <button class="btn btn-danger btn-full btn-sm" onclick="disconnectBot()">⛔ قطع الاتصال</button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main">
-    <div class="topbar">
-      <div class="topbar-title" id="pageTitle">📊 لوحة التحكم</div>
-      <div class="live-badge" id="liveBadge">
-        <span class="live-dot"></span> LIVE
-      </div>
-      <div id="selectedGuildBadge"></div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: DASHBOARD
-    ════════════════════════════════════════ -->
-    <div class="page active" id="page-dashboard">
-      <!-- STATS ROW -->
-      <div class="grid grid-5" style="margin-bottom:16px;">
-        <div class="stat-card blue">
-          <div class="stat-top">
-            <div>
-              <div class="stat-label">👥 الأعضاء</div>
-              <div class="stat-value" id="statMembers">—</div>
-            </div>
-            <div class="stat-icon">👥</div>
-          </div>
-          <div class="stat-trend up" id="statMembersJoins">↑ 0 اليوم</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-top">
-            <div>
-              <div class="stat-label">🏓 البينق</div>
-              <div class="stat-value" id="statPing">—</div>
-            </div>
-            <div class="stat-icon">🏓</div>
-          </div>
-          <div class="stat-trend" id="pingStatus">—</div>
-        </div>
-        <div class="stat-card yellow">
-          <div class="stat-top">
-            <div>
-              <div class="stat-label">⏱️ Uptime</div>
-              <div class="stat-value" style="font-size:16px;" id="statUptime">—</div>
-            </div>
-            <div class="stat-icon">⏱️</div>
-          </div>
-          <div class="stat-trend up">↑ يعمل</div>
-        </div>
-        <div class="stat-card red">
-          <div class="stat-top">
-            <div>
-              <div class="stat-label">⚠️ المخالفات</div>
-              <div class="stat-value" id="statViolations">0</div>
-            </div>
-            <div class="stat-icon">🚨</div>
-          </div>
-          <div class="stat-trend down" id="violTrend">رصدها البوت</div>
-        </div>
-        <div class="stat-card purple">
-          <div class="stat-top">
-            <div>
-              <div class="stat-label">🎫 التذاكر</div>
-              <div class="stat-value" id="statTickets">0</div>
-            </div>
-            <div class="stat-icon">🎫</div>
-          </div>
-          <div class="stat-trend up">مفتوحة</div>
-        </div>
-      </div>
-
-      <div class="grid grid-3" style="margin-bottom:16px;">
-        <!-- BOT STATUS CARD -->
-        <div class="card" style="grid-column: span 1;">
-          <div class="card-header">
-            <span class="card-icon">🤖</span>
-            <span class="card-title">حالة البوت</span>
-            <span class="tag tag-green" id="botStatusTag">متصل</span>
-          </div>
-          <div class="card-body">
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-              <div class="bot-avatar" style="width:56px;height:56px;font-size:26px;" id="botAvatarBig">🤖</div>
-              <div>
-                <div style="font-size:16px;font-weight:700;" id="botTagBig">—</div>
-                <div style="font-size:12px;color:var(--text-muted);" id="botIdBig">ID: —</div>
-                <div style="font-size:12px;color:var(--text-muted);" id="botGuildsBig">سيرفرات: —</div>
-              </div>
-            </div>
-            <div class="section-title">البينق الحي</div>
-            <div class="ping-bar-wrap" id="pingChart">
-              <!-- bars will be added by JS -->
-            </div>
-            <div style="text-align:center;font-size:20px;font-weight:700;margin-top:8px;" id="pingNumber">— ms</div>
-          </div>
-        </div>
-
-        <!-- LIVE EVENT LOG -->
-        <div class="card" style="grid-column: span 2;">
-          <div class="card-header">
-            <span class="card-icon">📋</span>
-            <span class="card-title">سجل الأحداث الحي</span>
-            <button class="btn btn-ghost btn-sm" onclick="clearEventLog()">مسح</button>
-          </div>
-          <div class="card-body" style="padding:12px;">
-            <div id="eventLog" style="height:220px;overflow-y:auto;">
-              <div class="no-data">
-                <div class="nd-icon">📡</div>
-                في انتظار الأحداث...
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-3">
-        <!-- VIOLATIONS BREAKDOWN -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-icon">🚨</span>
-            <span class="card-title">تفاصيل المخالفات</span>
-          </div>
-          <div class="card-body">
-            <div id="violationBreakdown">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:13px;">⛔ كلام غير لائق</span>
-                <span class="tag tag-red" id="vBadword">0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:13px;">🔗 روابط</span>
-                <span class="tag tag-yellow" id="vLink">0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:13px;">📢 منشن مفرط</span>
-                <span class="tag tag-purple" id="vMention">0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:13px;">🚫 سبام</span>
-                <span class="tag tag-red" id="vSpam">0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:13px;">🔁 تكرار</span>
-                <span class="tag tag-yellow" id="vRepeat">0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:13px;">👻 Ghost Ping</span>
-                <span class="tag tag-cyan" id="vGhost">0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- QUICK STATS -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-icon">📊</span>
-            <span class="card-title">إحصائيات سريعة</span>
-          </div>
-          <div class="card-body">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <span style="font-size:13px;">🔗 السيرفرات</span>
-              <span style="font-weight:700;color:var(--accent);" id="qs_guilds">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <span style="font-size:13px;">📥 الانضمام</span>
-              <span style="font-weight:700;color:var(--green);" id="qs_joins">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <span style="font-size:13px;">📤 المغادرة</span>
-              <span style="font-weight:700;color:var(--red);" id="qs_leaves">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <span style="font-size:13px;">🗑️ رسائل محذوفة</span>
-              <span style="font-weight:700;color:var(--yellow);" id="qs_deleted">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;">💬 ردود تلقائية</span>
-              <span style="font-weight:700;color:var(--purple);" id="qs_ar">0</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- SEND MESSAGE WIDGET -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-icon">✉️</span>
-            <span class="card-title">إرسال رسالة</span>
-          </div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="sendChannel"></select>
-            </div>
-            <div class="form-group">
-              <label>الرسالة</label>
-              <textarea id="sendContent" placeholder="اكتب رسالتك هنا..." style="min-height:60px;"></textarea>
-            </div>
-            <button class="btn btn-primary btn-full" onclick="sendMessage()">📤 إرسال</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: SERVERS
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-servers">
-      <div class="grid grid-3">
-        <div class="card" style="grid-column: span 1;">
-          <div class="card-header">
-            <span class="card-icon">🌐</span>
-            <span class="card-title">السيرفرات</span>
-            <button class="btn btn-primary btn-sm" onclick="loadGuilds()">🔄 تحديث</button>
-          </div>
-          <div class="card-body" id="guildList">
-            <div class="no-data"><div class="nd-icon">🌐</div>قم بتحديث القائمة</div>
-          </div>
-        </div>
-        <div class="card" style="grid-column: span 2;">
-          <div class="card-header">
-            <span class="card-icon">📋</span>
-            <span class="card-title">تفاصيل السيرفر</span>
-          </div>
-          <div class="card-body" id="guildDetails">
-            <div class="no-data"><div class="nd-icon">👆</div>اختر سيرفراً من القائمة</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: MODERATION
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-moderation">
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <!-- BAN / KICK / MUTE -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🔨</span><span class="card-title">إجراءات الإشراف</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>معرف العضو (User ID)</label>
-              <input type="text" id="modUserId" placeholder="123456789012345678"/>
-            </div>
-            <div class="form-group">
-              <label>السبب</label>
-              <input type="text" id="modReason" placeholder="سبب الإجراء..."/>
-            </div>
-            <div class="form-group">
-              <label>المدة (للكتم: 10m, 2h, 1d)</label>
-              <input type="text" id="modDuration" placeholder="مثال: 30m"/>
-            </div>
-            <div class="grid grid-2" style="gap:8px;margin-bottom:10px;">
-              <button class="btn btn-danger" onclick="modAction('ban')">🔨 بان</button>
-              <button class="btn btn-warning" onclick="modAction('kick')">👢 طرد</button>
-              <button class="btn btn-ghost" onclick="modAction('mute')">🔇 كتم</button>
-              <button class="btn btn-success" onclick="modAction('unmute')">🔊 رفع كتم</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- CHANNEL ACTIONS -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">📢</span><span class="card-title">إجراءات القناة</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="modChannel"></select>
-            </div>
-            <div class="grid grid-2" style="gap:8px;margin-bottom:14px;">
-              <button class="btn btn-danger" onclick="lockChannel(true)">🔒 قفل القناة</button>
-              <button class="btn btn-success" onclick="lockChannel(false)">🔓 فتح القناة</button>
-            </div>
-            <div class="divider"></div>
-            <div class="section-title">مسح الرسائل</div>
-            <div class="form-row">
-              <div class="form-group" style="margin:0;">
-                <input type="number" id="clearCount" placeholder="عدد الرسائل (1-100)" min="1" max="100"/>
-              </div>
-              <button class="btn btn-danger" onclick="clearMessages()" style="height:36px;align-self:flex-end;">🗑️ مسح</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MOD LOG -->
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📋</span><span class="card-title">سجل الإجراءات</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modLog').innerHTML=''">مسح</button></div>
-        <div class="card-body" style="padding:12px;">
-          <div class="log-box" id="modLog"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: WARNS
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-warns">
-      <div class="grid grid-3">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">⚠️</span><span class="card-title">التحقق من التحذيرات</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>معرف العضو</label>
-              <input type="text" id="warnUserId" placeholder="User ID"/>
-            </div>
-            <div class="grid grid-2" style="gap:8px;margin-bottom:12px;">
-              <button class="btn btn-primary" onclick="checkWarns()">🔍 عرض</button>
-              <button class="btn btn-danger" onclick="clearUserWarns()">🗑️ مسح الكل</button>
-            </div>
-            <div class="divider"></div>
-            <div class="section-title">إضافة تحذير</div>
-            <div class="form-group">
-              <label>السبب</label>
-              <input type="text" id="warnReason" placeholder="سبب التحذير..."/>
-            </div>
-            <button class="btn btn-warning btn-full" onclick="addWarnDash()">⚠️ إضافة تحذير</button>
-          </div>
-        </div>
-        <div class="card" style="grid-column: span 2;">
-          <div class="card-header"><span class="card-icon">📋</span><span class="card-title">التحذيرات</span></div>
-          <div class="card-body" id="warnsDisplay">
-            <div class="no-data"><div class="nd-icon">⚠️</div>ابحث عن عضو لعرض تحذيراته</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: AUTOMOD
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-automod">
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <!-- TOGGLES -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🤖</span><span class="card-title">إعدادات الرقابة</span></div>
-          <div class="card-body">
-            <div style="display:flex;flex-direction:column;gap:14px;">
-              <div class="toggle-wrap">
-                <div class="toggle on" id="toggle-antilinks" onclick="toggleSetting(this,'antiLinks')"></div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;">🔗 منع الروابط</div>
-                  <div style="font-size:11px;color:var(--text-muted);">يمنع إرسال الروابط في السيرفر</div>
-                </div>
-              </div>
-              <div class="toggle-wrap">
-                <div class="toggle on" id="toggle-antiGhostPing" onclick="toggleSetting(this,'antiGhostPing')"></div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;">👻 منع Ghost Ping</div>
-                  <div style="font-size:11px;color:var(--text-muted);">يكشف المنشن المحذوف ويُنبّه</div>
-                </div>
-              </div>
-              <div class="toggle-wrap">
-                <div class="toggle on" id="toggle-antiMention" onclick="toggleMention(this)"></div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;">📢 منع المنشن المفرط</div>
-                  <div style="font-size:11px;color:var(--text-muted);">يمنع ذكر أكثر من حد معين</div>
-                </div>
-              </div>
-              <div style="padding-right:52px;">
-                <label style="margin-bottom:4px;display:block;">الحد الأقصى للمنشنات</label>
-                <input type="number" id="mentionMax" value="3" min="1" max="20" style="width:100px;"/>
-              </div>
-              <div class="toggle-wrap">
-                <div class="toggle on" id="toggle-antiRepeat" onclick="toggleRepeat(this)"></div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;">🔁 منع تكرار الرسائل</div>
-                  <div style="font-size:11px;color:var(--text-muted);">يمنع الرسائل المتكررة (Spam)</div>
-                </div>
-              </div>
-              <div style="padding-right:52px;">
-                <label style="margin-bottom:4px;display:block;">عدد التكرارات للكشف</label>
-                <input type="number" id="repeatThreshold" value="3" min="2" max="10" style="width:100px;"/>
-              </div>
-            </div>
-            <div style="margin-top:16px;">
-              <button class="btn btn-primary btn-full" onclick="saveAutomodSettings()">💾 حفظ الإعدادات</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- BAD WORDS -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🚫</span><span class="card-title">الكلمات المحظورة</span></div>
-          <div class="card-body">
-            <div class="form-row" style="margin-bottom:12px;">
-              <input type="text" id="newBadWord" placeholder="أضف كلمة محظورة..."/>
-              <button class="btn btn-danger" onclick="addBadWord()" style="white-space:nowrap;">➕ إضافة</button>
-            </div>
-            <div id="badWordsList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;">
-              <!-- populated by JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LOG CHANNEL + ALLOWED ROLES -->
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">📝</span><span class="card-title">قناة السجلات</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>قناة اللوق</label>
-              <select id="logChannelSelect"></select>
-            </div>
-            <button class="btn btn-primary btn-full" onclick="saveLogChannel()">💾 حفظ</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-icon">✅</span><span class="card-title">الأدوار المعفاة من الرقابة</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>معرف الرتبة</label>
-              <div class="form-row">
-                <input type="text" id="allowedRoleId" placeholder="Role ID"/>
-                <button class="btn btn-success" onclick="addAllowedRole()">➕</button>
-              </div>
-            </div>
-            <div id="allowedRolesList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: ROLES
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-roles">
-      <div class="grid grid-3">
-        <!-- CREATE ROLE -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🎨</span><span class="card-title">إنشاء رتبة جديدة</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>اسم الرتبة</label>
-              <input type="text" id="newRoleName" placeholder="اسم الرتبة..."/>
-            </div>
-            <div class="form-group">
-              <label>لون الرتبة</label>
-              <div class="form-row" style="align-items:center;">
-                <input type="color" id="newRoleColor" value="#5865F2" style="width:60px;"/>
-                <input type="text" id="newRoleColorHex" value="#5865F2" placeholder="#5865F2" style="flex:1;"/>
-              </div>
-            </div>
-            <div class="embed-preview" id="rolePreview">
-              <div class="ep-title" id="rolePreviewName" style="color:#5865F2;">اسم الرتبة</div>
-              <div class="ep-desc">معاينة الرتبة</div>
-            </div>
-            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="createRole()">✨ إنشاء الرتبة</button>
-          </div>
-        </div>
-
-        <!-- ROLE LIST -->
-        <div class="card" style="grid-column: span 2;">
-          <div class="card-header">
-            <span class="card-icon">👑</span>
-            <span class="card-title">قائمة الرتب</span>
-            <button class="btn btn-ghost btn-sm" onclick="loadRoles()">🔄</button>
-          </div>
-          <div class="card-body" style="padding:12px;">
-            <div id="rolesList" style="overflow-y:auto;max-height:350px;">
-              <div class="no-data"><div class="nd-icon">👑</div>اختر سيرفراً لعرض الرتب</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AUTO ROLE -->
-      <div class="card" style="margin-top:16px;">
-        <div class="card-header"><span class="card-icon">🚪</span><span class="card-title">الرتبة التلقائية عند الدخول</span></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group" style="margin:0;flex:1;">
-              <label>معرف الرتبة</label>
-              <input type="text" id="autoRoleId" placeholder="Role ID"/>
-            </div>
-            <button class="btn btn-success" onclick="addAutoRole()" style="align-self:flex-end;height:36px;">➕ إضافة</button>
-          </div>
-          <div id="autoRolesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
-            <div class="no-data" style="padding:10px;font-size:12px;">لا توجد رتب تلقائية</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- GIVE / REMOVE ROLE -->
-      <div class="card" style="margin-top:16px;">
-        <div class="card-header"><span class="card-icon">🔧</span><span class="card-title">إعطاء / سحب رتبة</span></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group" style="margin:0;">
-              <label>معرف العضو</label>
-              <input type="text" id="roleUserId" placeholder="User ID"/>
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>معرف الرتبة</label>
-              <input type="text" id="roleRoleId" placeholder="Role ID"/>
-            </div>
-            <button class="btn btn-success" onclick="giveRole()" style="align-self:flex-end;height:36px;">✅ إعطاء</button>
-            <button class="btn btn-danger" onclick="removeRole()" style="align-self:flex-end;height:36px;">❌ سحب</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: WELCOME
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-welcome">
-      <div class="grid grid-2">
-        <!-- WELCOME -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">👋</span><span class="card-title">رسالة الترحيب</span></div>
-          <div class="card-body">
-            <div class="toggle-wrap" style="margin-bottom:14px;">
-              <div class="toggle" id="toggle-welcome" onclick="this.classList.toggle('on')"></div>
-              <span style="font-size:13px;font-weight:600;">تفعيل رسالة الترحيب</span>
-            </div>
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="welcomeChannel"></select>
-            </div>
-            <div class="form-group">
-              <label>لون الإمبيد</label>
-              <input type="color" id="welcomeColor" value="#5865F2"/>
-            </div>
-            <div class="form-group">
-              <label>الرسالة (متغيرات: {user} {username} {server} {count})</label>
-              <textarea id="welcomeMessage" placeholder="مرحباً {user} في {server}! أنت العضو رقم {count} 🎉"></textarea>
-            </div>
-            <div class="embed-preview" id="welcomePreview">
-              <div class="ep-title">👋 عضو جديد!</div>
-              <div class="ep-desc">مرحباً بك في السيرفر!</div>
-            </div>
-            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="saveWelcome()">💾 حفظ</button>
-          </div>
-        </div>
-
-        <!-- LEAVE -->
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🚪</span><span class="card-title">رسالة المغادرة</span></div>
-          <div class="card-body">
-            <div class="toggle-wrap" style="margin-bottom:14px;">
-              <div class="toggle" id="toggle-leave" onclick="this.classList.toggle('on')"></div>
-              <span style="font-size:13px;font-weight:600;">تفعيل رسالة المغادرة</span>
-            </div>
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="leaveChannel"></select>
-            </div>
-            <div class="form-group">
-              <label>لون الإمبيد</label>
-              <input type="color" id="leaveColor" value="#ED4245"/>
-            </div>
-            <div class="form-group">
-              <label>الرسالة</label>
-              <textarea id="leaveMessage" placeholder="غادر {username} السيرفر. باقي الأعضاء: {count}"></textarea>
-            </div>
-            <div class="embed-preview" id="leavePreview">
-              <div class="ep-title">👋 مغادرة عضو</div>
-              <div class="ep-desc">غادر العضو السيرفر.</div>
-            </div>
-            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="saveLeave()">💾 حفظ</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: TICKETS
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-tickets">
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">⚙️</span><span class="card-title">إعدادات التذاكر</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>معرف الفئة (Category ID)</label>
-              <input type="text" id="ticketCategory" placeholder="Category ID"/>
-            </div>
-            <div class="form-group">
-              <label>معرف رتبة الدعم</label>
-              <input type="text" id="ticketSupportRole" placeholder="Support Role ID"/>
-            </div>
-            <button class="btn btn-primary btn-full" onclick="saveTicketConfig()">💾 حفظ الإعدادات</button>
-            <div class="divider"></div>
-            <div class="section-title">نشر لوحة التذاكر</div>
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="ticketPanelChannel"></select>
-            </div>
-            <button class="btn btn-purple btn-full" onclick="postTicketPanel()">🎫 نشر لوحة التذاكر</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><span class="card-icon">📊</span><span class="card-title">إحصائيات التذاكر</span></div>
-          <div class="card-body">
-            <div class="grid grid-2" style="margin-bottom:16px;">
-              <div class="stat-card purple" style="padding:14px;">
-                <div class="stat-label">🎫 إجمالي</div>
-                <div class="stat-value" id="ticketTotal">0</div>
-              </div>
-              <div class="stat-card green" style="padding:14px;">
-                <div class="stat-label">✅ مفتوحة</div>
-                <div class="stat-value" id="ticketOpen">0</div>
-              </div>
-            </div>
-            <div class="section-title">التذاكر الأخيرة</div>
-            <div id="ticketList" style="max-height:200px;overflow-y:auto;">
-              <div class="no-data" style="padding:20px;"><div class="nd-icon">🎫</div>لا توجد تذاكر</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: AUTO RESPONSE
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-autoresponse">
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">➕</span><span class="card-title">إضافة رد تلقائي</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>الكلمة المحفزة (Trigger)</label>
-              <input type="text" id="arTrigger" placeholder="مثال: مرحبا"/>
-            </div>
-            <div class="form-group">
-              <label>الرد التلقائي</label>
-              <textarea id="arResponse" placeholder="مثال: أهلاً وسهلاً بك! كيف يمكنني مساعدتك؟"></textarea>
-            </div>
-            <div class="toggle-wrap" style="margin-bottom:14px;">
-              <div class="toggle" id="toggle-arExact" onclick="this.classList.toggle('on')"></div>
-              <span style="font-size:13px;">مطابقة تامة فقط</span>
-            </div>
-            <div class="embed-preview" id="arPreview" style="border-color:var(--green);">
-              <div class="ep-title" style="color:var(--green);">💬 الرد التلقائي</div>
-              <div class="ep-desc" id="arPreviewText">سيظهر الرد هنا...</div>
-            </div>
-            <button class="btn btn-success btn-full" style="margin-top:12px;" onclick="addAutoResponse()">💾 إضافة الرد</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <span class="card-icon">📋</span>
-            <span class="card-title">الردود التلقائية</span>
-            <span class="tag tag-blue" id="arCount">0</span>
-          </div>
-          <div class="card-body" style="padding:12px;">
-            <div id="arList" style="max-height:400px;overflow-y:auto;">
-              <div class="no-data"><div class="nd-icon">💬</div>لا توجد ردود تلقائية</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: GIVEAWAY
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-giveaway">
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🎉</span><span class="card-title">إنشاء مسابقة (Giveaway)</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>القناة</label>
-              <select id="gwChannel"></select>
-            </div>
-            <div class="form-group">
-              <label>الجائزة</label>
-              <input type="text" id="gwPrize" placeholder="مثال: نيترو Discord لمدة شهر 🎁"/>
-            </div>
-            <div class="form-group">
-              <label>المدة (مثال: 1h, 30m, 1d)</label>
-              <input type="text" id="gwDuration" placeholder="1h"/>
-            </div>
-            <div class="embed-preview" id="gwPreview">
-              <div class="ep-title" style="color:#FFD700;">🎉 مسابقة!</div>
-              <div class="ep-desc" id="gwPreviewText">الجائزة: —<br>المدة: —</div>
-            </div>
-            <button class="btn btn-warning btn-full" style="margin-top:12px;" onclick="startGiveaway()">🎉 بدء المسابقة</button>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">
-              💡 يمكنك أيضاً استخدام الأمر: <code style="background:var(--bg-input);padding:2px 6px;border-radius:4px;">!giveaway 1h الجائزة</code>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🏆</span><span class="card-title">سجل المسابقات</span></div>
-          <div class="card-body">
-            <div id="gwLog" style="max-height:350px;overflow-y:auto;">
-              <div class="no-data"><div class="nd-icon">🎉</div>لا توجد مسابقات بعد</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: SETTINGS (Bot Appearance)
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-settings">
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-header"><span class="card-icon">🤖</span><span class="card-title">مظهر البوت</span></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label>اسم البوت الجديد</label>
-              <input type="text" id="newBotName" placeholder="اسم البوت..."/>
-            </div>
-            <div class="form-group">
-              <label>حالة البوت (Status)</label>
-              <select id="botStatus">
-                <option value="online">🟢 متصل (Online)</option>
-                <option value="idle">🟡 غائب (Idle)</option>
-                <option value="dnd">🔴 مشغول (Do Not Disturb)</option>
-                <option value="invisible">⚫ مخفي (Invisible)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>نص الحالة</label>
-              <input type="text" id="botStatusText" placeholder="مثال: يراقب السيرفر 👀"/>
-            </div>
-            <div class="form-group">
-              <label>رابط صورة البوت (URL)</label>
-              <input type="url" id="botAvatarUrl" placeholder="https://..."/>
-            </div>
-            <button class="btn btn-primary btn-full" onclick="saveBotAppearance()">✨ تطبيق التغييرات</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><span class="card-icon">📡</span><span class="card-title">معلومات الاتصال</span></div>
-          <div class="card-body">
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div class="alert alert-info">
-                <span>📡</span>
-                <span>البوت متصل عبر WebSocket بشكل مباشر</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:13px;color:var(--text-muted);">الاسم</span>
-                <span style="font-size:13px;font-weight:600;" id="infoName">—</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:13px;color:var(--text-muted);">المعرف</span>
-                <span style="font-size:13px;font-family:monospace;" id="infoId">—</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:13px;color:var(--text-muted);">السيرفرات</span>
-                <span style="font-size:13px;font-weight:600;" id="infoGuilds">—</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:13px;color:var(--text-muted);">البينق</span>
-                <span style="font-size:13px;font-weight:600;" id="infoPing">—</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:13px;color:var(--text-muted);">وقت التشغيل</span>
-                <span style="font-size:13px;font-weight:600;" id="infoUptime">—</span>
-              </div>
-              <div class="divider"></div>
-              <button class="btn btn-danger btn-full" onclick="disconnectBot()">⛔ إيقاف البوت</button>
-              <button class="btn btn-ghost btn-full" onclick="reloadData()">🔄 تحديث البيانات</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════════
-         PAGE: LOGS
-    ════════════════════════════════════════ -->
-    <div class="page" id="page-logs">
-      <div class="grid grid-2">
-        <div class="card" style="grid-column: span 2;">
-          <div class="card-header">
-            <span class="card-icon">📋</span>
-            <span class="card-title">سجل الأحداث الكامل</span>
-            <button class="btn btn-ghost btn-sm" onclick="clearAllLogs()">🗑️ مسح</button>
-            <select id="logFilter" onchange="filterLogs()" style="padding:4px 8px;font-size:12px;border-radius:6px;">
-              <option value="all">جميع الأحداث</option>
-              <option value="violation">المخالفات</option>
-              <option value="modAction">الإشراف</option>
-              <option value="member">الأعضاء</option>
-              <option value="ticket">التذاكر</option>
-            </select>
-          </div>
-          <div class="card-body" style="padding:12px;">
-            <div class="log-box" id="fullLog" style="height:400px;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
+<!-- Disconnect button (shown inside dashboard) -->
+<div id="disconnect-btn-wrap" style="position:fixed;bottom:20px;left:20px;z-index:500;display:none">
+  <button class="btn-neon btn-red" onclick="disconnectBot()" style="font-size:12px;padding:7px 14px">
+    <i data-lucide="power" style="width:13px;height:13px"></i> قطع الاتصال
+  </button>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JAVASCRIPT - ALL LOGIC
-═══════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════════ -->
 <script>
-'use strict';
+// ── Utilities ────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
 
-// ═══════════════════════════════════════════════════════════
-//  GLOBAL STATE
-// ═══════════════════════════════════════════════════════════
-let API_URL       = 'http://localhost:3000';
-let ws            = null;
-let botConnected  = false;
-let selectedGuild = null;
-let pingHistory   = [];
-let allLogs       = [];
-let violStats     = { badword:0, link:0, mention:0, spam:0, repeat:0, ghostping:0 };
-let badWords      = [];
-let allowedRoles  = [];
-let autoResponses = [];
-let autoRoles     = [];
-let gwHistory     = [];
-let refreshTimer  = null;
-
-// ═══════════════════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════════════════
-const pageTitles = {
-  dashboard: '📊 لوحة التحكم',
-  servers:   '🌐 السيرفرات',
-  moderation:'🛡️ الإشراف',
-  warns:     '⚠️ التحذيرات',
-  automod:   '🤖 الرقابة الذكية',
-  roles:     '👑 الرتب',
-  welcome:   '👋 الترحيب والمغادرة',
-  tickets:   '🎫 نظام التذاكر',
-  autoresponse:'💬 الردود التلقائية',
-  giveaway:  '🎉 المسابقات',
-  settings:  '⚙️ إعدادات البوت',
-  logs:      '📋 سجل الأحداث',
-};
-
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const page = document.getElementById(`page-${name}`);
-  const nav  = document.getElementById(`nav-${name}`);
-  if (page) page.classList.add('active');
-  if (nav)  nav.classList.add('active');
-  document.getElementById('pageTitle').textContent = pageTitles[name] || name;
-  if (name === 'autoresponse') loadAutoResponses();
-  if (name === 'automod')      loadAutomodSettings();
-  if (name === 'roles')        loadRoles();
-  if (name === 'servers')      loadGuilds();
-  if (name === 'welcome')      loadWelcomeConfig();
-  if (name === 'tickets')      loadTicketConfig();
-  if (name === 'warns')        loadAllWarns();
-  if (name === 'giveaway')     populateChannelSelects();
+function toast(msg, ok=true) {
+  const t = document.createElement('div');
+  t.className = `toast-msg ${ok?'toast-ok':'toast-err'}`;
+  t.textContent = msg;
+  $('toast').appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  NOTIFICATIONS
-// ═══════════════════════════════════════════════════════════
-function notify(msg, type = 'info') {
-  const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
-  const stack = document.getElementById('notifStack');
-  const div   = document.createElement('div');
-  div.className = `notif ${type}`;
-  div.innerHTML = `<span class="notif-icon">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
-  stack.appendChild(div);
-  setTimeout(() => {
-    div.classList.add('fade-out');
-    setTimeout(() => div.remove(), 350);
-  }, 3500);
+async function api(path, body=null) {
+  const opts = body ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) } : {};
+  const r = await fetch(path, opts);
+  return r.json();
 }
 
-// ═══════════════════════════════════════════════════════════
-//  API HELPER
-// ═══════════════════════════════════════════════════════════
-async function api(path, method = 'GET', body = null) {
+function fmtUptime(s) {
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  return `${h}h ${m}m ${sec}s`;
+}
+
+function logBadge(type) {
+  return `<span class="badge badge-${type}||badge-default">${type}</span>`.replace('||badge-default','');
+}
+
+function renderLogRow(l) {
+  const badgeClass = `badge-${l.type}`;
+  const time = new Date(l.time).toLocaleTimeString('ar-SA');
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.1)">
+    <span class="badge ${badgeClass}" style="flex-shrink:0">${l.type}</span>
+    <span style="flex:1;font-size:13px">${l.detail}</span>
+    <span style="font-size:12px;color:#475569;white-space:nowrap;font-family:'JetBrains Mono'">${time}</span>
+  </div>`;
+}
+
+// ── Navigation ───────────────────────────────────────────────────
+let currentSection = 'overview';
+function navigate(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  $(`sec-${id}`).classList.add('active');
+  event?.currentTarget?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active');
+  });
+  currentSection = id;
+  if (id==='members') loadMembers();
+  if (id==='tickets') loadTickets();
+  if (id==='levels') loadLeaderboard();
+  if (id==='roles') loadRoles();
+}
+
+// ── Status polling ───────────────────────────────────────────────
+let allLogs = [], logCurrentFilter = 'all';
+let allMembers = [];
+
+async function pollStatus() {
   try {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const res  = await fetch(`${API_URL}${path}`, opts);
-    return await res.json();
-  } catch(e) {
-    console.error('API Error:', e);
-    return { success: false, error: e.message };
-  }
+    const s = await api('/api/status');
+    // Overview stats
+    $('stat-members').textContent = s.members;
+    $('stat-humans').textContent = s.members - (s.members * 0.05 | 0);
+    $('stat-bots').textContent = s.guilds;
+    $('stat-ping').textContent = s.ping + 'ms';
+    $('stat-uptime').textContent = fmtUptime(s.uptime);
+    $('stat-guilds').textContent = s.guilds;
+    $('stat-channels').textContent = s.channels;
+    $('stat-roles').textContent = s.roles;
+    // Nav bar
+    $('bot-tag-nav').textContent = s.tag;
+    $('ping-display').textContent = s.ping + 'ms';
+    // Settings / info
+    $('info-tag').textContent   = s.tag;
+    $('info-ping').textContent  = s.ping + 'ms';
+    $('info-uptime').textContent= fmtUptime(s.uptime);
+    $('info-guilds').textContent= s.guilds;
+  } catch(e){}
 }
 
-// ═══════════════════════════════════════════════════════════
-//  CONNECT BOT
-// ═══════════════════════════════════════════════════════════
-async function connectBot() {
-  const token  = document.getElementById('tokenInput').value.trim();
-  const apiUrl = document.getElementById('apiUrlInput').value.trim();
-  if (!token)  return showConnectAlert('أدخل التوكن!', 'error');
-  if (!apiUrl) return showConnectAlert('أدخل رابط السيرفر!', 'error');
-
-  API_URL = apiUrl;
-  const btn = document.getElementById('connectBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">⚙️</span> جاري الاتصال...';
-  showConnectAlert('جاري الاتصال بالبوت...', 'info');
-
-  const res = await api('/api/connect', 'POST', { token });
-
-  if (res.success) {
-    localStorage.setItem('botToken', token);
-    localStorage.setItem('apiUrl', apiUrl);
-    document.getElementById('connectOverlay').style.display = 'none';
-    botConnected = true;
-    connectWS();
-    startRefreshTimer();
-    await reloadData();
-    notify('تم الاتصال بالبوت بنجاح! 🎉', 'success');
-  } else {
-    showConnectAlert(res.error || 'فشل الاتصال! تحقق من التوكن.', 'error');
-    btn.disabled = false;
-    btn.innerHTML = '<span>🚀</span> ربط البوت';
-  }
-}
-
-function showConnectAlert(msg, type) {
-  const a = document.getElementById('connectAlert');
-  a.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'info'}">
-    <span>${type==='error'?'❌':type==='success'?'✅':'ℹ️'}</span><span>${msg}</span></div>`;
-}
-
-async function disconnectBot() {
-  await api('/api/disconnect', 'POST');
-  if (ws) { ws.close(); ws = null; }
-  botConnected = false;
-  if (refreshTimer) clearInterval(refreshTimer);
-  document.getElementById('connectOverlay').style.display = 'flex';
-  document.getElementById('connectAlert').innerHTML = '';
-  document.getElementById('connectBtn').disabled = false;
-  document.getElementById('connectBtn').innerHTML = '<span>🚀</span> ربط البوت';
-  updateBotUI(null);
-  notify('تم قطع الاتصال', 'warning');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  WEBSOCKET
-// ═══════════════════════════════════════════════════════════
-function connectWS() {
-  const wsUrl = API_URL.replace('http://', 'ws://').replace('https://', 'wss://');
-  ws = new WebSocket(wsUrl);
-
-  ws.onopen = () => {
-    addLog('🟢 WebSocket متصل', 'green');
-    addToFullLog('system', '🟢 WebSocket متصل');
-  };
-
-  ws.onmessage = (e) => {
-    try {
-      const { type, payload } = JSON.parse(e.data);
-      handleWsEvent(type, payload);
-    } catch(_) {}
-  };
-
-  ws.onclose = () => {
-    addLog('🔴 WebSocket انقطع - إعادة الاتصال...', 'red');
-    if (botConnected) setTimeout(connectWS, 3000);
-  };
-
-  ws.onerror = () => addLog('⚠️ خطأ في WebSocket', 'yellow');
-}
-
-function handleWsEvent(type, payload) {
-  switch(type) {
-    case 'init':
-    case 'botReady':
-      botConnected = true;
-      updateBotUI(payload);
-      addLog(`✅ البوت جاهز: ${payload.tag}`, 'green');
-      addToFullLog('system', `✅ البوت جاهز: ${payload.tag}`);
-      break;
-    case 'botDisconnected':
-      botConnected = false;
-      updateBotUI(null);
-      break;
-    case 'violation':
-      violStats[payload.type] = (violStats[payload.type] || 0) + 1;
-      updateViolationUI();
-      addEventLog(`🚨 مخالفة [${payload.type}]`, `<strong>${payload.user}</strong>`, '#ED4245');
-      addToFullLog('violation', `مخالفة [${payload.type}] من ${payload.user}`);
-      break;
-    case 'modAction':
-      addEventLog(`🛡️ ${payload.action.toUpperCase()}`, `${payload.target} بواسطة ${payload.mod || 'Dashboard'}`, '#5865F2');
-      addModLog(payload);
-      addToFullLog('modAction', `${payload.action} على ${payload.target} من ${payload.mod}`);
-      break;
-    case 'memberJoin':
-      addEventLog('📥 عضو جديد', `<strong>${payload.user}</strong> (${payload.count})`, '#57F287');
-      addToFullLog('member', `📥 انضم: ${payload.user}`);
-      break;
-    case 'memberLeave':
-      addEventLog('📤 مغادرة', `<strong>${payload.user}</strong> (${payload.count})`, '#ED4245');
-      addToFullLog('member', `📤 غادر: ${payload.user}`);
-      break;
-    case 'ticketCreated':
-      addEventLog('🎫 تذكرة', `#${payload.number} - <strong>${payload.user}</strong>`, '#9B59B6');
-      addToFullLog('ticket', `تذكرة #${payload.number} من ${payload.user}`);
-      break;
-    case 'warnAdded':
-      addEventLog('⚠️ تحذير', `<strong>${payload.user}</strong> - ${payload.reason}`, '#FEE75C');
-      updateWarnsCount();
-      addToFullLog('violation', `تحذير لـ ${payload.user}: ${payload.reason}`);
-      break;
-    case 'giveaway':
-      addGwLog(payload);
-      addToFullLog('system', `🎉 مسابقة انتهت: ${payload.prize} → ${payload.winner}`);
-      break;
-    case 'botError':
-      addLog(`❌ خطأ: ${payload.message}`, 'red');
-      break;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  BOT UI UPDATE
-// ═══════════════════════════════════════════════════════════
-function updateBotUI(data) {
-  const connected = data && (data.connected !== false);
-  document.getElementById('statusDot').className = `status-dot ${connected ? 'online' : 'offline'}`;
-  document.getElementById('sideTag').textContent  = data?.tag || 'غير متصل';
-  document.getElementById('botStatusTag').textContent = connected ? 'متصل' : 'منقطع';
-  document.getElementById('botStatusTag').className   = `tag ${connected ? 'tag-green' : 'tag-red'}`;
-
-  if (data?.tag) {
-    document.getElementById('botTagBig').textContent    = data.tag;
-    document.getElementById('botIdBig').textContent     = `ID: ${data.id || '—'}`;
-    document.getElementById('botGuildsBig').textContent = `سيرفرات: ${data.guilds || '—'}`;
-    document.getElementById('infoName').textContent   = data.tag;
-    document.getElementById('infoId').textContent     = data.id || '—';
-    document.getElementById('infoGuilds').textContent = data.guilds || '—';
-
-    if (data.avatar) {
-      document.getElementById('sideAvatar').innerHTML =
-        `<img src="${data.avatar}" alt="avatar"/><span class="status-dot online"></span>`;
-      document.getElementById('botAvatarBig').innerHTML =
-        `<img src="${data.avatar}" alt="avatar" style="width:100%;height:100%;border-radius:50%;"/>`;
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  STATUS REFRESH
-// ═══════════════════════════════════════════════════════════
-function startRefreshTimer() {
-  refreshTimer = setInterval(refreshStatus, 5000);
-  refreshStatus();
-}
-
-async function refreshStatus() {
-  const data = await api('/api/status');
-  if (!data || data.error) return;
-
-  // Stats
-  document.getElementById('statMembers').textContent   = data.members || '—';
-  document.getElementById('statViolations').textContent= data.violations || 0;
-  document.getElementById('statTickets').textContent   = data.tickets || 0;
-  document.getElementById('statUptime').textContent    = data.uptime || '—';
-  document.getElementById('infoUptime').textContent    = data.uptime || '—';
-  document.getElementById('qs_guilds').textContent     = data.guilds || '—';
-  document.getElementById('qs_joins').textContent      = data.stats?.joins || 0;
-  document.getElementById('qs_leaves').textContent     = data.stats?.leaves || 0;
-  document.getElementById('qs_deleted').textContent    = data.stats?.messagesDeleted || 0;
-  document.getElementById('qs_ar').textContent         = autoResponses.length;
-
-  const ping = data.ping || 0;
-  document.getElementById('statPing').textContent  = `${ping}ms`;
-  document.getElementById('pingNumber').textContent= `${ping}ms`;
-  document.getElementById('sidePing').textContent  = `🏓 ${ping}ms`;
-  document.getElementById('infoPing').textContent  = `${ping}ms`;
-
-  const pingTrend = document.getElementById('pingStatus');
-  pingTrend.textContent = ping < 100 ? '🟢 ممتاز' : ping < 200 ? '🟡 جيد' : '🔴 بطيء';
-  pingTrend.className   = `stat-trend ${ping < 200 ? 'up' : 'down'}`;
-
-  // Ping chart
-  pingHistory.push(ping);
-  if (pingHistory.length > 20) pingHistory.shift();
-  renderPingChart();
-
-  updateBotUI(data);
-  await updateWarnsCount();
-}
-
-async function reloadData() {
-  await refreshStatus();
-  await loadAutoResponses();
-  await loadAutomodSettings();
-  await populateChannelSelects();
-}
-
-// ═══════════════════════════════════════════════════════════
-//  PING CHART
-// ═══════════════════════════════════════════════════════════
-function renderPingChart() {
-  const chart  = document.getElementById('pingChart');
-  const maxVal = Math.max(...pingHistory, 200);
-  chart.innerHTML = pingHistory.map(p => {
-    const h    = Math.max(4, (p / maxVal) * 50);
-    const color= p < 100 ? 'var(--green)' : p < 200 ? 'var(--yellow)' : 'var(--red)';
-    return `<div class="ping-bar" style="height:${h}px;background:${color};"></div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  EVENT LOG
-// ═══════════════════════════════════════════════════════════
-let eventLogEntries = [];
-
-function addEventLog(title, detail, color = '#7D8590') {
-  eventLogEntries.unshift({ title, detail, color, time: now() });
-  if (eventLogEntries.length > 50) eventLogEntries.pop();
-  renderEventLog();
-}
-
-function renderEventLog() {
-  const el = document.getElementById('eventLog');
-  if (!eventLogEntries.length) {
-    el.innerHTML = '<div class="no-data"><div class="nd-icon">📡</div>في انتظار الأحداث...</div>';
-    return;
-  }
-  el.innerHTML = eventLogEntries.map(e =>
-    `<div class="event-item">
-      <div class="event-icon" style="color:${e.color};">●</div>
-      <div class="event-text"><strong>${e.title}</strong>: ${e.detail}</div>
-      <div class="event-time">${e.time}</div>
-    </div>`
-  ).join('');
-}
-
-function clearEventLog() { eventLogEntries = []; renderEventLog(); }
-
-// ═══════════════════════════════════════════════════════════
-//  TERMINAL LOG
-// ═══════════════════════════════════════════════════════════
-function addLog(msg, cls = 'green') {
-  const box = document.getElementById('fullLog');
-  const div = document.createElement('div');
-  div.className = 'log-line';
-  div.innerHTML = `<span class="log-time">${now()}</span><span class="log-${cls}">${msg}</span>`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  FULL LOG
-// ═══════════════════════════════════════════════════════════
-function addToFullLog(type, msg) {
-  allLogs.unshift({ type, msg, time: now() });
-  if (allLogs.length > 200) allLogs.pop();
-  filterLogs();
-}
-
-function filterLogs() {
-  const filter = document.getElementById('logFilter')?.value || 'all';
-  const box    = document.getElementById('fullLog');
-  const filtered = filter === 'all' ? allLogs : allLogs.filter(l => l.type === filter);
-  if (!filtered.length) { box.innerHTML = '<div class="no-data" style="padding:30px;">لا توجد سجلات</div>'; return; }
-  const colors = { system:'cyan', violation:'red', modAction:'blue', member:'green', ticket:'yellow' };
-  box.innerHTML = filtered.map(l =>
-    `<div class="log-line"><span class="log-time">${l.time}</span><span class="log-${colors[l.type]||'green'}">[${l.type.toUpperCase()}]</span><span class="log-green"> ${l.msg}</span></div>`
-  ).join('');
-  box.scrollTop = 0;
-}
-
-function clearAllLogs() { allLogs = []; filterLogs(); }
-
-// ═══════════════════════════════════════════════════════════
-//  MODERATION LOG
-// ═══════════════════════════════════════════════════════════
-function addModLog(payload) {
-  const box = document.getElementById('modLog');
-  const div = document.createElement('div');
-  div.className = 'log-line';
-  div.innerHTML = `<span class="log-time">${now()}</span><span class="log-yellow">[${(payload.action||'').toUpperCase()}]</span><span class="log-green"> ${payload.target} ← ${payload.mod || 'Dashboard'}</span>`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  VIOLATION UI
-// ═══════════════════════════════════════════════════════════
-function updateViolationUI() {
-  document.getElementById('vBadword').textContent = violStats.badword  || 0;
-  document.getElementById('vLink').textContent    = violStats.link     || 0;
-  document.getElementById('vMention').textContent = violStats.mention  || 0;
-  document.getElementById('vSpam').textContent    = violStats.spam     || 0;
-  document.getElementById('vRepeat').textContent  = violStats.repeat   || 0;
-  document.getElementById('vGhost').textContent   = violStats.ghostping|| 0;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  CHANNEL SELECTS POPULATION
-// ═══════════════════════════════════════════════════════════
-async function populateChannelSelects() {
-  if (!selectedGuild) return;
-  const channels = await api(`/api/guilds/${selectedGuild}/channels`);
-  if (!Array.isArray(channels)) return;
-  const opts = channels.map(c => `<option value="${c.id}">#${c.name}</option>`).join('');
-  ['sendChannel','modChannel','welcomeChannel','leaveChannel','ticketPanelChannel','gwChannel','logChannelSelect']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = opts; });
-}
-
-// ═══════════════════════════════════════════════════════════
-//  GUILDS
-// ═══════════════════════════════════════════════════════════
-async function loadGuilds() {
-  const guilds = await api('/api/guilds');
-  const el = document.getElementById('guildList');
-  if (!Array.isArray(guilds) || !guilds.length) {
-    el.innerHTML = '<div class="no-data"><div class="nd-icon">🌐</div>لا يوجد سيرفرات</div>';
-    return;
-  }
-  el.innerHTML = guilds.map(g =>
-    `<div class="guild-card ${selectedGuild===g.id?'selected':''}" onclick="selectGuild('${g.id}','${g.name}',${g.members})">
-      <div class="guild-icon">${g.icon ? `<img src="${g.icon}"/>` : '🌐'}</div>
+async function pollStats() {
+  try {
+    const s = await api('/api/stats');
+    // Log chart
+    const chart = $('log-chart');
+    const total = Object.values(s.logTypes).reduce((a,b)=>a+b,0)||1;
+    chart.innerHTML = Object.entries(s.logTypes).map(([k,v])=>`
       <div>
-        <div class="guild-name">${g.name}</div>
-        <div class="guild-members">👥 ${g.members} عضو</div>
-      </div>
-    </div>`
-  ).join('');
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:#94a3b8">${k}</span><span style="font-family:'JetBrains Mono';color:var(--neon-cyan)">${v}</span>
+        </div>
+        <div style="height:6px;background:rgba(168,85,247,0.15);border-radius:3px;overflow:hidden">
+          <div class="bar-fill" style="height:100%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));border-radius:3px;width:${(v/total*100).toFixed(1)}%"></div>
+        </div>
+      </div>`).join('');
+    // Top levels
+    const tl = $('top-levels');
+    tl.innerHTML = s.topLevels.length ? s.topLevels.map((u,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:rgba(168,85,247,0.07)">
+        <span style="font-family:'JetBrains Mono';font-weight:700;color:var(--neon-orange);width:20px">#${i+1}</span>
+        <span style="flex:1;font-size:13px">${u.id}</span>
+        <span class="glow-cyan" style="font-family:'JetBrains Mono';font-weight:700">Lv.${u.level}</span>
+      </div>`).join('') : '<div style="color:#475569;font-size:13px">لا يوجد بيانات بعد</div>';
+    // Ticket stats
+    $('t-open').textContent   = s.openTickets;
+    $('t-closed').textContent = Object.keys(s.logTypes).includes('TICKET_CLOSE') ? (s.logTypes.TICKET_CLOSE||0) : 0;
+    $('t-total').textContent  = Object.values(s.logTypes).reduce((a,b)=>a+b,0);
+  } catch(e){}
 }
 
-async function selectGuild(id, name, members) {
-  selectedGuild = id;
-  document.getElementById('selectedGuildBadge').innerHTML =
-    `<span class="tag tag-blue">🌐 ${name}</span>`;
-  await loadGuilds();
-  await populateChannelSelects();
-  await loadRoles();
-
-  // Show guild details
-  const channels = await api(`/api/guilds/${id}/channels`);
-  const roles    = await api(`/api/guilds/${id}/roles`);
-  const details  = document.getElementById('guildDetails');
-  details.innerHTML = `
-    <div class="grid grid-2" style="margin-bottom:14px;">
-      <div class="stat-card blue" style="padding:14px;">
-        <div class="stat-label">👥 الأعضاء</div>
-        <div class="stat-value">${members}</div>
-      </div>
-      <div class="stat-card purple" style="padding:14px;">
-        <div class="stat-label">👑 الرتب</div>
-        <div class="stat-value">${roles.length||0}</div>
-      </div>
-    </div>
-    <div class="section-title">القنوات (${channels.length||0})</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-      ${(channels||[]).map(c=>`<span class="tag tag-blue">#${c.name}</span>`).join('')}
-    </div>
-    <div class="section-title">الرتب (${roles.length||0})</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;">
-      ${(roles||[]).map(r=>`<span class="tag tag-purple" style="border-color:${r.color};">
-        <span class="role-color" style="background:${r.color};"></span> ${r.name}
-      </span>`).join('')}
-    </div>`;
+async function pollLogs() {
+  try {
+    allLogs = await api('/api/logs');
+    renderLogs();
+    // Protection logs
+    const violLogs = allLogs.filter(l=>['BAD_WORD','SPAM','GHOST_PING','MENTION_SPAM','LINK'].includes(l.type));
+    $('prot-logs').innerHTML = violLogs.length ?
+      violLogs.map(renderLogRow).join('') :
+      '<div style="color:#475569;font-size:13px;padding:8px">لا مخالفات مسجّلة حتى الآن ✅</div>';
+    // Overview preview
+    $('recent-logs-preview').innerHTML = allLogs.slice(0,8).map(renderLogRow).join('');
+  } catch(e){}
 }
 
-// ═══════════════════════════════════════════════════════════
-//  MODERATION ACTIONS
-// ═══════════════════════════════════════════════════════════
-async function modAction(action) {
-  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
-  const userId   = document.getElementById('modUserId').value.trim();
-  const reason   = document.getElementById('modReason').value.trim();
-  const duration = document.getElementById('modDuration').value.trim();
-  if (!userId) return notify('أدخل معرف العضو!', 'warning');
-
-  const res = await api(`/api/guilds/${selectedGuild}/mod`, 'POST', { action, userId, reason, duration });
-  if (res.success) {
-    notify(`✅ تم تنفيذ إجراء: ${action}`, 'success');
-    addModLog({ action, target: userId, mod: 'Dashboard', reason });
-  } else {
-    notify(`❌ ${res.error}`, 'error');
-  }
+function renderLogs() {
+  const filtered = logCurrentFilter==='all' ? allLogs : allLogs.filter(l=>l.type===logCurrentFilter);
+  $('logs-list').innerHTML = filtered.length ? filtered.map(renderLogRow).join('') : '<div style="color:#475569;padding:8px">لا سجلات</div>';
 }
 
-async function lockChannel(lock) {
-  const channelId = document.getElementById('modChannel').value;
-  if (!channelId) return notify('اختر قناة!', 'warning');
-  const res = await api('/api/channel/lock', 'POST', { channelId, lock });
-  notify(res.success ? `✅ تم ${lock ? 'قفل' : 'فتح'} القناة` : `❌ ${res.error}`, res.success ? 'success' : 'error');
+function logFilter(t) {
+  logCurrentFilter = t;
+  document.querySelectorAll('#sec-logs .tab').forEach(b=>b.classList.remove('active'));
+  $(`lf-${t}`).classList.add('active');
+  renderLogs();
 }
 
-async function clearMessages() {
-  const channelId = document.getElementById('modChannel').value;
-  const count     = parseInt(document.getElementById('clearCount').value) || 10;
-  if (!channelId) return notify('اختر قناة!', 'warning');
-  const res = await api('/api/clear', 'POST', { channelId, count });
-  notify(res.success ? `✅ تم مسح ${res.deleted} رسالة` : `❌ ${res.error}`, res.success ? 'success' : 'error');
+// ── Moderation ───────────────────────────────────────────────────
+function modTab(t) {
+  ['member','channel','voice'].forEach(x=>{
+    $(`mod-${x}`).style.display=x===t?'block':'none';
+    $(`mod-tab-${x}`).classList.toggle('active',x===t);
+  });
 }
 
-// ═══════════════════════════════════════════════════════════
-//  WARNS
-// ═══════════════════════════════════════════════════════════
-async function updateWarnsCount() {
-  const warns = await api('/api/warns');
-  const total = Object.values(warns || {}).reduce((a, b) => a + (b?.length || 0), 0);
-  document.getElementById('warnsCount').textContent = total;
+async function doMod(action) {
+  const uid = $('mod-uid').value.trim();
+  if(!uid) return toast('أدخل معرّف العضو',false);
+  const body={userId:uid,reason:$('mod-reason').value};
+  if(action==='nickname') body.nickname=$('mod-nick').value;
+  const r = await api(`/api/mod/${action}`,body);
+  r.success ? toast(`✅ تم تنفيذ: ${action}`) : toast('❌ '+r.error,false);
 }
 
-async function loadAllWarns() {
-  const warns = await api('/api/warns');
-  const total = Object.values(warns || {}).reduce((a, b) => a + (b?.length || 0), 0);
-  document.getElementById('warnsCount').textContent = total;
+async function doModMute() {
+  const uid=$('mod-uid').value.trim();
+  if(!uid) return toast('أدخل معرّف العضو',false);
+  const r=await api('/api/mod/mute',{userId:uid,duration:$('mod-mute-dur').value,reason:$('mod-reason').value});
+  r.success?toast('✅ تم الكتم'):toast('❌ '+r.error,false);
 }
 
-async function checkWarns() {
-  const uid = document.getElementById('warnUserId').value.trim();
-  if (!uid) return notify('أدخل معرف العضو!', 'warning');
-  const warns = await api(`/api/warns/${uid}`);
-  const el    = document.getElementById('warnsDisplay');
-  if (!warns.length) {
-    el.innerHTML = `<div class="alert alert-success"><span>✅</span> لا يوجد تحذيرات للعضو ${uid}</div>`;
-    return;
-  }
-  el.innerHTML = warns.map((w, i) =>
-    `<div class="warn-entry">
-      <div class="warn-number">${i+1}</div>
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:600;">${w.reason}</div>
-        <div style="font-size:11px;color:var(--text-muted);">بواسطة: ${w.mod} | ${w.date}</div>
-      </div>
-    </div>`
-  ).join('');
+async function doChannel(action) {
+  const chId=$('mod-channel-sel').value;
+  if(!chId) return toast('اختر روماً',false);
+  const body={channelId:chId};
+  if(action==='clear') body.amount=$('mod-clear-n').value;
+  if(action==='slowmode') body.seconds=$('mod-slowmode').value;
+  const r=await api(`/api/mod/${action}`,body);
+  r.success?toast('✅ تم التنفيذ'):toast('❌ '+r.error,false);
 }
 
-async function clearUserWarns() {
-  const uid = document.getElementById('warnUserId').value.trim();
-  if (!uid) return notify('أدخل معرف العضو!', 'warning');
-  const res = await api(`/api/warns/${uid}`, 'DELETE');
-  notify(res.success ? '✅ تم مسح جميع التحذيرات' : '❌ فشل', res.success ? 'success' : 'error');
-  if (res.success) document.getElementById('warnsDisplay').innerHTML = '<div class="alert alert-success"><span>✅</span> تم مسح التحذيرات!</div>';
-  updateWarnsCount();
+async function doMove() {
+  const r=await api('/api/mod/move',{userId:$('mod-move-uid').value,channelId:$('mod-move-ch').value});
+  r.success?toast('✅ تم النقل'):toast('❌ '+r.error,false);
 }
 
-async function addWarnDash() {
-  const uid    = document.getElementById('warnUserId').value.trim();
-  const reason = document.getElementById('warnReason').value.trim();
-  if (!uid || !reason) return notify('أدخل معرف العضو والسبب!', 'warning');
-  notify('لإضافة تحذير من اللوحة، استخدم الأمر !warn في الديسكورد', 'info');
+// ── Protection ───────────────────────────────────────────────────
+let cfgCache={};
+async function loadProtConfig() {
+  cfgCache=await api('/api/config');
+  $('tog-ai').checked=cfgCache.aiModeration;
+  $('tog-spam').checked=cfgCache.antiSpam;
+  $('tog-ghost').checked=cfgCache.antiGhostPing;
+  $('max-mentions').value=cfgCache.maxMentions||5;
+  renderBadWords(cfgCache.badWords||[]);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  AUTOMOD SETTINGS
-// ═══════════════════════════════════════════════════════════
-async function loadAutomodSettings() {
-  const data = await api('/api/settings');
-  if (!data) return;
-
-  setToggle('toggle-antilinks', data.antiLinks !== false);
-  setToggle('toggle-antiGhostPing', data.antiGhostPing !== false);
-  setToggle('toggle-antiMention', data.antiMention?.enabled !== false);
-  setToggle('toggle-antiRepeat', data.antiRepeat?.enabled !== false);
-
-  document.getElementById('mentionMax').value      = data.antiMention?.max || 3;
-  document.getElementById('repeatThreshold').value = data.antiRepeat?.threshold || 3;
-
-  badWords = data.badWords || [];
-  renderBadWords();
-
-  allowedRoles = data.allowedRoles || [];
-  renderAllowedRoles();
+function renderBadWords(words) {
+  $('badwords-list').innerHTML=words.map((w,i)=>`
+    <div style="display:flex;align-items:center;gap:4px;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);border-radius:20px;padding:3px 10px;font-size:12px">
+      ${w}
+      <button onclick="removeBadWord(${i})" style="background:none;border:none;cursor:pointer;color:#ef4444;padding:0 2px;font-size:14px">×</button>
+    </div>`).join('');
 }
 
-function setToggle(id, on) {
-  const el = document.getElementById(id);
-  if (el) { el.classList.toggle('on', on); }
+async function addBadWord() {
+  const w=$('new-badword').value.trim();
+  if(!w) return;
+  cfgCache.badWords=cfgCache.badWords||[];
+  cfgCache.badWords.push(w);
+  $('new-badword').value='';
+  await api('/api/config/update',{badWords:cfgCache.badWords});
+  renderBadWords(cfgCache.badWords);
+  toast('✅ تمت الإضافة');
 }
 
-function toggleSetting(el, key) {
-  el.classList.toggle('on');
-  const val = el.classList.contains('on');
-  const body = {};
-  body[key] = val;
-  api('/api/settings', 'POST', body);
-}
-function toggleMention(el) {
-  el.classList.toggle('on');
-  api('/api/settings', 'POST', { antiMention: { enabled: el.classList.contains('on') } });
-}
-function toggleRepeat(el) {
-  el.classList.toggle('on');
-  api('/api/settings', 'POST', { antiRepeat: { enabled: el.classList.contains('on') } });
+async function removeBadWord(i) {
+  cfgCache.badWords.splice(i,1);
+  await api('/api/config/update',{badWords:cfgCache.badWords});
+  renderBadWords(cfgCache.badWords);
 }
 
-async function saveAutomodSettings() {
-  const body = {
-    antiLinks:    document.getElementById('toggle-antilinks').classList.contains('on'),
-    antiGhostPing:document.getElementById('toggle-antiGhostPing').classList.contains('on'),
-    antiMention: {
-      enabled:   document.getElementById('toggle-antiMention').classList.contains('on'),
-      max:       parseInt(document.getElementById('mentionMax').value) || 3,
-    },
-    antiRepeat: {
-      enabled:   document.getElementById('toggle-antiRepeat').classList.contains('on'),
-      threshold: parseInt(document.getElementById('repeatThreshold').value) || 3,
-    },
-    badWords,
-    allowedRoles,
+async function updateProt() {
+  const body={
+    aiModeration:$('tog-ai').checked,
+    antiSpam:$('tog-spam').checked,
+    antiGhostPing:$('tog-ghost').checked,
+    maxMentions:parseInt($('max-mentions').value)||5
   };
-  const res = await api('/api/settings', 'POST', body);
-  notify(res.success ? '✅ تم حفظ الإعدادات' : '❌ فشل الحفظ', res.success ? 'success' : 'error');
+  await api('/api/config/update',body);
+  toast('✅ تم حفظ إعدادات الحماية');
 }
 
-// Bad Words
-function addBadWord() {
-  const w = document.getElementById('newBadWord').value.trim();
-  if (!w) return;
-  if (!badWords.includes(w)) { badWords.push(w); renderBadWords(); }
-  document.getElementById('newBadWord').value = '';
-}
-function removeBadWord(w) {
-  badWords = badWords.filter(b => b !== w);
-  renderBadWords();
-}
-function renderBadWords() {
-  document.getElementById('badWordsList').innerHTML = badWords.map(w =>
-    `<span class="tag tag-red" style="cursor:pointer;" onclick="removeBadWord('${w}')">
-      ${w} <span style="margin-right:4px;">✕</span>
-    </span>`
-  ).join('') || '<div class="no-data" style="padding:10px;font-size:12px;">لا توجد كلمات محظورة</div>';
-}
-
-// Allowed Roles
-function addAllowedRole() {
-  const id = document.getElementById('allowedRoleId').value.trim();
-  if (!id) return;
-  if (!allowedRoles.includes(id)) { allowedRoles.push(id); renderAllowedRoles(); }
-  document.getElementById('allowedRoleId').value = '';
-}
-function removeAllowedRole(id) {
-  allowedRoles = allowedRoles.filter(r => r !== id);
-  renderAllowedRoles();
-}
-function renderAllowedRoles() {
-  document.getElementById('allowedRolesList').innerHTML = allowedRoles.map(r =>
-    `<span class="tag tag-green" style="cursor:pointer;" onclick="removeAllowedRole('${r}')">
-      ${r} <span style="margin-right:4px;">✕</span>
-    </span>`
-  ).join('') || '<div style="font-size:12px;color:var(--text-muted);">لا توجد أدوار معفاة</div>';
-}
-
-// Log Channel
-async function saveLogChannel() {
-  const channelId = document.getElementById('logChannelSelect').value;
-  const res = await api('/api/settings', 'POST', { logChannel: channelId });
-  notify(res.success ? '✅ تم حفظ قناة اللوق' : '❌ فشل', res.success ? 'success' : 'error');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  ROLES
-// ═══════════════════════════════════════════════════════════
+// ── Roles ────────────────────────────────────────────────────────
 async function loadRoles() {
-  if (!selectedGuild) return;
-  const roles = await api(`/api/guilds/${selectedGuild}/roles`);
-  const el    = document.getElementById('rolesList');
-  if (!Array.isArray(roles) || !roles.length) {
-    el.innerHTML = '<div class="no-data"><div class="nd-icon">👑</div>لا توجد رتب</div>';
-    return;
-  }
-  el.innerHTML = `<table class="table">
-    <thead><tr><th>اللون</th><th>الاسم</th><th>الأعضاء</th><th>المعرف</th></tr></thead>
-    <tbody>${roles.map(r =>
-      `<tr>
-        <td><span class="role-color" style="background:${r.color};width:16px;height:16px;border-radius:4px;display:inline-block;"></span></td>
-        <td style="font-weight:600;color:${r.color};">${r.name}</td>
-        <td><span class="tag tag-blue">${r.members}</span></td>
-        <td><code style="font-size:11px;color:var(--text-muted);">${r.id}</code></td>
-      </tr>`
-    ).join('')}</tbody>
-  </table>`;
+  const roles=await api('/api/roles');
+  const html=roles.map(r=>`
+    <div class="glass" style="padding:12px;display:flex;align-items:center;gap:8px;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:12px;height:12px;border-radius:50%;background:${r.color}"></div>
+        <span style="font-weight:700;font-size:13px">${r.name}</span>
+        <span style="font-size:11px;color:#64748b">(${r.members})</span>
+      </div>
+      <button onclick="deleteRole('${r.id}')" style="background:none;border:none;cursor:pointer;color:#ef4444"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+    </div>`).join('');
+  $('roles-list').innerHTML=html||'<div style="color:#475569">لا رتب</div>';
+  // Populate selects
+  const opts=roles.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  ['give-role-sel','auto-role-sel','lvl-role-sel'].forEach(id=>{
+    const el=$(id); if(el) el.innerHTML=`<option value="">-- اختر --</option>${opts}`;
+  });
+  lucide.createIcons();
 }
 
 async function createRole() {
-  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
-  const name  = document.getElementById('newRoleName').value.trim();
-  const color = document.getElementById('newRoleColor').value;
-  if (!name) return notify('أدخل اسم الرتبة!', 'warning');
-  const res = await api(`/api/guilds/${selectedGuild}/roles`, 'POST', { name, color });
-  if (res.success) {
-    notify(`✅ تم إنشاء رتبة "${name}"`, 'success');
-    document.getElementById('newRoleName').value = '';
-    loadRoles();
-  } else {
-    notify(`❌ ${res.error}`, 'error');
-  }
+  const r=await api('/api/roles/create',{name:$('role-name').value,color:$('role-color').value,hoist:$('role-hoist').checked,mentionable:$('role-mention').checked});
+  r.success?toast('✅ تم إنشاء الرتبة'):toast('❌ '+r.error,false);
+  if(r.success) loadRoles();
 }
 
-async function giveRole() {
-  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
-  const uid    = document.getElementById('roleUserId').value.trim();
-  const roleId = document.getElementById('roleRoleId').value.trim();
-  if (!uid || !roleId) return notify('أدخل معرف العضو والرتبة!', 'warning');
-  const res = await api(`/api/guilds/${selectedGuild}/members/${uid}/roles`, 'POST', { roleId, action: 'add' });
-  notify(res.success ? '✅ تم إعطاء الرتبة' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+async function deleteRole(id) {
+  const r=await api('/api/roles/delete',{roleId:id});
+  r.success?toast('✅ تم حذف الرتبة'):toast('❌ '+r.error,false);
+  loadRoles();
 }
 
-async function removeRole() {
-  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
-  const uid    = document.getElementById('roleUserId').value.trim();
-  const roleId = document.getElementById('roleRoleId').value.trim();
-  if (!uid || !roleId) return notify('أدخل معرف العضو والرتبة!', 'warning');
-  const res = await api(`/api/guilds/${selectedGuild}/members/${uid}/roles`, 'POST', { roleId, action: 'remove' });
-  notify(res.success ? '✅ تم سحب الرتبة' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+async function giveRole()  {
+  const r=await api('/api/roles/give',{userId:$('give-role-uid').value,roleId:$('give-role-sel').value});
+  r.success?toast('✅ تم منح الرتبة'):toast('❌ '+r.error,false);
+}
+async function removeRole(){
+  const r=await api('/api/roles/remove',{userId:$('give-role-uid').value,roleId:$('give-role-sel').value});
+  r.success?toast('✅ تم سحب الرتبة'):toast('❌ '+r.error,false);
+}
+async function massGiveRole(){
+  if(!confirm('سيتم منح الرتبة لجميع الأعضاء. متأكد؟')) return;
+  toast('⏳ جاري التوزيع الجماعي...');
+  const r=await api('/api/roles/mass-give',{roleId:$('give-role-sel').value});
+  r.success?toast(`✅ تم منح الرتبة لـ ${r.count} عضو`):toast('❌ '+r.error,false);
+}
+async function setAutoRole(){
+  const r=await api('/api/roles/autorole',{roleId:$('auto-role-sel').value});
+  r.success?toast('✅ تم ضبط الرتبة التلقائية'):toast('❌ '+r.error,false);
 }
 
-// Auto Roles
-async function addAutoRole() {
-  const roleId = document.getElementById('autoRoleId').value.trim();
-  if (!roleId) return notify('أدخل معرف الرتبة!', 'warning');
-  const res = await api('/api/autoroles', 'POST', { roleId });
-  if (res.success) {
-    autoRoles = res.autoRoles;
-    renderAutoRoles();
-    document.getElementById('autoRoleId').value = '';
-    notify('✅ تم إضافة الرتبة التلقائية', 'success');
-  }
+async function setLevelRole(){
+  const level=parseInt($('lvl-role-level').value);
+  const roleId=$('lvl-role-sel').value;
+  if(!level||!roleId) return toast('أدخل المستوى والرتبة',false);
+  cfgCache.levelRoles=cfgCache.levelRoles||{};
+  cfgCache.levelRoles[level]=roleId;
+  // update backend config
+  toast('✅ تم ربط الرتبة بالمستوى '+level);
+  renderLevelRoles();
 }
 
-async function removeAutoRole(roleId) {
-  const res = await api(`/api/autoroles/${roleId}`, 'DELETE');
-  if (res.success) { autoRoles = res.autoRoles; renderAutoRoles(); }
+function renderLevelRoles(){
+  const lr=cfgCache.levelRoles||{};
+  $('level-roles-list').innerHTML=Object.entries(lr).map(([l,r])=>`
+    <span class="role-chip" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4)">Lv.${l} → ${r}</span>`).join('');
 }
 
-function renderAutoRoles() {
-  const el = document.getElementById('autoRolesList');
-  el.innerHTML = autoRoles.map(r =>
-    `<span class="tag tag-purple" style="cursor:pointer;" onclick="removeAutoRole('${r}')">
-      ${r} <span style="margin-right:4px;">✕</span>
-    </span>`
-  ).join('') || '<div class="no-data" style="padding:10px;font-size:12px;">لا توجد رتب تلقائية</div>';
+// ── Members ──────────────────────────────────────────────────────
+async function loadMembers(){
+  $('members-list').innerHTML='<div style="color:#64748b;padding:10px">⏳ جاري التحميل...</div>';
+  allMembers=await api('/api/members');
+  renderMembers(allMembers);
+}
+function filterMembers(){
+  const q=$('member-search').value.toLowerCase();
+  renderMembers(allMembers.filter(m=>m.tag.toLowerCase().includes(q)||m.id.includes(q)));
+}
+function renderMembers(members){
+  $('members-list').innerHTML=members.map(m=>`
+    <div class="member-row">
+      <img src="${m.avatar}" style="width:36px;height:36px;border-radius:50%;border:2px solid ${m.bot?'var(--neon-cyan)':'rgba(168,85,247,0.4)'}"/>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px">${m.displayName} <span style="font-size:11px;color:#64748b">${m.tag}</span></div>
+        <div style="font-size:11px;color:#475569">ID: ${m.id} · Lv.${m.level} · ${m.warns} تحذير</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;max-width:200px">
+        ${m.roles.slice(0,3).map(r=>`<span class="role-chip" style="background:${r.color}22;border:1px solid ${r.color}44;color:${r.color}">${r.name}</span>`).join('')}
+        ${m.roles.length>3?`<span style="font-size:11px;color:#64748b">+${m.roles.length-3}</span>`:''}
+      </div>
+      ${m.bot?'<span style="font-size:11px;background:rgba(34,211,238,0.15);color:var(--neon-cyan);padding:2px 8px;border-radius:20px;border:1px solid rgba(34,211,238,0.3)">BOT</span>':''}
+    </div>`).join('')||'<div style="color:#475569;padding:10px">لا أعضاء</div>';
 }
 
-// Role color preview
-document.addEventListener('DOMContentLoaded', () => {
-  const colorPicker = document.getElementById('newRoleColor');
-  const colorHex    = document.getElementById('newRoleColorHex');
-  if (colorPicker) {
-    colorPicker.addEventListener('input', () => {
-      colorHex.value = colorPicker.value;
-      document.getElementById('rolePreviewName').style.color = colorPicker.value;
-    });
-    colorHex.addEventListener('input', () => {
-      if (/^#[0-9A-Fa-f]{6}$/.test(colorHex.value)) {
-        colorPicker.value = colorHex.value;
-        document.getElementById('rolePreviewName').style.color = colorHex.value;
-      }
-    });
-  }
-
-  // Auto response preview
-  const arResp = document.getElementById('arResponse');
-  if (arResp) {
-    arResp.addEventListener('input', () => {
-      document.getElementById('arPreviewText').textContent = arResp.value || 'سيظهر الرد هنا...';
-    });
-  }
-
-  // Welcome preview
-  const wMsg = document.getElementById('welcomeMessage');
-  if (wMsg) {
-    wMsg.addEventListener('input', () => {
-      document.getElementById('welcomePreview').innerHTML =
-        `<div class="ep-title">👋 عضو جديد!</div><div class="ep-desc">${wMsg.value || ''}</div>`;
-    });
-  }
-
-  // Giveaway preview
-  const gwPrize = document.getElementById('gwPrize');
-  const gwDur   = document.getElementById('gwDuration');
-  if (gwPrize) {
-    const updateGwPreview = () => {
-      document.getElementById('gwPreviewText').innerHTML =
-        `الجائزة: ${gwPrize.value || '—'}<br>المدة: ${gwDur.value || '—'}`;
-    };
-    gwPrize.addEventListener('input', updateGwPreview);
-    gwDur.addEventListener('input', updateGwPreview);
-  }
-
-  // Role preview
-  const roleName = document.getElementById('newRoleName');
-  if (roleName) {
-    roleName.addEventListener('input', () => {
-      document.getElementById('rolePreviewName').textContent = roleName.value || 'اسم الرتبة';
-    });
-  }
-
-  // Check saved token
-  const savedToken  = localStorage.getItem('botToken');
-  const savedApiUrl = localStorage.getItem('apiUrl');
-  if (savedToken && savedApiUrl) {
-    document.getElementById('tokenInput').value  = savedToken;
-    document.getElementById('apiUrlInput').value = savedApiUrl;
-  }
-});
-
-// ═══════════════════════════════════════════════════════════
-//  WELCOME / LEAVE
-// ═══════════════════════════════════════════════════════════
-async function loadWelcomeConfig() {
-  const [wc, lc] = await Promise.all([api('/api/welcome'), api('/api/leave')]);
-  if (wc) {
-    setToggle('toggle-welcome', wc.enabled);
-    document.getElementById('welcomeMessage').value = wc.message || '';
-    document.getElementById('welcomeColor').value   = wc.embedColor || '#5865F2';
-  }
-  if (lc) {
-    setToggle('toggle-leave', lc.enabled);
-    document.getElementById('leaveMessage').value = lc.message || '';
-    document.getElementById('leaveColor').value   = lc.embedColor || '#ED4245';
-  }
-  await populateChannelSelects();
+// ── Tickets ──────────────────────────────────────────────────────
+async function createTicket(){
+  const r=await api('/api/tickets/create',{userId:$('ticket-uid').value,topic:$('ticket-topic').value});
+  r.success?toast('✅ تم فتح التذكرة: '+r.channelName):toast('❌ '+r.error,false);
+  loadTickets();
 }
 
-async function saveWelcome() {
-  const res = await api('/api/welcome', 'POST', {
-    enabled:    document.getElementById('toggle-welcome').classList.contains('on'),
-    channelId:  document.getElementById('welcomeChannel').value,
-    message:    document.getElementById('welcomeMessage').value,
-    embedColor: document.getElementById('welcomeColor').value,
-  });
-  notify(res.success ? '✅ تم حفظ إعدادات الترحيب' : '❌ فشل', res.success ? 'success' : 'error');
-}
-
-async function saveLeave() {
-  const res = await api('/api/leave', 'POST', {
-    enabled:    document.getElementById('toggle-leave').classList.contains('on'),
-    channelId:  document.getElementById('leaveChannel').value,
-    message:    document.getElementById('leaveMessage').value,
-    embedColor: document.getElementById('leaveColor').value,
-  });
-  notify(res.success ? '✅ تم حفظ إعدادات المغادرة' : '❌ فشل', res.success ? 'success' : 'error');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  TICKETS
-// ═══════════════════════════════════════════════════════════
-async function loadTicketConfig() {
-  const res = await api('/api/tickets');
-  if (res.config) {
-    document.getElementById('ticketCategory').value    = res.config.categoryId    || '';
-    document.getElementById('ticketSupportRole').value = res.config.supportRoleId || '';
-    document.getElementById('ticketTotal').textContent = res.config.count || 0;
-    document.getElementById('ticketOpen').textContent  = (res.config.list || []).length;
-    renderTicketList(res.config.list || []);
-  }
-  await populateChannelSelects();
-}
-
-function renderTicketList(list) {
-  const el = document.getElementById('ticketList');
-  if (!list.length) { el.innerHTML = '<div class="no-data" style="padding:20px;"><div class="nd-icon">🎫</div>لا توجد تذاكر</div>'; return; }
-  el.innerHTML = list.map(t =>
-    `<div class="event-item">
-      <div class="event-icon">🎫</div>
-      <div class="event-text">تذكرة #${t.number} - <strong>${t.topic}</strong></div>
-      <div class="event-time">ID: ${t.userId}</div>
-    </div>`
-  ).join('');
-}
-
-async function saveTicketConfig() {
-  const res = await api('/api/tickets', 'POST', {
-    categoryId:    document.getElementById('ticketCategory').value,
-    supportRoleId: document.getElementById('ticketSupportRole').value,
-  });
-  notify(res.success ? '✅ تم حفظ إعدادات التذاكر' : '❌ فشل', res.success ? 'success' : 'error');
-}
-
-async function postTicketPanel() {
-  const channelId = document.getElementById('ticketPanelChannel').value;
-  if (!channelId) return notify('اختر قناة!', 'warning');
-  const res = await api('/api/tickets/panel', 'POST', { channelId });
-  notify(res.success ? '✅ تم نشر لوحة التذاكر' : `❌ ${res.error}`, res.success ? 'success' : 'error');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  AUTO RESPONSES
-// ═══════════════════════════════════════════════════════════
-async function loadAutoResponses() {
-  const data = await api('/api/autoresponses');
-  autoResponses = Array.isArray(data) ? data : [];
-  renderAutoResponses();
-  document.getElementById('arCount').textContent   = autoResponses.length;
-  document.getElementById('qs_ar').textContent     = autoResponses.length;
-}
-
-async function addAutoResponse() {
-  const trigger  = document.getElementById('arTrigger').value.trim();
-  const response = document.getElementById('arResponse').value.trim();
-  const exact    = document.getElementById('toggle-arExact').classList.contains('on');
-  if (!trigger || !response) return notify('أدخل الكلمة المحفزة والرد!', 'warning');
-  const res = await api('/api/autoresponses', 'POST', { trigger, response, exact });
-  if (res.success) {
-    autoResponses = res.autoResponses;
-    renderAutoResponses();
-    document.getElementById('arTrigger').value  = '';
-    document.getElementById('arResponse').value = '';
-    document.getElementById('arCount').textContent = autoResponses.length;
-    notify('✅ تم إضافة الرد التلقائي', 'success');
-  } else notify(`❌ ${res.error}`, 'error');
-}
-
-async function deleteAutoResponse(i) {
-  const res = await api(`/api/autoresponses/${i}`, 'DELETE');
-  if (res.success) {
-    autoResponses = res.autoResponses;
-    renderAutoResponses();
-    document.getElementById('arCount').textContent = autoResponses.length;
-    notify('✅ تم حذف الرد', 'success');
-  }
-}
-
-function renderAutoResponses() {
-  const el = document.getElementById('arList');
-  if (!autoResponses.length) {
-    el.innerHTML = '<div class="no-data"><div class="nd-icon">💬</div>لا توجد ردود تلقائية</div>';
-    return;
-  }
-  el.innerHTML = autoResponses.map((ar, i) =>
-    `<div class="warn-entry" style="border-color:rgba(87,242,135,0.3);background:rgba(87,242,135,0.05);">
-      <div class="warn-number" style="background:rgba(87,242,135,0.15);color:var(--green);">${i+1}</div>
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:600;">🔑 ${ar.trigger}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">💬 ${ar.response}</div>
-        <div style="margin-top:4px;">
-          <span class="tag ${ar.exact?'tag-yellow':'tag-blue'}" style="font-size:10px;">
-            ${ar.exact ? '🎯 مطابقة تامة' : '🔍 يحتوي على'}
-          </span>
+async function loadTickets(){
+  const tickets=await api('/api/tickets');
+  const arr=Object.entries(tickets);
+  $('t-total').textContent=arr.length;
+  $('t-open').textContent=arr.filter(([,t])=>!t.closed).length;
+  $('t-closed').textContent=arr.filter(([,t])=>t.closed).length;
+  $('tickets-list').innerHTML=arr.map(([chId,t])=>`
+    <div class="glass ticket-card" onclick="openTicketModal('${chId}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700">🎫 ${t.topic||'دعم عام'}</div>
+          <div style="font-size:12px;color:#64748b">${t.userId} · ${t.messages?.length||0} رسالة</div>
         </div>
+        <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;${t.closed?'background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef444444':'background:rgba(74,222,128,0.2);color:#4ade80;border:1px solid #4ade8044'}">
+          ${t.closed?'مغلقة':'مفتوحة'}
+        </span>
       </div>
-      <button class="btn btn-danger btn-sm" onclick="deleteAutoResponse(${i})">🗑️</button>
-    </div>`
-  ).join('');
+    </div>`).join('')||'<div style="color:#475569;padding:10px">لا تذاكر حتى الآن</div>';
 }
 
-// ═══════════════════════════════════════════════════════════
-//  GIVEAWAY
-// ═══════════════════════════════════════════════════════════
-async function startGiveaway() {
-  const channelId = document.getElementById('gwChannel').value;
-  const prize     = document.getElementById('gwPrize').value.trim();
-  const duration  = document.getElementById('gwDuration').value.trim();
-  if (!channelId || !prize || !duration) return notify('أكمل جميع الحقول!', 'warning');
+let currentTicketId='';
+async function openTicketModal(chId){
+  const tickets=await api('/api/tickets');
+  const t=tickets[chId];
+  if(!t) return;
+  currentTicketId=chId;
+  $('tmodal-title').textContent=`🎫 ${t.topic||'دعم عام'} — ${t.userId}`;
+  $('tmodal-messages').innerHTML=t.messages?.length ?
+    t.messages.map(m=>`<div style="background:rgba(168,85,247,0.07);padding:10px;border-radius:8px;border:1px solid rgba(168,85,247,0.15)">
+      <div style="font-size:11px;color:#64748b;margin-bottom:4px">${m.author} · ${new Date(m.time).toLocaleString('ar')}</div>
+      <div style="font-size:13px">${m.content}</div>
+    </div>`).join('') :
+    '<div style="color:#64748b;font-size:13px">لا رسائل في هذه التذكرة</div>';
+  $('tmodal-close-btn').onclick=()=>closeTicket(chId);
+  $('ticket-modal').style.display='flex';
+}
+function closeTicketModal(){ $('ticket-modal').style.display='none'; }
+async function closeTicket(chId){
+  const r=await api('/api/tickets/close',{channelId:chId});
+  r.success?toast('✅ تم إغلاق التذكرة'):toast('❌ '+r.error,false);
+  closeTicketModal(); loadTickets();
+}
 
-  const res = await api('/api/send', 'POST', {
-    channelId,
-    content: `!giveaway ${duration} ${prize}`
+// ── Embed ────────────────────────────────────────────────────────
+function previewEmbed(){
+  const color=$('emb-color').value;
+  $('emb-preview').style.borderRightColor=color;
+  $('prev-title').textContent=$('emb-title').value||'العنوان...';
+  $('prev-desc').textContent=$('emb-desc').value||'المحتوى...';
+  const footer=$('emb-footer').value;
+  $('prev-footer').textContent=footer;
+  $('prev-footer').style.display=footer?'block':'none';
+  const img=$('emb-image').value;
+  $('prev-image-wrap').style.display=img?'block':'none';
+  if(img) $('prev-image').src=img;
+}
+async function sendEmbed(){
+  const r=await api('/api/embed/send',{channelId:$('emb-ch').value,title:$('emb-title').value,description:$('emb-desc').value,color:$('emb-color').value,footer:$('emb-footer').value,image:$('emb-image').value});
+  r.success?toast('✅ تم إرسال الإمبيد'):toast('❌ '+r.error,false);
+}
+
+// ── Giveaway ─────────────────────────────────────────────────────
+async function startGiveaway(){
+  const r=await api('/api/giveaway/start',{channelId:$('gw-ch').value,prize:$('gw-prize').value,duration:$('gw-duration').value,winners:$('gw-winners').value});
+  r.success?toast('🎉 تم بدء الـ Giveaway!'):toast('❌ '+r.error,false);
+}
+
+// ── Poll ─────────────────────────────────────────────────────────
+async function createPoll(){
+  const opts=$('poll-opts').value.split(',').map(o=>o.trim()).filter(Boolean);
+  const r=await api('/api/poll/create',{channelId:$('poll-ch').value,question:$('poll-q').value,options:opts});
+  r.success?toast('📊 تم إنشاء التصويت!'):toast('❌ '+r.error,false);
+}
+
+// ── Leaderboard ──────────────────────────────────────────────────
+async function loadLeaderboard(){
+  const s=await api('/api/stats');
+  $('leaderboard').innerHTML=s.topLevels?.length ?
+    s.topLevels.map((u,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.15)">
+        <span style="font-size:${i===0?'24px':i===1?'20px':'16px'}">${['🥇','🥈','🥉'][i]||'🏅'}</span>
+        <div style="flex:1">
+          <div style="font-weight:700">ID: ${u.id}</div>
+          <div style="font-size:12px;color:#64748b">المستوى ${u.level} · ${u.xp} XP</div>
+        </div>
+        <div style="width:80px">
+          <div style="height:6px;background:rgba(168,85,247,0.2);border-radius:3px;overflow:hidden">
+            <div style="height:100%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));width:${Math.min(u.xp,100)}%;border-radius:3px"></div>
+          </div>
+        </div>
+      </div>`).join('') :
+    '<div style="color:#475569;font-size:13px">لا بيانات بعد — انتظر الرسائل في السيرفر</div>';
+}
+
+// ── Settings ─────────────────────────────────────────────────────
+async function saveSettings(){
+  const r=await api('/api/config/update',{
+    welcomeChannelId:$('cfg-welcome').value,
+    leaveChannelId:$('cfg-leave').value,
+    logChannelId:$('cfg-logs').value,
+    ticketCategoryId:$('cfg-ticket-cat').value
   });
-  notify(res.success ? '✅ تم بدء المسابقة!' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+  r.success?toast('✅ تم حفظ الإعدادات'):toast('❌ خطأ',false);
 }
 
-function addGwLog(payload) {
-  gwHistory.unshift(payload);
-  const el = document.getElementById('gwLog');
-  el.innerHTML = gwHistory.map(g =>
-    `<div class="event-item">
-      <div class="event-icon">🏆</div>
-      <div class="event-text">
-        <strong>${g.prize}</strong><br>
-        الفائز: <strong>${g.winner}</strong> | المشاركون: ${g.participants}
-      </div>
-    </div>`
-  ).join('');
+// ── Populate channel dropdowns ────────────────────────────────────
+async function loadChannels(){
+  const channels=await api('/api/channels');
+  const opts=channels.map(c=>`<option value="${c.id}">#${c.name}</option>`).join('');
+  ['mod-channel-sel','emb-ch','gw-ch','poll-ch','cfg-welcome','cfg-leave','cfg-logs'].forEach(id=>{
+    const el=$(id);
+    if(el) el.innerHTML=`<option value="">-- اختر روم --</option>${opts}`;
+  });
 }
 
-// ═══════════════════════════════════════════════════════════
-//  SEND MESSAGE
-// ═══════════════════════════════════════════════════════════
-async function sendMessage() {
-  const channelId = document.getElementById('sendChannel').value;
-  const content   = document.getElementById('sendContent').value.trim();
-  if (!channelId || !content) return notify('اختر قناة واكتب رسالة!', 'warning');
-  const res = await api('/api/send', 'POST', { channelId, content });
-  if (res.success) {
-    notify('✅ تم إرسال الرسالة', 'success');
-    document.getElementById('sendContent').value = '';
-  } else notify(`❌ ${res.error}`, 'error');
-}
+// ══════════════════════════════════════════════════════════════════
+//  BOT CONNECTION LOGIC
+// ══════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════
-//  BOT APPEARANCE
-// ═══════════════════════════════════════════════════════════
-async function saveBotAppearance() {
-  const body = {
-    username:   document.getElementById('newBotName').value.trim()    || undefined,
-    status:     document.getElementById('botStatus').value,
-    statusText: document.getElementById('botStatusText').value.trim() || undefined,
-    avatarUrl:  document.getElementById('botAvatarUrl').value.trim()  || undefined,
-  };
-  const res = await api('/api/bot/appearance', 'POST', body);
-  if (res.success) {
-    notify(`✅ تم تحديث مظهر البوت`, 'success');
-    if (res.tag) { document.getElementById('sideTag').textContent = res.tag; document.getElementById('botTagBig').textContent = res.tag; }
-  } else notify(`❌ ${res.error}`, 'error');
-}
+let dashboardPolls = [];
 
-// ═══════════════════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════════════════
-function now() {
-  return new Date().toLocaleTimeString('ar', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-}
-
-// ═══════════════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════════════
-(async function init() {
-  // Try to auto-connect if token is saved
-  const savedToken  = localStorage.getItem('botToken');
-  const savedApiUrl = localStorage.getItem('apiUrl');
-
-  if (savedToken && savedApiUrl) {
-    API_URL = savedApiUrl;
-    // Check if server is already running
-    try {
-      const status = await api('/api/status');
-      if (status && status.connected) {
-        document.getElementById('connectOverlay').style.display = 'none';
-        botConnected = true;
-        connectWS();
-        startRefreshTimer();
-        await reloadData();
-        updateBotUI(status);
-        return;
-      }
-    } catch(_) {}
+function setConnStatus(ok, text) {
+  const bar  = $('conn-status-bar');
+  const txt  = $('conn-status-text');
+  const icon = $('conn-status-icon');
+  if (!bar) return;
+  if (ok) {
+    bar.style.background = 'rgba(74,222,128,0.1)';
+    bar.style.borderColor = 'rgba(74,222,128,0.3)';
+    txt.style.color = '#4ade80';
+    txt.textContent = text;
+    icon.setAttribute('data-lucide','wifi');
+    icon.style.color = '#4ade80';
+  } else {
+    bar.style.background = 'rgba(251,146,60,0.1)';
+    bar.style.borderColor = 'rgba(251,146,60,0.3)';
+    txt.style.color = '#fb923c';
+    txt.textContent = text;
+    icon.setAttribute('data-lucide','wifi-off');
+    icon.style.color = '#fb923c';
   }
+  lucide.createIcons();
+}
+
+function toggleTokenVis() {
+  const inp = $('conn-token');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  $('tok-vis-icon').setAttribute('data-lucide', showing ? 'eye-off' : 'eye');
+  lucide.createIcons();
+}
+
+async function connectBot() {
+  const token = $('conn-token').value.trim();
+  const guildId = $('conn-guild').value.trim();
+  if (!token) { toast('أدخل التوكن أولاً', false); return; }
+
+  const btn = $('conn-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader" style="width:17px;height:17px;animation:spin 1s linear infinite"></i> جاري الاتصال...';
+  lucide.createIcons();
+  setConnStatus(false, 'جاري الاتصال...');
+
+  try {
+    const r = await api('/api/bot/connect', { token, guildId: guildId || undefined });
+    if (r.success) {
+      setConnStatus(true, `متصل: ${r.tag}`);
+      toast(`✅ اتصل البوت بنجاح: ${r.tag}`);
+      setTimeout(() => openDashboard(), 900);
+    } else {
+      setConnStatus(false, 'فشل الاتصال');
+      toast('❌ ' + (r.error || 'توكن خاطئ'), false);
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="zap" style="width:17px;height:17px"></i> اتصل بالبوت';
+      lucide.createIcons();
+    }
+  } catch(e) {
+    setConnStatus(false, 'خطأ في الاتصال');
+    toast('❌ تعذّر الوصول للسيرفر', false);
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="zap" style="width:17px;height:17px"></i> اتصل بالبوت';
+    lucide.createIcons();
+  }
+}
+
+async function checkExistingSession(manual = false) {
+  try {
+    const s = await api('/api/bot/session');
+    if (s.connected) {
+      setConnStatus(true, `متصل: ${s.tag}`);
+      if (s.guildId) $('conn-guild').value = s.guildId;
+      toast(`✅ جلسة نشطة: ${s.tag}`);
+      setTimeout(() => openDashboard(), 700);
+    } else if (s.hasToken && manual) {
+      // Try auto-reconnect with saved token
+      toast('⏳ جاري إعادة الاتصال بالتوكن المحفوظ...');
+      const r = await api('/api/bot/connect', { token: '__SAVED__', guildId: s.guildId });
+      if (r.success) { toast(`✅ ${r.tag}`); setTimeout(()=>openDashboard(),700); }
+      else toast('❌ التوكن المحفوظ لم يعد صالحاً — أعد إدخاله', false);
+    } else if (manual) {
+      toast('لا توجد جلسة محفوظة — أدخل التوكن', false);
+    }
+  } catch(e) {}
+}
+
+function openDashboard() {
+  // Hide overlay
+  const ov = $('connect-overlay');
+  ov.style.transition = 'opacity .4s ease';
+  ov.style.opacity = '0';
+  setTimeout(() => { ov.style.display = 'none'; }, 400);
+
+  // Show disconnect button
+  $('disconnect-btn-wrap').style.display = 'block';
+
+  // Start dashboard
+  initDashboard();
+}
+
+async function disconnectBot() {
+  if (!confirm('هل تريد قطع الاتصال بالبوت؟')) return;
+  await api('/api/bot/disconnect', {});
+  toast('🔌 تم قطع الاتصال بالبوت');
+  // Show overlay again
+  const ov = $('connect-overlay');
+  ov.style.display = 'flex';
+  ov.style.opacity = '0';
+  setTimeout(()=>{ ov.style.transition='opacity .4s'; ov.style.opacity='1'; });
+  setConnStatus(false, 'البوت غير متصل');
+  $('conn-btn').disabled = false;
+  $('conn-btn').innerHTML = '<i data-lucide="zap" style="width:17px;height:17px"></i> اتصل بالبوت';
+  $('disconnect-btn-wrap').style.display = 'none';
+  dashboardPolls.forEach(clearInterval);
+  dashboardPolls = [];
+  lucide.createIcons();
+}
+
+// ── Init Dashboard (after bot connected) ─────────────────────────
+async function initDashboard() {
+  await loadChannels();
+  await loadRoles();
+  await loadProtConfig();
+  pollStatus();
+  pollStats();
+  pollLogs();
+  dashboardPolls = [
+    setInterval(pollStatus, 5000),
+    setInterval(pollStats,  15000),
+    setInterval(pollLogs,   8000)
+  ];
+}
+
+// ── Startup ──────────────────────────────────────────────────────
+// Spinner animation injected into style
+(function(){
+  const s = document.createElement('style');
+  s.textContent = '@keyframes spin { to { transform:rotate(360deg); } }';
+  document.head.appendChild(s);
 })();
+
+async function init() {
+  lucide.createIcons();
+  // Check if bot is already connected (server auto-reconnected)
+  await checkExistingSession(false);
+}
+
+init();
 </script>
 </body>
 </html>
