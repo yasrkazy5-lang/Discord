@@ -1,1112 +1,2592 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discord Dashboard | لوحة التحكم</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <style>
-    * { font-family: 'Cairo', sans-serif; }
-    body {
-      background: linear-gradient(135deg, #0a0015 0%, #0d0028 30%, #05001a 60%, #0a0020 100%);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    /* Animated Background Stars */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(88,101,242,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 30% 70%, rgba(88,101,242,0.3) 0%, transparent 100%),
-        radial-gradient(2px 2px at 50% 40%, rgba(114,137,218,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 80%, rgba(88,101,242,0.4) 0%, transparent 100%),
-        radial-gradient(2px 2px at 90% 10%, rgba(88,101,242,0.2) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    /* Glassmorphism */
-    .glass {
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-    .glass-card {
-      background: rgba(88,101,242,0.06);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(88,101,242,0.18);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(88,101,242,0.1) inset;
-      transition: all 0.3s ease;
-    }
-    .glass-card:hover {
-      border-color: rgba(88,101,242,0.4);
-      box-shadow: 0 12px 40px rgba(88,101,242,0.15), 0 0 0 0.5px rgba(88,101,242,0.2) inset;
-      transform: translateY(-2px);
-    }
-    .glass-dark {
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    /* Glow Effects */
-    .glow-purple { box-shadow: 0 0 20px rgba(88,101,242,0.5), 0 0 40px rgba(88,101,242,0.2); }
-    .glow-green  { box-shadow: 0 0 20px rgba(87,242,135,0.5), 0 0 40px rgba(87,242,135,0.2); }
-    .glow-red    { box-shadow: 0 0 20px rgba(237,66,69,0.5),  0 0 40px rgba(237,66,69,0.2);  }
-    .glow-yellow { box-shadow: 0 0 20px rgba(254,231,92,0.5), 0 0 40px rgba(254,231,92,0.2); }
-    /* Neon Borders */
-    .neon-border-purple { border: 1px solid rgba(88,101,242,0.6); }
-    .neon-border-green  { border: 1px solid rgba(87,242,135,0.6); }
-    .neon-border-red    { border: 1px solid rgba(237,66,69,0.6);  }
-    /* Buttons */
-    .btn-primary {
-      background: linear-gradient(135deg, #5865f2, #4752c4);
-      transition: all 0.25s ease;
-    }
-    .btn-primary:hover { background: linear-gradient(135deg, #6b77f5, #5865f2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(88,101,242,0.5); }
-    .btn-danger {
-      background: linear-gradient(135deg, #ed4245, #c03537);
-      transition: all 0.25s ease;
-    }
-    .btn-danger:hover { background: linear-gradient(135deg, #f04040, #ed4245); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(237,66,69,0.5); }
-    .btn-success {
-      background: linear-gradient(135deg, #57f287, #3ba55c);
-      color: #000;
-      transition: all 0.25s ease;
-    }
-    .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(87,242,135,0.4); }
-    .btn-warning {
-      background: linear-gradient(135deg, #fee75c, #f0a500);
-      color: #000;
-      transition: all 0.25s ease;
-    }
-    .btn-warning:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(254,231,92,0.4); }
-    .btn-ghost {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      transition: all 0.25s ease;
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
-    /* Input Styles */
-    .glass-input {
-      background: rgba(255,255,255,0.06) !important;
-      border: 1px solid rgba(255,255,255,0.12) !important;
-      color: #fff !important;
-      transition: border-color 0.2s;
-    }
-    .glass-input:focus {
-      outline: none !important;
-      border-color: rgba(88,101,242,0.6) !important;
-      box-shadow: 0 0 0 3px rgba(88,101,242,0.15) !important;
-    }
-    .glass-input::placeholder { color: rgba(255,255,255,0.3) !important; }
-    .glass-input option { background: #1e1f2e; color: #fff; }
-    /* Status Dot */
-    .status-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: #57f287;
-      box-shadow: 0 0 8px #57f287;
-      animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-      0%, 100% { box-shadow: 0 0 8px #57f287; }
-      50%       { box-shadow: 0 0 16px #57f287, 0 0 24px rgba(87,242,135,0.3); }
-    }
-    /* Tabs */
-    .tab-btn { transition: all 0.25s ease; }
-    .tab-btn.active {
-      background: linear-gradient(135deg, #5865f2, #4752c4) !important;
-      color: #fff !important;
-      box-shadow: 0 4px 15px rgba(88,101,242,0.4);
-    }
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-    ::-webkit-scrollbar-thumb { background: rgba(88,101,242,0.4); border-radius: 3px; }
-    /* Toast */
-    #toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transform: translateX(120%);
-    }
-    #toast.show { transform: translateX(0); }
-    /* Loader */
-    .loader {
-      border: 3px solid rgba(255,255,255,0.1);
-      border-top-color: #5865f2;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    /* Stats Counter */
-    .stat-num { font-variant-numeric: tabular-nums; }
-    /* Particles */
-    .particle {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: float-up linear infinite;
-      z-index: 0;
-    }
-    @keyframes float-up {
-      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-      10%  { opacity: 0.6; }
-      90%  { opacity: 0.2; }
-      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-    }
-    /* Guild Card */
-    .guild-select {
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-    .guild-select:hover, .guild-select.selected {
-      border-color: rgba(88,101,242,0.6) !important;
-      box-shadow: 0 0 20px rgba(88,101,242,0.2);
-    }
-    .guild-select.selected {
-      background: rgba(88,101,242,0.12) !important;
-    }
-    /* Command Badge */
-    .cmd-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    /* Animated Gradient Text */
-    .gradient-text {
-      background: linear-gradient(135deg, #5865f2, #9b59b6, #57f287, #5865f2);
-      background-size: 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradient-shift 4s linear infinite;
-    }
-    @keyframes gradient-shift { 0% { background-position: 0%; } 100% { background-position: 300%; } }
-    /* Member Row */
-    .member-row { transition: background 0.2s; }
-    .member-row:hover { background: rgba(255,255,255,0.04); }
-    /* Section */
-    .section { display: none; }
-    .section.active { display: block; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🎛️ لوحة تحكم البوت | Discord Bot Dashboard</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   CSS VARIABLES & RESET
+══════════════════════════════════════════════════════════════ */
+:root {
+  --bg-primary:   #0d0f13;
+  --bg-secondary: #161b22;
+  --bg-card:      #1c2128;
+  --bg-hover:     #21262d;
+  --bg-input:     #0d1117;
+  --accent:       #5865F2;
+  --accent2:      #7289DA;
+  --accent-glow:  rgba(88,101,242,0.25);
+  --green:        #57F287;
+  --red:          #ED4245;
+  --yellow:       #FEE75C;
+  --orange:       #E67E22;
+  --purple:       #9B59B6;
+  --cyan:         #00D8FF;
+  --text-primary: #E6EDF3;
+  --text-muted:   #7D8590;
+  --text-dim:     #484F58;
+  --border:       #30363D;
+  --border-glow:  rgba(88,101,242,0.4);
+  --shadow:       0 8px 32px rgba(0,0,0,0.5);
+  --radius:       12px;
+  --radius-sm:    8px;
+  --transition:   0.2s ease;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: 'Segoe UI', 'Cairo', Tahoma, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════════════════════ */
+.app { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; right: 0;
+  z-index: 100;
+  transition: var(--transition);
+}
+.sidebar-logo {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-logo .logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.sidebar-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.sidebar-logo .logo-sub  { font-size: 11px; color: var(--text-muted); }
+
+.bot-mini-card {
+  margin: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bot-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  position: relative;
+  flex-shrink: 0;
+}
+.bot-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+.status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+  position: absolute;
+  bottom: 0; left: 0;
+}
+.status-dot.online  { background: var(--green); }
+.status-dot.offline { background: var(--red); }
+.bot-info-mini { flex: 1; min-width: 0; }
+.bot-tag  { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bot-ping { font-size: 11px; color: var(--text-muted); }
+
+.nav-section { padding: 8px 12px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); font-weight: 600; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  margin: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--border-glow); }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align:center; flex-shrink:0; }
+.nav-item .nav-badge {
+  margin-right: auto;
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* MAIN */
+.main {
+  margin-right: 260px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* TOP BAR */
+.topbar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title { font-size: 18px; font-weight: 700; flex: 1; }
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(87,242,135,0.1);
+  border: 1px solid rgba(87,242,135,0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--green);
+}
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation: pulse 2s infinite; }
+
+/* PAGE CONTENT */
+.page { display: none; padding: 24px; }
+.page.active { display: block; }
+
+/* ══════════════════════════════════════════════════════════════
+   CARDS & COMPONENTS
+══════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); flex: 1; }
+.card-body { padding: 16px 20px; }
+.card-icon { font-size: 18px; }
+
+/* GRID */
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-auto { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+/* STAT CARDS */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 100%; height: 3px;
+}
+.stat-card.blue::before   { background: var(--accent); }
+.stat-card.green::before  { background: var(--green); }
+.stat-card.red::before    { background: var(--red); }
+.stat-card.yellow::before { background: var(--yellow); }
+.stat-card.purple::before { background: var(--purple); }
+.stat-card.cyan::before   { background: var(--cyan); }
+.stat-card.orange::before { background: var(--orange); }
+
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-top { display: flex; align-items: center; justify-content: space-between; }
+.stat-icon { font-size: 24px; }
+.stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+.stat-trend { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.stat-trend.up   { color: var(--green); }
+.stat-trend.down { color: var(--red); }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary   { background: var(--accent); color: white; }
+.btn-primary:hover { background: #4752c4; box-shadow: 0 4px 16px var(--accent-glow); }
+.btn-success   { background: var(--green); color: #000; }
+.btn-success:hover { opacity: 0.85; }
+.btn-danger    { background: var(--red); color: white; }
+.btn-danger:hover  { opacity: 0.85; }
+.btn-warning   { background: var(--yellow); color: #000; }
+.btn-warning:hover { opacity: 0.85; }
+.btn-ghost     { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn-purple    { background: var(--purple); color: white; }
+.btn-cyan      { background: var(--cyan); color: #000; }
+.btn-sm  { padding: 5px 10px; font-size: 12px; }
+.btn-lg  { padding: 10px 22px; font-size: 15px; }
+.btn-full { width: 100%; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* INPUTS */
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.form-row   { display: flex; gap: 12px; }
+.form-row > * { flex: 1; }
+label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="color"],
+select,
+textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 12px;
+  width: 100%;
+  outline: none;
+  transition: var(--transition);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+input[type="color"] { padding: 4px; height: 36px; cursor: pointer; }
+textarea { resize: vertical; min-height: 70px; }
+select { cursor: pointer; }
+select option { background: var(--bg-card); }
+
+/* TOGGLE */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  width: 42px; height: 22px;
+  background: var(--border);
+  border-radius: 11px;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  top: 3px; right: 3px;
+  transition: var(--transition);
+}
+.toggle.on::after { right: calc(100% - 19px); }
+
+/* TAGS */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-blue   { background: rgba(88,101,242,0.15); color: var(--accent); border: 1px solid rgba(88,101,242,0.3); }
+.tag-green  { background: rgba(87,242,135,0.12); color: var(--green);  border: 1px solid rgba(87,242,135,0.3); }
+.tag-red    { background: rgba(237,66,69,0.12);  color: var(--red);    border: 1px solid rgba(237,66,69,0.3); }
+.tag-yellow { background: rgba(254,231,92,0.12); color: var(--yellow); border: 1px solid rgba(254,231,92,0.3); }
+.tag-purple { background: rgba(155,89,182,0.12); color: var(--purple); border: 1px solid rgba(155,89,182,0.3); }
+.tag-cyan   { background: rgba(0,216,255,0.1);   color: var(--cyan);   border: 1px solid rgba(0,216,255,0.3); }
+
+/* TABLE */
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: right; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-hover); }
+.table td { padding: 10px 14px; border-bottom: 1px solid rgba(48,54,61,0.5); vertical-align: middle; }
+.table tr:hover td { background: var(--bg-hover); }
+.table tr:last-child td { border-bottom: none; }
+
+/* ALERTS */
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.alert-success { background: rgba(87,242,135,0.1);  border: 1px solid rgba(87,242,135,0.3);  color: var(--green); }
+.alert-error   { background: rgba(237,66,69,0.1);   border: 1px solid rgba(237,66,69,0.3);   color: var(--red); }
+.alert-info    { background: rgba(88,101,242,0.1);  border: 1px solid rgba(88,101,242,0.3);  color: var(--accent); }
+.alert-warning { background: rgba(254,231,92,0.1);  border: 1px solid rgba(254,231,92,0.3);  color: var(--yellow); }
+
+/* TERMINAL/LOG */
+.log-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  height: 180px;
+  overflow-y: auto;
+  direction: ltr;
+}
+.log-line { margin-bottom: 3px; display: flex; gap: 8px; }
+.log-time { color: var(--text-dim); flex-shrink: 0; }
+.log-green  { color: var(--green); }
+.log-red    { color: var(--red); }
+.log-yellow { color: var(--yellow); }
+.log-blue   { color: var(--accent); }
+.log-cyan   { color: var(--cyan); }
+
+/* PING CHART */
+.ping-bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 50px; }
+.ping-bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; transition: var(--transition); }
+
+/* TOKEN CONNECT */
+.connect-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.connect-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  animation: slideUp 0.4s ease;
+}
+.connect-logo {
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 8px 32px var(--accent-glow);
+}
+.connect-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.connect-sub   { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
+
+/* NOTIFICATIONS */
+.notif-stack {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.notif {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  box-shadow: var(--shadow);
+  pointer-events: all;
+  animation: slideInLeft 0.3s ease;
+  border-right: 3px solid;
+}
+.notif.success { background: var(--bg-card); border-color: var(--green); }
+.notif.error   { background: var(--bg-card); border-color: var(--red); }
+.notif.info    { background: var(--bg-card); border-color: var(--accent); }
+.notif.warning { background: var(--bg-card); border-color: var(--yellow); }
+.notif-icon { font-size: 16px; }
+
+/* ANIMATIONS */
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(1.3); }
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(30px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity:0; transform:translateX(-20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeOut {
+  from { opacity:1; }
+  to   { opacity:0; transform:translateX(-20px); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spin { animation: spin 1s linear infinite; }
+.fade-out { animation: fadeOut 0.3s ease forwards; }
+
+/* PROGRESS BAR */
+.progress-wrap { background: var(--bg-input); border-radius: 4px; height: 8px; overflow: hidden; }
+.progress-bar  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.5s ease; }
+
+/* MEMBERS LIST */
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.member-item:last-child { border-bottom: none; }
+.member-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.member-name { font-size: 13px; font-weight: 600; }
+.member-role { font-size: 11px; color: var(--text-muted); }
+
+/* EVENT LOG */
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  font-size: 12px;
+}
+.event-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.event-text { flex: 1; color: var(--text-muted); }
+.event-text strong { color: var(--text-primary); }
+.event-time { color: var(--text-dim); font-size: 10px; flex-shrink: 0; }
+
+/* SECTION TITLES */
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: 12px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* GUILD SELECTOR */
+.guild-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 8px;
+}
+.guild-card:hover, .guild-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+.guild-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.guild-icon img { width:100%; height:100%; border-radius:12px; object-fit:cover; }
+.guild-name    { font-size: 14px; font-weight: 600; }
+.guild-members { font-size: 12px; color: var(--text-muted); }
+
+/* WARN CARD */
+.warn-entry {
+  background: rgba(254,231,92,0.05);
+  border: 1px solid rgba(254,231,92,0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.warn-number {
+  width: 28px; height: 28px;
+  background: rgba(254,231,92,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--yellow);
+  flex-shrink: 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .grid-5 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 800px) {
+  .sidebar { width: 60px; }
+  .sidebar .logo-text, .sidebar .logo-sub, .sidebar .bot-info-mini, .sidebar .nav-section, .nav-item span:not(.nav-icon) { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .main { margin-right: 60px; }
+  .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; }
+}
+
+/* GLOW EFFECTS */
+.glow-blue   { box-shadow: 0 0 16px rgba(88,101,242,0.4); }
+.glow-green  { box-shadow: 0 0 16px rgba(87,242,135,0.4); }
+.glow-red    { box-shadow: 0 0 16px rgba(237,66,69,0.4); }
+.glow-yellow { box-shadow: 0 0 16px rgba(254,231,92,0.4); }
+
+/* ROLE COLOR DOT */
+.role-color { width:12px; height:12px; border-radius:50%; display:inline-block; flex-shrink:0; }
+
+/* EMBED PREVIEW */
+.embed-preview {
+  border-right: 4px solid var(--accent);
+  background: var(--bg-input);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px;
+  margin-top: 12px;
+}
+.embed-preview .ep-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.embed-preview .ep-desc  { font-size: 13px; color: var(--text-muted); }
+
+/* UPTIME SEGMENTS */
+.uptime-segs { display:flex; gap:3px; margin-top:8px; }
+.uptime-seg  { flex:1; height:6px; border-radius:3px; }
+
+/* NO DATA */
+.no-data { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
+.no-data .nd-icon { font-size:40px; margin-bottom:10px; }
+</style>
 </head>
-<body class="text-white relative">
+<body>
 
-  <!-- Floating Particles -->
-  <div id="particles"></div>
-
-  <!-- ═══════════════════════════════════════════════════════
-       HEADER / NAVBAR
-  ════════════════════════════════════════════════════════════ -->
-  <nav class="glass sticky top-0 z-50 px-6 py-3">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center glow-purple">
-          <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.101 18.08.1 18.102.102 18.123a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-        </div>
-        <div>
-          <div class="font-black text-white text-lg gradient-text">Discord Dashboard</div>
-          <div class="text-xs text-white/40">لوحة التحكم الرسمية</div>
-        </div>
-      </div>
-      <!-- Bot Status -->
-      <div class="flex items-center gap-4">
-        <div id="botStatus" class="flex items-center gap-2 glass-dark rounded-full px-4 py-2">
-          <div class="loader w-4 h-4"></div>
-          <span class="text-xs text-white/60">جاري الاتصال...</span>
-        </div>
-        <!-- Add Bot Button -->
-        <a href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
-           target="_blank"
-           class="btn-primary rounded-xl px-4 py-2 text-sm font-bold flex items-center gap-2 no-underline">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          إضافة البوت
-        </a>
-      </div>
+<!-- ═══════════════════════════════════════════════════════════
+     TOKEN CONNECT OVERLAY
+═══════════════════════════════════════════════════════════ -->
+<div class="connect-overlay" id="connectOverlay">
+  <div class="connect-modal">
+    <div class="connect-logo">🤖</div>
+    <div class="connect-title">لوحة تحكم البوت</div>
+    <div class="connect-sub">أدخل توكن البوت الخاص بك لبدء التشغيل والتحكم الكامل</div>
+    <div id="connectAlert"></div>
+    <div class="form-group">
+      <label>🔑 توكن البوت (Bot Token)</label>
+      <input type="password" id="tokenInput" placeholder="أدخل توكن البوت هنا..." style="font-family:monospace;font-size:12px;"/>
     </div>
-  </nav>
-
-  <!-- ═══════════════════════════════════════════════════════
-       MAIN CONTENT
-  ════════════════════════════════════════════════════════════ -->
-  <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div class="text-center">
-        <div class="loader w-16 h-16 mx-auto mb-4"></div>
-        <div class="text-xl font-bold gradient-text">جاري تحميل البيانات...</div>
-        <div class="text-white/40 text-sm mt-2">يتم الاتصال بالبوت</div>
-      </div>
+    <div class="form-group">
+      <label>🌐 رابط السيرفر (API URL)</label>
+      <input type="text" id="apiUrlInput" value="http://localhost:3000" placeholder="http://localhost:3000"/>
     </div>
-
-    <!-- ─── STATS ROW ─────────────────────────────────────────────── -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-white/50 text-sm">السيرفرات</div>
-          <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">🌐</div>
-        </div>
-        <div id="statGuilds" class="text-3xl font-black stat-num text-white">—</div>
-        <div class="text-white/30 text-xs mt-1">سيرفر مُدار</div>
-      </div>
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-white/50 text-sm">الأعضاء</div>
-          <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">👥</div>
-        </div>
-        <div id="statMembers" class="text-3xl font-black stat-num text-white">—</div>
-        <div class="text-white/30 text-xs mt-1">عضو إجمالي</div>
-      </div>
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-white/50 text-sm">البينج</div>
-          <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">⚡</div>
-        </div>
-        <div id="statPing" class="text-3xl font-black stat-num text-white">—</div>
-        <div class="text-white/30 text-xs mt-1">ملي ثانية</div>
-      </div>
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <div class="text-white/50 text-sm">الأوامر</div>
-          <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">🔧</div>
-        </div>
-        <div id="statCmds" class="text-3xl font-black stat-num text-white">—</div>
-        <div class="text-white/30 text-xs mt-1">أمر متاح</div>
-      </div>
-    </div>
-
-    <!-- ─── LAYOUT: SIDEBAR + CONTENT ────────────────────────────── -->
-    <div class="flex gap-6">
-
-      <!-- SIDEBAR: Guilds List -->
-      <div class="w-72 flex-shrink-0">
-        <div class="glass-card rounded-2xl p-4 mb-4">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="text-base font-bold">السيرفرات</span>
-            <div id="guildCountBadge" class="text-xs bg-purple-500/30 text-purple-300 rounded-full px-2 py-0.5">0</div>
-          </div>
-          <div id="guildList" class="space-y-2">
-            <div class="text-center text-white/30 py-8">
-              <div class="loader w-8 h-8 mx-auto mb-2"></div>
-              <div class="text-sm">جاري التحميل...</div>
-            </div>
-          </div>
-        </div>
-        <!-- Bot Info Card -->
-        <div class="glass-card rounded-2xl p-4">
-          <div class="text-sm font-bold mb-3 text-white/70">معلومات البوت</div>
-          <div class="flex items-center gap-3 mb-4">
-            <img id="botAvatar" src="" alt="Bot" class="w-12 h-12 rounded-full ring-2 ring-purple-500/50" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-            <div>
-              <div id="botTag" class="font-bold text-sm">—</div>
-              <div class="text-white/40 text-xs" id="botId">—</div>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-white/50">الحالة</span>
-              <span class="flex items-center gap-1.5"><div class="status-dot"></div> <span class="text-green-400">Online</span></span>
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-white/50">Uptime</span>
-              <span id="botUptime" class="text-white/80 font-mono">—</span>
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-white/50">Anti-Spam</span>
-              <span id="antispamStatus" class="text-red-400">معطل</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MAIN PANEL -->
-      <div class="flex-1 min-w-0">
-
-        <!-- Guild Header (shown when guild selected) -->
-        <div id="guildHeader" class="hidden glass-card rounded-2xl p-5 mb-5">
-          <div class="flex items-center gap-4">
-            <img id="selectedGuildIcon" src="" alt="" class="w-16 h-16 rounded-2xl ring-2 ring-purple-500/40" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-            <div class="flex-1">
-              <div id="selectedGuildName" class="text-xl font-black">—</div>
-              <div class="flex items-center gap-4 mt-1 text-sm text-white/50">
-                <span>👥 <span id="selectedGuildMembers">—</span> عضو</span>
-                <span>💬 <span id="selectedGuildChannels">—</span> قناة</span>
-                <span>🎭 <span id="selectedGuildRoles">—</span> رتبة</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <a id="addBotBtn" href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold flex items-center gap-2 no-underline">
-                ➕ إضافة البوت
-              </a>
-            </div>
-          </div>
-          <!-- TABS -->
-          <div class="flex gap-2 mt-5 flex-wrap">
-            <button onclick="switchTab('moderation')" class="tab-btn active rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="moderation">🛡️ الإشراف</button>
-            <button onclick="switchTab('roles')"      class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="roles">🎭 الرتب</button>
-            <button onclick="switchTab('channels')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="channels">💬 القنوات</button>
-            <button onclick="switchTab('tickets')"    class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="tickets">🎫 التذاكر</button>
-            <button onclick="switchTab('protection')" class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="protection">🔒 الحماية</button>
-            <button onclick="switchTab('members')"    class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="members">👥 الأعضاء</button>
-            <button onclick="switchTab('announce')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="announce">📢 الإعلانات</button>
-            <button onclick="switchTab('settings')"   class="tab-btn rounded-xl px-4 py-2 text-sm font-bold btn-ghost" data-tab="settings">⚙️ الإعدادات</button>
-          </div>
-        </div>
-
-        <!-- No Guild Selected -->
-        <div id="noGuildMsg" class="glass-card rounded-2xl p-12 text-center">
-          <div class="text-6xl mb-4">🤖</div>
-          <div class="text-2xl font-black gradient-text mb-2">مرحباً بك في Discord Dashboard</div>
-          <div class="text-white/50 mb-6">اختر سيرفراً من القائمة لبدء إدارة البوت</div>
-          <a href="https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
-             target="_blank"
-             class="btn-primary rounded-xl px-6 py-3 font-bold inline-flex items-center gap-2 no-underline">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-            إضافة البوت للسيرفر
-          </a>
-        </div>
-
-        <!-- ════════════════════ TAB: MODERATION ════════════════════ -->
-        <div id="tab-moderation" class="section active space-y-4">
-
-          <!-- BAN + KICK Row -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <!-- BAN -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">🔨</span>
-                <span class="font-bold">حظر عضو</span>
-                <span class="cmd-badge bg-red-500/20 text-red-400">/ban</span>
-              </div>
-              <input id="banUserId" placeholder="معرف العضو (User ID)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <input id="banReason" placeholder="سبب الحظر" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('ban', {userId: v('banUserId'), reason: v('banReason')})" class="btn-danger w-full rounded-xl py-2.5 font-bold text-sm">🔨 تنفيذ الحظر</button>
-            </div>
-            <!-- KICK -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">👢</span>
-                <span class="font-bold">طرد عضو</span>
-                <span class="cmd-badge bg-orange-500/20 text-orange-400">/kick</span>
-              </div>
-              <input id="kickUserId" placeholder="معرف العضو (User ID)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <input id="kickReason" placeholder="سبب الطرد" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('kick', {userId: v('kickUserId'), reason: v('kickReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">👢 تنفيذ الطرد</button>
-            </div>
-          </div>
-
-          <!-- MUTE + UNMUTE Row -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <!-- MUTE -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">🔇</span>
-                <span class="font-bold">كتم عضو</span>
-                <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/mute</span>
-              </div>
-              <input id="muteUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <input id="muteMins" type="number" placeholder="المدة (دقائق)" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" value="10" min="1" />
-              <input id="muteReason" placeholder="سبب الكتم" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('mute', {userId: v('muteUserId'), minutes: parseInt(v('muteMins')||10), reason: v('muteReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">🔇 تنفيذ الكتم</button>
-            </div>
-            <!-- UNMUTE -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">🔊</span>
-                <span class="font-bold">رفع الكتم</span>
-                <span class="cmd-badge bg-green-500/20 text-green-400">/unmute</span>
-              </div>
-              <input id="unmuteUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('unmute', {userId: v('unmuteUserId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm mt-14">🔊 رفع الكتم</button>
-            </div>
-          </div>
-
-          <!-- WARN + UNBAN Row -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <!-- WARN -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">⚠️</span>
-                <span class="font-bold">إنذار عضو</span>
-                <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/warn</span>
-              </div>
-              <input id="warnUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <input id="warnReason" placeholder="سبب الإنذار" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('warn', {userId: v('warnUserId'), reason: v('warnReason')})" class="btn-warning w-full rounded-xl py-2.5 font-bold text-sm">⚠️ إرسال إنذار</button>
-            </div>
-            <!-- UNBAN -->
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">✅</span>
-                <span class="font-bold">رفع حظر</span>
-                <span class="cmd-badge bg-green-500/20 text-green-400">/unban</span>
-              </div>
-              <input id="unbanUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3" />
-              <button onclick="doAction('unban', {userId: v('unbanUserId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm mt-14">✅ رفع الحظر</button>
-            </div>
-          </div>
-
-          <!-- PURGE -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">🗑️</span>
-              <span class="font-bold">مسح الرسائل</span>
-              <span class="cmd-badge bg-purple-500/20 text-purple-400">/purge</span>
-            </div>
-            <div class="grid md:grid-cols-3 gap-3">
-              <select id="purgeChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
-              <input id="purgeAmount" type="number" placeholder="عدد الرسائل" class="glass-input rounded-xl px-4 py-2.5 text-sm" value="10" min="1" max="100" />
-              <button onclick="doAction('purge', {channelId: v('purgeChannelId'), amount: parseInt(v('purgeAmount')||10)})" class="btn-danger rounded-xl py-2.5 font-bold text-sm">🗑️ مسح الرسائل</button>
-            </div>
-          </div>
-
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: ROLES ════════════════════════ -->
-        <div id="tab-roles" class="section space-y-4">
-
-          <!-- Create Role -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">✨</span>
-              <span class="font-bold">إنشاء رتبة جديدة</span>
-              <span class="cmd-badge bg-purple-500/20 text-purple-400">/createrole</span>
-            </div>
-            <div class="grid md:grid-cols-3 gap-3 mb-3">
-              <input id="newRoleName" placeholder="اسم الرتبة" class="glass-input rounded-xl px-4 py-2.5 text-sm" />
-              <div class="flex items-center gap-2">
-                <input id="newRoleColor" type="color" value="#5865f2" class="w-12 h-10 rounded-lg cursor-pointer border-0 bg-transparent" />
-                <input id="newRoleColorHex" placeholder="#5865f2" class="glass-input flex-1 rounded-xl px-4 py-2.5 text-sm" value="#5865f2" />
-              </div>
-              <label class="flex items-center gap-2 text-sm text-white/70 cursor-pointer">
-                <input id="newRoleHoist" type="checkbox" class="w-4 h-4 rounded accent-purple-500" />
-                عرض منفصل عن الأعضاء
-              </label>
-            </div>
-            <button onclick="createRole()" class="btn-primary rounded-xl px-6 py-2.5 font-bold text-sm">✨ إنشاء الرتبة</button>
-          </div>
-
-          <!-- Roles List -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <span class="text-2xl">🎭</span>
-                <span class="font-bold">الرتب الحالية</span>
-              </div>
-              <button onclick="loadGuildData()" class="btn-ghost rounded-xl px-3 py-1.5 text-sm">🔄 تحديث</button>
-            </div>
-            <div id="rolesList" class="space-y-2 max-h-80 overflow-y-auto">
-              <div class="text-center text-white/30 py-4 text-sm">اختر سيرفراً أولاً</div>
-            </div>
-          </div>
-
-          <!-- Give / Remove Role -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">🎁</span>
-                <span class="font-bold">إعطاء رتبة</span>
-                <span class="cmd-badge bg-green-500/20 text-green-400">/giverole</span>
-              </div>
-              <input id="giveRoleUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <select id="giveRoleId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
-              <button onclick="doAction('giverole', {userId: v('giveRoleUserId'), roleId: v('giveRoleId')})" class="btn-success w-full rounded-xl py-2.5 font-bold text-sm">🎁 إعطاء الرتبة</button>
-            </div>
-            <div class="glass-card rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">❌</span>
-                <span class="font-bold">إزالة رتبة</span>
-                <span class="cmd-badge bg-red-500/20 text-red-400">/removerole</span>
-              </div>
-              <input id="removeRoleUserId" placeholder="معرف العضو" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-2" />
-              <select id="removeRoleId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
-              <button onclick="doAction('removerole', {userId: v('removeRoleUserId'), roleId: v('removeRoleId')})" class="btn-danger w-full rounded-xl py-2.5 font-bold text-sm">❌ إزالة الرتبة</button>
-            </div>
-          </div>
-
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: CHANNELS ═════════════════════ -->
-        <div id="tab-channels" class="section space-y-4">
-
-          <!-- LOCK / UNLOCK -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">🔒</span>
-              <span class="font-bold">قفل / فتح القناة</span>
-            </div>
-            <div class="grid md:grid-cols-3 gap-3">
-              <select id="lockChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm md:col-span-1"></select>
-              <button onclick="doAction('lock', {channelId: v('lockChannelId')})" class="btn-danger rounded-xl py-2.5 font-bold text-sm">🔒 قفل القناة</button>
-              <button onclick="doAction('unlock', {channelId: v('lockChannelId')})" class="btn-success rounded-xl py-2.5 font-bold text-sm">🔓 فتح القناة</button>
-            </div>
-          </div>
-
-          <!-- SLOWMODE -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">🐌</span>
-              <span class="font-bold">Slow Mode</span>
-              <span class="cmd-badge bg-blue-500/20 text-blue-400">/slowmode</span>
-            </div>
-            <div class="grid md:grid-cols-3 gap-3">
-              <select id="slowmodeChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
-              <input id="slowmodeSecs" type="number" placeholder="الثواني (0 للإلغاء)" class="glass-input rounded-xl px-4 py-2.5 text-sm" value="5" min="0" max="21600" />
-              <button onclick="doAction('slowmode', {channelId: v('slowmodeChannelId'), seconds: parseInt(v('slowmodeSecs')||0)})" class="btn-primary rounded-xl py-2.5 font-bold text-sm">🐌 تفعيل</button>
-            </div>
-          </div>
-
-          <!-- Channels List -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="font-bold mb-3">💬 قنوات السيرفر</div>
-            <div id="channelsList" class="space-y-2 max-h-96 overflow-y-auto">
-              <div class="text-center text-white/30 py-4 text-sm">اختر سيرفراً أولاً</div>
-            </div>
-          </div>
-
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: TICKETS ══════════════════════ -->
-        <div id="tab-tickets" class="section space-y-4">
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-3xl">🎫</span>
-              <div>
-                <div class="font-bold text-lg">نظام التذاكر</div>
-                <div class="text-white/50 text-sm">أنشئ نظام تذاكر دعم في أي قناة</div>
-              </div>
-            </div>
-            <div class="glass-dark rounded-xl p-4 mb-4 mt-4">
-              <div class="text-sm text-white/60 mb-2">⚡ آلية العمل:</div>
-              <ul class="text-sm text-white/50 space-y-1 list-none">
-                <li>• يتم إرسال رسالة بزر "فتح تذكرة" في القناة المختارة</li>
-                <li>• عند الضغط على الزر، يُنشئ البوت قناة خاصة للمستخدم</li>
-                <li>• لا يمكن للأعضاء الآخرين رؤية القناة</li>
-              </ul>
-            </div>
-            <div class="grid md:grid-cols-2 gap-3 mb-4">
-              <div>
-                <label class="text-xs text-white/50 mb-1 block">اختر القناة</label>
-                <select id="ticketChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm"></select>
-              </div>
-            </div>
-            <button onclick="doAction('ticket', {channelId: v('ticketChannelId')})" class="btn-primary rounded-xl px-6 py-3 font-bold">🎫 إعداد نظام التذاكر</button>
-          </div>
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: PROTECTION ═══════════════════ -->
-        <div id="tab-protection" class="section space-y-4">
-
-          <!-- Anti-Spam -->
-          <div class="glass-card rounded-2xl p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <span class="text-3xl">🛡️</span>
-                <div>
-                  <div class="font-bold">الحماية من السبام</div>
-                  <div class="text-white/50 text-sm">كتم تلقائي عند إرسال 5 رسائل في 5 ثواني</div>
-                </div>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="antispamToggle" class="sr-only peer" onchange="toggleAntispam(this.checked)" />
-                <div class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-7 rtl:peer-checked:after:-translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Protection Grid -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
-              <span class="text-2xl">🔗</span>
-              <div>
-                <div class="font-bold mb-1">حماية من الروابط</div>
-                <div class="text-white/40 text-sm">حذف الروابط المشبوهة تلقائياً من القنوات المحمية</div>
-                <div class="mt-2">
-                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
-                </div>
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
-              <span class="text-2xl">🤖</span>
-              <div>
-                <div class="font-bold mb-1">حماية من البوتات</div>
-                <div class="text-white/40 text-sm">منع البوتات من الانضمام للسيرفر دون إذن</div>
-                <div class="mt-2">
-                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
-                </div>
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
-              <span class="text-2xl">💬</span>
-              <div>
-                <div class="font-bold mb-1">فلترة الكلمات المسيئة</div>
-                <div class="text-white/40 text-sm">حذف الرسائل التي تحتوي على كلمات محظورة</div>
-                <div class="mt-2">
-                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
-                </div>
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-5 flex items-start gap-3">
-              <span class="text-2xl">🔨</span>
-              <div>
-                <div class="font-bold mb-1">نظام الإنذارات التلقائية</div>
-                <div class="text-white/40 text-sm">حظر تلقائي عند الوصول لعدد معين من الإنذارات</div>
-                <div class="mt-2">
-                  <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">قريباً</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: MEMBERS ══════════════════════ -->
-        <div id="tab-members" class="section">
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <span class="font-bold">👥 قائمة الأعضاء</span>
-                <div id="memberCountBadge" class="text-xs bg-purple-500/30 text-purple-300 rounded-full px-2 py-0.5">0</div>
-              </div>
-              <input id="memberSearch" placeholder="🔍 بحث عن عضو..." class="glass-input rounded-xl px-4 py-2 text-sm w-48" oninput="filterMembers(this.value)" />
-            </div>
-            <div id="membersList" class="space-y-1 max-h-[500px] overflow-y-auto">
-              <div class="text-center text-white/30 py-8 text-sm">اختر سيرفراً لعرض الأعضاء</div>
-            </div>
-          </div>
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: ANNOUNCE ═════════════════════ -->
-        <div id="tab-announce" class="section space-y-4">
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">📢</span>
-              <span class="font-bold">إرسال إعلان</span>
-              <span class="cmd-badge bg-yellow-500/20 text-yellow-400">/announce</span>
-            </div>
-            <select id="announceChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
-            <textarea id="announceMsg" rows="4" placeholder="نص الإعلان..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3 resize-none"></textarea>
-            <button onclick="doAction('announce', {channelId: v('announceChannelId'), message: v('announceMsg')})" class="btn-warning rounded-xl px-6 py-3 font-bold">📢 إرسال الإعلان</button>
-          </div>
-          <!-- Send Message -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">💬</span>
-              <span class="font-bold">إرسال رسالة عادية</span>
-            </div>
-            <select id="sendMsgChannelId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3"></select>
-            <textarea id="sendMsgText" rows="3" placeholder="نص الرسالة..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm mb-3 resize-none"></textarea>
-            <button onclick="doAction('sendmsg', {channelId: v('sendMsgChannelId'), message: v('sendMsgText')})" class="btn-primary rounded-xl px-6 py-3 font-bold">💬 إرسال</button>
-          </div>
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-        <!-- ════════════════════ TAB: SETTINGS ═════════════════════ -->
-        <div id="tab-settings" class="section space-y-4">
-
-          <!-- Log Channel -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-2xl">📋</span>
-              <span class="font-bold">قناة السجلات</span>
-              <span class="cmd-badge bg-blue-500/20 text-blue-400">/setlog</span>
-            </div>
-            <div class="text-white/50 text-sm mb-3">سيتم إرسال سجلات العمليات (حظر، طرد، انضمام، مغادرة) لهذه القناة</div>
-            <div class="grid md:grid-cols-2 gap-3">
-              <select id="logChannelId" class="glass-input rounded-xl px-4 py-2.5 text-sm"></select>
-              <button onclick="doAction('setlog', {channelId: v('logChannelId')})" class="btn-primary rounded-xl py-2.5 font-bold text-sm">📋 تحديد القناة</button>
-            </div>
-          </div>
-
-          <!-- Commands Reference -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="font-bold mb-4">🔧 مرجع الأوامر الكاملة</div>
-            <div class="grid md:grid-cols-2 gap-2" id="commandsRef">
-              <!-- Filled by JS -->
-            </div>
-          </div>
-
-        </div>
-        <!-- ─────────────────────────────────────────────────────── -->
-
-      </div><!-- /MAIN PANEL -->
-    </div><!-- /LAYOUT -->
-  </main>
-
-  <!-- ═══════════════════════════════════════════════════════
-       TOAST NOTIFICATION
-  ════════════════════════════════════════════════════════════ -->
-  <div id="toast" class="glass rounded-2xl px-5 py-4 max-w-sm min-w-64">
-    <div class="flex items-center gap-3">
-      <div id="toastIcon" class="text-2xl">✅</div>
-      <div>
-        <div id="toastTitle" class="font-bold text-sm"></div>
-        <div id="toastMsg" class="text-white/60 text-xs mt-0.5"></div>
-      </div>
+    <button class="btn btn-primary btn-full btn-lg" onclick="connectBot()" id="connectBtn">
+      <span>🚀</span> ربط البوت
+    </button>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-dim);text-align:center;">
+      التوكن محفوظ في المتصفح فقط ولا يُرسل لأي مكان غير السيرفر المحلي
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════════════
-       SCRIPTS
-  ════════════════════════════════════════════════════════════ -->
-  <script>
-    const API = '';          // same origin (served by Express)
-    let selectedGuildId = null;
-    let guildData       = null;
-    let allMembers      = [];
-    let statsInterval   = null;
+<!-- ═══════════════════════════════════════════════════════════
+     NOTIFICATION STACK
+═══════════════════════════════════════════════════════════ -->
+<div class="notif-stack" id="notifStack"></div>
 
-    // ─── Helpers ─────────────────────────────────────────────────
-    const v = id => document.getElementById(id)?.value?.trim() || '';
-    const $ = id => document.getElementById(id);
+<!-- ═══════════════════════════════════════════════════════════
+     APP LAYOUT
+═══════════════════════════════════════════════════════════ -->
+<div class="app">
 
-    // ─── Toast ───────────────────────────────────────────────────
-    let toastTimer;
-    function showToast(title, msg, type = 'success') {
-      const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-      const colors = { success: '#57f287', error: '#ed4245', warning: '#fee75c', info: '#5865f2' };
-      $('toastIcon').textContent   = icons[type] || icons.success;
-      $('toastTitle').textContent  = title;
-      $('toastMsg').textContent    = msg;
-      $('toast').style.borderColor = colors[type] || colors.success;
-      $('toast').classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4000);
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎛️</div>
+      <div>
+        <div class="logo-text">Bot Dashboard</div>
+        <div class="logo-sub">لوحة التحكم الكاملة</div>
+      </div>
+    </div>
+
+    <div class="bot-mini-card">
+      <div class="bot-avatar" id="sideAvatar">
+        🤖
+        <span class="status-dot offline" id="statusDot"></span>
+      </div>
+      <div class="bot-info-mini">
+        <div class="bot-tag" id="sideTag">غير متصل</div>
+        <div class="bot-ping" id="sidePing">—</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-section">الرئيسية</div>
+      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">📊</span><span>لوحة التحكم</span>
+      </div>
+      <div class="nav-item" onclick="showPage('servers')" id="nav-servers">
+        <span class="nav-icon">🌐</span><span>السيرفرات</span>
+      </div>
+
+      <div class="nav-section">الإشراف</div>
+      <div class="nav-item" onclick="showPage('moderation')" id="nav-moderation">
+        <span class="nav-icon">🛡️</span><span>الإشراف</span>
+      </div>
+      <div class="nav-item" onclick="showPage('warns')" id="nav-warns">
+        <span class="nav-icon">⚠️</span><span>التحذيرات</span>
+        <span class="nav-badge" id="warnsCount">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('automod')" id="nav-automod">
+        <span class="nav-icon">🤖</span><span>الرقابة الذكية</span>
+      </div>
+
+      <div class="nav-section">الأنظمة</div>
+      <div class="nav-item" onclick="showPage('roles')" id="nav-roles">
+        <span class="nav-icon">👑</span><span>الرتب</span>
+      </div>
+      <div class="nav-item" onclick="showPage('welcome')" id="nav-welcome">
+        <span class="nav-icon">👋</span><span>الترحيب والمغادرة</span>
+      </div>
+      <div class="nav-item" onclick="showPage('tickets')" id="nav-tickets">
+        <span class="nav-icon">🎫</span><span>نظام التذاكر</span>
+      </div>
+      <div class="nav-item" onclick="showPage('autoresponse')" id="nav-autoresponse">
+        <span class="nav-icon">💬</span><span>الردود التلقائية</span>
+      </div>
+      <div class="nav-item" onclick="showPage('giveaway')" id="nav-giveaway">
+        <span class="nav-icon">🎉</span><span>المسابقات</span>
+      </div>
+
+      <div class="nav-section">الإعدادات</div>
+      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+        <span class="nav-icon">⚙️</span><span>إعدادات البوت</span>
+      </div>
+      <div class="nav-item" onclick="showPage('logs')" id="nav-logs">
+        <span class="nav-icon">📋</span><span>سجل الأحداث</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-danger btn-full btn-sm" onclick="disconnectBot()">⛔ قطع الاتصال</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">📊 لوحة التحكم</div>
+      <div class="live-badge" id="liveBadge">
+        <span class="live-dot"></span> LIVE
+      </div>
+      <div id="selectedGuildBadge"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: DASHBOARD
+    ════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <!-- STATS ROW -->
+      <div class="grid grid-5" style="margin-bottom:16px;">
+        <div class="stat-card blue">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">👥 الأعضاء</div>
+              <div class="stat-value" id="statMembers">—</div>
+            </div>
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-trend up" id="statMembersJoins">↑ 0 اليوم</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">🏓 البينق</div>
+              <div class="stat-value" id="statPing">—</div>
+            </div>
+            <div class="stat-icon">🏓</div>
+          </div>
+          <div class="stat-trend" id="pingStatus">—</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">⏱️ Uptime</div>
+              <div class="stat-value" style="font-size:16px;" id="statUptime">—</div>
+            </div>
+            <div class="stat-icon">⏱️</div>
+          </div>
+          <div class="stat-trend up">↑ يعمل</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">⚠️ المخالفات</div>
+              <div class="stat-value" id="statViolations">0</div>
+            </div>
+            <div class="stat-icon">🚨</div>
+          </div>
+          <div class="stat-trend down" id="violTrend">رصدها البوت</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">🎫 التذاكر</div>
+              <div class="stat-value" id="statTickets">0</div>
+            </div>
+            <div class="stat-icon">🎫</div>
+          </div>
+          <div class="stat-trend up">مفتوحة</div>
+        </div>
+      </div>
+
+      <div class="grid grid-3" style="margin-bottom:16px;">
+        <!-- BOT STATUS CARD -->
+        <div class="card" style="grid-column: span 1;">
+          <div class="card-header">
+            <span class="card-icon">🤖</span>
+            <span class="card-title">حالة البوت</span>
+            <span class="tag tag-green" id="botStatusTag">متصل</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+              <div class="bot-avatar" style="width:56px;height:56px;font-size:26px;" id="botAvatarBig">🤖</div>
+              <div>
+                <div style="font-size:16px;font-weight:700;" id="botTagBig">—</div>
+                <div style="font-size:12px;color:var(--text-muted);" id="botIdBig">ID: —</div>
+                <div style="font-size:12px;color:var(--text-muted);" id="botGuildsBig">سيرفرات: —</div>
+              </div>
+            </div>
+            <div class="section-title">البينق الحي</div>
+            <div class="ping-bar-wrap" id="pingChart">
+              <!-- bars will be added by JS -->
+            </div>
+            <div style="text-align:center;font-size:20px;font-weight:700;margin-top:8px;" id="pingNumber">— ms</div>
+          </div>
+        </div>
+
+        <!-- LIVE EVENT LOG -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-icon">📋</span>
+            <span class="card-title">سجل الأحداث الحي</span>
+            <button class="btn btn-ghost btn-sm" onclick="clearEventLog()">مسح</button>
+          </div>
+          <div class="card-body" style="padding:12px;">
+            <div id="eventLog" style="height:220px;overflow-y:auto;">
+              <div class="no-data">
+                <div class="nd-icon">📡</div>
+                في انتظار الأحداث...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <!-- VIOLATIONS BREAKDOWN -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">🚨</span>
+            <span class="card-title">تفاصيل المخالفات</span>
+          </div>
+          <div class="card-body">
+            <div id="violationBreakdown">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:13px;">⛔ كلام غير لائق</span>
+                <span class="tag tag-red" id="vBadword">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:13px;">🔗 روابط</span>
+                <span class="tag tag-yellow" id="vLink">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:13px;">📢 منشن مفرط</span>
+                <span class="tag tag-purple" id="vMention">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:13px;">🚫 سبام</span>
+                <span class="tag tag-red" id="vSpam">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:13px;">🔁 تكرار</span>
+                <span class="tag tag-yellow" id="vRepeat">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;">👻 Ghost Ping</span>
+                <span class="tag tag-cyan" id="vGhost">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK STATS -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">📊</span>
+            <span class="card-title">إحصائيات سريعة</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;">🔗 السيرفرات</span>
+              <span style="font-weight:700;color:var(--accent);" id="qs_guilds">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;">📥 الانضمام</span>
+              <span style="font-weight:700;color:var(--green);" id="qs_joins">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;">📤 المغادرة</span>
+              <span style="font-weight:700;color:var(--red);" id="qs_leaves">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;">🗑️ رسائل محذوفة</span>
+              <span style="font-weight:700;color:var(--yellow);" id="qs_deleted">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;">💬 ردود تلقائية</span>
+              <span style="font-weight:700;color:var(--purple);" id="qs_ar">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEND MESSAGE WIDGET -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">✉️</span>
+            <span class="card-title">إرسال رسالة</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="sendChannel"></select>
+            </div>
+            <div class="form-group">
+              <label>الرسالة</label>
+              <textarea id="sendContent" placeholder="اكتب رسالتك هنا..." style="min-height:60px;"></textarea>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="sendMessage()">📤 إرسال</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: SERVERS
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-servers">
+      <div class="grid grid-3">
+        <div class="card" style="grid-column: span 1;">
+          <div class="card-header">
+            <span class="card-icon">🌐</span>
+            <span class="card-title">السيرفرات</span>
+            <button class="btn btn-primary btn-sm" onclick="loadGuilds()">🔄 تحديث</button>
+          </div>
+          <div class="card-body" id="guildList">
+            <div class="no-data"><div class="nd-icon">🌐</div>قم بتحديث القائمة</div>
+          </div>
+        </div>
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-icon">📋</span>
+            <span class="card-title">تفاصيل السيرفر</span>
+          </div>
+          <div class="card-body" id="guildDetails">
+            <div class="no-data"><div class="nd-icon">👆</div>اختر سيرفراً من القائمة</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: MODERATION
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-moderation">
+      <div class="grid grid-2" style="margin-bottom:16px;">
+        <!-- BAN / KICK / MUTE -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🔨</span><span class="card-title">إجراءات الإشراف</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>معرف العضو (User ID)</label>
+              <input type="text" id="modUserId" placeholder="123456789012345678"/>
+            </div>
+            <div class="form-group">
+              <label>السبب</label>
+              <input type="text" id="modReason" placeholder="سبب الإجراء..."/>
+            </div>
+            <div class="form-group">
+              <label>المدة (للكتم: 10m, 2h, 1d)</label>
+              <input type="text" id="modDuration" placeholder="مثال: 30m"/>
+            </div>
+            <div class="grid grid-2" style="gap:8px;margin-bottom:10px;">
+              <button class="btn btn-danger" onclick="modAction('ban')">🔨 بان</button>
+              <button class="btn btn-warning" onclick="modAction('kick')">👢 طرد</button>
+              <button class="btn btn-ghost" onclick="modAction('mute')">🔇 كتم</button>
+              <button class="btn btn-success" onclick="modAction('unmute')">🔊 رفع كتم</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHANNEL ACTIONS -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📢</span><span class="card-title">إجراءات القناة</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="modChannel"></select>
+            </div>
+            <div class="grid grid-2" style="gap:8px;margin-bottom:14px;">
+              <button class="btn btn-danger" onclick="lockChannel(true)">🔒 قفل القناة</button>
+              <button class="btn btn-success" onclick="lockChannel(false)">🔓 فتح القناة</button>
+            </div>
+            <div class="divider"></div>
+            <div class="section-title">مسح الرسائل</div>
+            <div class="form-row">
+              <div class="form-group" style="margin:0;">
+                <input type="number" id="clearCount" placeholder="عدد الرسائل (1-100)" min="1" max="100"/>
+              </div>
+              <button class="btn btn-danger" onclick="clearMessages()" style="height:36px;align-self:flex-end;">🗑️ مسح</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOD LOG -->
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📋</span><span class="card-title">سجل الإجراءات</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modLog').innerHTML=''">مسح</button></div>
+        <div class="card-body" style="padding:12px;">
+          <div class="log-box" id="modLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: WARNS
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-warns">
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚠️</span><span class="card-title">التحقق من التحذيرات</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>معرف العضو</label>
+              <input type="text" id="warnUserId" placeholder="User ID"/>
+            </div>
+            <div class="grid grid-2" style="gap:8px;margin-bottom:12px;">
+              <button class="btn btn-primary" onclick="checkWarns()">🔍 عرض</button>
+              <button class="btn btn-danger" onclick="clearUserWarns()">🗑️ مسح الكل</button>
+            </div>
+            <div class="divider"></div>
+            <div class="section-title">إضافة تحذير</div>
+            <div class="form-group">
+              <label>السبب</label>
+              <input type="text" id="warnReason" placeholder="سبب التحذير..."/>
+            </div>
+            <button class="btn btn-warning btn-full" onclick="addWarnDash()">⚠️ إضافة تحذير</button>
+          </div>
+        </div>
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header"><span class="card-icon">📋</span><span class="card-title">التحذيرات</span></div>
+          <div class="card-body" id="warnsDisplay">
+            <div class="no-data"><div class="nd-icon">⚠️</div>ابحث عن عضو لعرض تحذيراته</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: AUTOMOD
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-automod">
+      <div class="grid grid-2" style="margin-bottom:16px;">
+        <!-- TOGGLES -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🤖</span><span class="card-title">إعدادات الرقابة</span></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="toggle-wrap">
+                <div class="toggle on" id="toggle-antilinks" onclick="toggleSetting(this,'antiLinks')"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">🔗 منع الروابط</div>
+                  <div style="font-size:11px;color:var(--text-muted);">يمنع إرسال الروابط في السيرفر</div>
+                </div>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle on" id="toggle-antiGhostPing" onclick="toggleSetting(this,'antiGhostPing')"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">👻 منع Ghost Ping</div>
+                  <div style="font-size:11px;color:var(--text-muted);">يكشف المنشن المحذوف ويُنبّه</div>
+                </div>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle on" id="toggle-antiMention" onclick="toggleMention(this)"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">📢 منع المنشن المفرط</div>
+                  <div style="font-size:11px;color:var(--text-muted);">يمنع ذكر أكثر من حد معين</div>
+                </div>
+              </div>
+              <div style="padding-right:52px;">
+                <label style="margin-bottom:4px;display:block;">الحد الأقصى للمنشنات</label>
+                <input type="number" id="mentionMax" value="3" min="1" max="20" style="width:100px;"/>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle on" id="toggle-antiRepeat" onclick="toggleRepeat(this)"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">🔁 منع تكرار الرسائل</div>
+                  <div style="font-size:11px;color:var(--text-muted);">يمنع الرسائل المتكررة (Spam)</div>
+                </div>
+              </div>
+              <div style="padding-right:52px;">
+                <label style="margin-bottom:4px;display:block;">عدد التكرارات للكشف</label>
+                <input type="number" id="repeatThreshold" value="3" min="2" max="10" style="width:100px;"/>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <button class="btn btn-primary btn-full" onclick="saveAutomodSettings()">💾 حفظ الإعدادات</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BAD WORDS -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🚫</span><span class="card-title">الكلمات المحظورة</span></div>
+          <div class="card-body">
+            <div class="form-row" style="margin-bottom:12px;">
+              <input type="text" id="newBadWord" placeholder="أضف كلمة محظورة..."/>
+              <button class="btn btn-danger" onclick="addBadWord()" style="white-space:nowrap;">➕ إضافة</button>
+            </div>
+            <div id="badWordsList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOG CHANNEL + ALLOWED ROLES -->
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📝</span><span class="card-title">قناة السجلات</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>قناة اللوق</label>
+              <select id="logChannelSelect"></select>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="saveLogChannel()">💾 حفظ</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">✅</span><span class="card-title">الأدوار المعفاة من الرقابة</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>معرف الرتبة</label>
+              <div class="form-row">
+                <input type="text" id="allowedRoleId" placeholder="Role ID"/>
+                <button class="btn btn-success" onclick="addAllowedRole()">➕</button>
+              </div>
+            </div>
+            <div id="allowedRolesList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: ROLES
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-roles">
+      <div class="grid grid-3">
+        <!-- CREATE ROLE -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🎨</span><span class="card-title">إنشاء رتبة جديدة</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>اسم الرتبة</label>
+              <input type="text" id="newRoleName" placeholder="اسم الرتبة..."/>
+            </div>
+            <div class="form-group">
+              <label>لون الرتبة</label>
+              <div class="form-row" style="align-items:center;">
+                <input type="color" id="newRoleColor" value="#5865F2" style="width:60px;"/>
+                <input type="text" id="newRoleColorHex" value="#5865F2" placeholder="#5865F2" style="flex:1;"/>
+              </div>
+            </div>
+            <div class="embed-preview" id="rolePreview">
+              <div class="ep-title" id="rolePreviewName" style="color:#5865F2;">اسم الرتبة</div>
+              <div class="ep-desc">معاينة الرتبة</div>
+            </div>
+            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="createRole()">✨ إنشاء الرتبة</button>
+          </div>
+        </div>
+
+        <!-- ROLE LIST -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-icon">👑</span>
+            <span class="card-title">قائمة الرتب</span>
+            <button class="btn btn-ghost btn-sm" onclick="loadRoles()">🔄</button>
+          </div>
+          <div class="card-body" style="padding:12px;">
+            <div id="rolesList" style="overflow-y:auto;max-height:350px;">
+              <div class="no-data"><div class="nd-icon">👑</div>اختر سيرفراً لعرض الرتب</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTO ROLE -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header"><span class="card-icon">🚪</span><span class="card-title">الرتبة التلقائية عند الدخول</span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group" style="margin:0;flex:1;">
+              <label>معرف الرتبة</label>
+              <input type="text" id="autoRoleId" placeholder="Role ID"/>
+            </div>
+            <button class="btn btn-success" onclick="addAutoRole()" style="align-self:flex-end;height:36px;">➕ إضافة</button>
+          </div>
+          <div id="autoRolesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
+            <div class="no-data" style="padding:10px;font-size:12px;">لا توجد رتب تلقائية</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GIVE / REMOVE ROLE -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header"><span class="card-icon">🔧</span><span class="card-title">إعطاء / سحب رتبة</span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group" style="margin:0;">
+              <label>معرف العضو</label>
+              <input type="text" id="roleUserId" placeholder="User ID"/>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>معرف الرتبة</label>
+              <input type="text" id="roleRoleId" placeholder="Role ID"/>
+            </div>
+            <button class="btn btn-success" onclick="giveRole()" style="align-self:flex-end;height:36px;">✅ إعطاء</button>
+            <button class="btn btn-danger" onclick="removeRole()" style="align-self:flex-end;height:36px;">❌ سحب</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: WELCOME
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-welcome">
+      <div class="grid grid-2">
+        <!-- WELCOME -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">👋</span><span class="card-title">رسالة الترحيب</span></div>
+          <div class="card-body">
+            <div class="toggle-wrap" style="margin-bottom:14px;">
+              <div class="toggle" id="toggle-welcome" onclick="this.classList.toggle('on')"></div>
+              <span style="font-size:13px;font-weight:600;">تفعيل رسالة الترحيب</span>
+            </div>
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="welcomeChannel"></select>
+            </div>
+            <div class="form-group">
+              <label>لون الإمبيد</label>
+              <input type="color" id="welcomeColor" value="#5865F2"/>
+            </div>
+            <div class="form-group">
+              <label>الرسالة (متغيرات: {user} {username} {server} {count})</label>
+              <textarea id="welcomeMessage" placeholder="مرحباً {user} في {server}! أنت العضو رقم {count} 🎉"></textarea>
+            </div>
+            <div class="embed-preview" id="welcomePreview">
+              <div class="ep-title">👋 عضو جديد!</div>
+              <div class="ep-desc">مرحباً بك في السيرفر!</div>
+            </div>
+            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="saveWelcome()">💾 حفظ</button>
+          </div>
+        </div>
+
+        <!-- LEAVE -->
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🚪</span><span class="card-title">رسالة المغادرة</span></div>
+          <div class="card-body">
+            <div class="toggle-wrap" style="margin-bottom:14px;">
+              <div class="toggle" id="toggle-leave" onclick="this.classList.toggle('on')"></div>
+              <span style="font-size:13px;font-weight:600;">تفعيل رسالة المغادرة</span>
+            </div>
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="leaveChannel"></select>
+            </div>
+            <div class="form-group">
+              <label>لون الإمبيد</label>
+              <input type="color" id="leaveColor" value="#ED4245"/>
+            </div>
+            <div class="form-group">
+              <label>الرسالة</label>
+              <textarea id="leaveMessage" placeholder="غادر {username} السيرفر. باقي الأعضاء: {count}"></textarea>
+            </div>
+            <div class="embed-preview" id="leavePreview">
+              <div class="ep-title">👋 مغادرة عضو</div>
+              <div class="ep-desc">غادر العضو السيرفر.</div>
+            </div>
+            <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="saveLeave()">💾 حفظ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: TICKETS
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-tickets">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚙️</span><span class="card-title">إعدادات التذاكر</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>معرف الفئة (Category ID)</label>
+              <input type="text" id="ticketCategory" placeholder="Category ID"/>
+            </div>
+            <div class="form-group">
+              <label>معرف رتبة الدعم</label>
+              <input type="text" id="ticketSupportRole" placeholder="Support Role ID"/>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="saveTicketConfig()">💾 حفظ الإعدادات</button>
+            <div class="divider"></div>
+            <div class="section-title">نشر لوحة التذاكر</div>
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="ticketPanelChannel"></select>
+            </div>
+            <button class="btn btn-purple btn-full" onclick="postTicketPanel()">🎫 نشر لوحة التذاكر</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📊</span><span class="card-title">إحصائيات التذاكر</span></div>
+          <div class="card-body">
+            <div class="grid grid-2" style="margin-bottom:16px;">
+              <div class="stat-card purple" style="padding:14px;">
+                <div class="stat-label">🎫 إجمالي</div>
+                <div class="stat-value" id="ticketTotal">0</div>
+              </div>
+              <div class="stat-card green" style="padding:14px;">
+                <div class="stat-label">✅ مفتوحة</div>
+                <div class="stat-value" id="ticketOpen">0</div>
+              </div>
+            </div>
+            <div class="section-title">التذاكر الأخيرة</div>
+            <div id="ticketList" style="max-height:200px;overflow-y:auto;">
+              <div class="no-data" style="padding:20px;"><div class="nd-icon">🎫</div>لا توجد تذاكر</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: AUTO RESPONSE
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-autoresponse">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">➕</span><span class="card-title">إضافة رد تلقائي</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>الكلمة المحفزة (Trigger)</label>
+              <input type="text" id="arTrigger" placeholder="مثال: مرحبا"/>
+            </div>
+            <div class="form-group">
+              <label>الرد التلقائي</label>
+              <textarea id="arResponse" placeholder="مثال: أهلاً وسهلاً بك! كيف يمكنني مساعدتك؟"></textarea>
+            </div>
+            <div class="toggle-wrap" style="margin-bottom:14px;">
+              <div class="toggle" id="toggle-arExact" onclick="this.classList.toggle('on')"></div>
+              <span style="font-size:13px;">مطابقة تامة فقط</span>
+            </div>
+            <div class="embed-preview" id="arPreview" style="border-color:var(--green);">
+              <div class="ep-title" style="color:var(--green);">💬 الرد التلقائي</div>
+              <div class="ep-desc" id="arPreviewText">سيظهر الرد هنا...</div>
+            </div>
+            <button class="btn btn-success btn-full" style="margin-top:12px;" onclick="addAutoResponse()">💾 إضافة الرد</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-icon">📋</span>
+            <span class="card-title">الردود التلقائية</span>
+            <span class="tag tag-blue" id="arCount">0</span>
+          </div>
+          <div class="card-body" style="padding:12px;">
+            <div id="arList" style="max-height:400px;overflow-y:auto;">
+              <div class="no-data"><div class="nd-icon">💬</div>لا توجد ردود تلقائية</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: GIVEAWAY
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-giveaway">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🎉</span><span class="card-title">إنشاء مسابقة (Giveaway)</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>القناة</label>
+              <select id="gwChannel"></select>
+            </div>
+            <div class="form-group">
+              <label>الجائزة</label>
+              <input type="text" id="gwPrize" placeholder="مثال: نيترو Discord لمدة شهر 🎁"/>
+            </div>
+            <div class="form-group">
+              <label>المدة (مثال: 1h, 30m, 1d)</label>
+              <input type="text" id="gwDuration" placeholder="1h"/>
+            </div>
+            <div class="embed-preview" id="gwPreview">
+              <div class="ep-title" style="color:#FFD700;">🎉 مسابقة!</div>
+              <div class="ep-desc" id="gwPreviewText">الجائزة: —<br>المدة: —</div>
+            </div>
+            <button class="btn btn-warning btn-full" style="margin-top:12px;" onclick="startGiveaway()">🎉 بدء المسابقة</button>
+            <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">
+              💡 يمكنك أيضاً استخدام الأمر: <code style="background:var(--bg-input);padding:2px 6px;border-radius:4px;">!giveaway 1h الجائزة</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🏆</span><span class="card-title">سجل المسابقات</span></div>
+          <div class="card-body">
+            <div id="gwLog" style="max-height:350px;overflow-y:auto;">
+              <div class="no-data"><div class="nd-icon">🎉</div>لا توجد مسابقات بعد</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: SETTINGS (Bot Appearance)
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">🤖</span><span class="card-title">مظهر البوت</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>اسم البوت الجديد</label>
+              <input type="text" id="newBotName" placeholder="اسم البوت..."/>
+            </div>
+            <div class="form-group">
+              <label>حالة البوت (Status)</label>
+              <select id="botStatus">
+                <option value="online">🟢 متصل (Online)</option>
+                <option value="idle">🟡 غائب (Idle)</option>
+                <option value="dnd">🔴 مشغول (Do Not Disturb)</option>
+                <option value="invisible">⚫ مخفي (Invisible)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>نص الحالة</label>
+              <input type="text" id="botStatusText" placeholder="مثال: يراقب السيرفر 👀"/>
+            </div>
+            <div class="form-group">
+              <label>رابط صورة البوت (URL)</label>
+              <input type="url" id="botAvatarUrl" placeholder="https://..."/>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="saveBotAppearance()">✨ تطبيق التغييرات</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title">معلومات الاتصال</span></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div class="alert alert-info">
+                <span>📡</span>
+                <span>البوت متصل عبر WebSocket بشكل مباشر</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:13px;color:var(--text-muted);">الاسم</span>
+                <span style="font-size:13px;font-weight:600;" id="infoName">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:13px;color:var(--text-muted);">المعرف</span>
+                <span style="font-size:13px;font-family:monospace;" id="infoId">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:13px;color:var(--text-muted);">السيرفرات</span>
+                <span style="font-size:13px;font-weight:600;" id="infoGuilds">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:13px;color:var(--text-muted);">البينق</span>
+                <span style="font-size:13px;font-weight:600;" id="infoPing">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:13px;color:var(--text-muted);">وقت التشغيل</span>
+                <span style="font-size:13px;font-weight:600;" id="infoUptime">—</span>
+              </div>
+              <div class="divider"></div>
+              <button class="btn btn-danger btn-full" onclick="disconnectBot()">⛔ إيقاف البوت</button>
+              <button class="btn btn-ghost btn-full" onclick="reloadData()">🔄 تحديث البيانات</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PAGE: LOGS
+    ════════════════════════════════════════ -->
+    <div class="page" id="page-logs">
+      <div class="grid grid-2">
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <span class="card-icon">📋</span>
+            <span class="card-title">سجل الأحداث الكامل</span>
+            <button class="btn btn-ghost btn-sm" onclick="clearAllLogs()">🗑️ مسح</button>
+            <select id="logFilter" onchange="filterLogs()" style="padding:4px 8px;font-size:12px;border-radius:6px;">
+              <option value="all">جميع الأحداث</option>
+              <option value="violation">المخالفات</option>
+              <option value="modAction">الإشراف</option>
+              <option value="member">الأعضاء</option>
+              <option value="ticket">التذاكر</option>
+            </select>
+          </div>
+          <div class="card-body" style="padding:12px;">
+            <div class="log-box" id="fullLog" style="height:400px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT - ALL LOGIC
+═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ═══════════════════════════════════════════════════════════
+let API_URL       = 'http://localhost:3000';
+let ws            = null;
+let botConnected  = false;
+let selectedGuild = null;
+let pingHistory   = [];
+let allLogs       = [];
+let violStats     = { badword:0, link:0, mention:0, spam:0, repeat:0, ghostping:0 };
+let badWords      = [];
+let allowedRoles  = [];
+let autoResponses = [];
+let autoRoles     = [];
+let gwHistory     = [];
+let refreshTimer  = null;
+
+// ═══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════
+const pageTitles = {
+  dashboard: '📊 لوحة التحكم',
+  servers:   '🌐 السيرفرات',
+  moderation:'🛡️ الإشراف',
+  warns:     '⚠️ التحذيرات',
+  automod:   '🤖 الرقابة الذكية',
+  roles:     '👑 الرتب',
+  welcome:   '👋 الترحيب والمغادرة',
+  tickets:   '🎫 نظام التذاكر',
+  autoresponse:'💬 الردود التلقائية',
+  giveaway:  '🎉 المسابقات',
+  settings:  '⚙️ إعدادات البوت',
+  logs:      '📋 سجل الأحداث',
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(`page-${name}`);
+  const nav  = document.getElementById(`nav-${name}`);
+  if (page) page.classList.add('active');
+  if (nav)  nav.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[name] || name;
+  if (name === 'autoresponse') loadAutoResponses();
+  if (name === 'automod')      loadAutomodSettings();
+  if (name === 'roles')        loadRoles();
+  if (name === 'servers')      loadGuilds();
+  if (name === 'welcome')      loadWelcomeConfig();
+  if (name === 'tickets')      loadTicketConfig();
+  if (name === 'warns')        loadAllWarns();
+  if (name === 'giveaway')     populateChannelSelects();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+function notify(msg, type = 'info') {
+  const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+  const stack = document.getElementById('notifStack');
+  const div   = document.createElement('div');
+  div.className = `notif ${type}`;
+  div.innerHTML = `<span class="notif-icon">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  stack.appendChild(div);
+  setTimeout(() => {
+    div.classList.add('fade-out');
+    setTimeout(() => div.remove(), 350);
+  }, 3500);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  API HELPER
+// ═══════════════════════════════════════════════════════════
+async function api(path, method = 'GET', body = null) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res  = await fetch(`${API_URL}${path}`, opts);
+    return await res.json();
+  } catch(e) {
+    console.error('API Error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONNECT BOT
+// ═══════════════════════════════════════════════════════════
+async function connectBot() {
+  const token  = document.getElementById('tokenInput').value.trim();
+  const apiUrl = document.getElementById('apiUrlInput').value.trim();
+  if (!token)  return showConnectAlert('أدخل التوكن!', 'error');
+  if (!apiUrl) return showConnectAlert('أدخل رابط السيرفر!', 'error');
+
+  API_URL = apiUrl;
+  const btn = document.getElementById('connectBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">⚙️</span> جاري الاتصال...';
+  showConnectAlert('جاري الاتصال بالبوت...', 'info');
+
+  const res = await api('/api/connect', 'POST', { token });
+
+  if (res.success) {
+    localStorage.setItem('botToken', token);
+    localStorage.setItem('apiUrl', apiUrl);
+    document.getElementById('connectOverlay').style.display = 'none';
+    botConnected = true;
+    connectWS();
+    startRefreshTimer();
+    await reloadData();
+    notify('تم الاتصال بالبوت بنجاح! 🎉', 'success');
+  } else {
+    showConnectAlert(res.error || 'فشل الاتصال! تحقق من التوكن.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span>🚀</span> ربط البوت';
+  }
+}
+
+function showConnectAlert(msg, type) {
+  const a = document.getElementById('connectAlert');
+  a.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'info'}">
+    <span>${type==='error'?'❌':type==='success'?'✅':'ℹ️'}</span><span>${msg}</span></div>`;
+}
+
+async function disconnectBot() {
+  await api('/api/disconnect', 'POST');
+  if (ws) { ws.close(); ws = null; }
+  botConnected = false;
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('connectOverlay').style.display = 'flex';
+  document.getElementById('connectAlert').innerHTML = '';
+  document.getElementById('connectBtn').disabled = false;
+  document.getElementById('connectBtn').innerHTML = '<span>🚀</span> ربط البوت';
+  updateBotUI(null);
+  notify('تم قطع الاتصال', 'warning');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEBSOCKET
+// ═══════════════════════════════════════════════════════════
+function connectWS() {
+  const wsUrl = API_URL.replace('http://', 'ws://').replace('https://', 'wss://');
+  ws = new WebSocket(wsUrl);
+
+  ws.onopen = () => {
+    addLog('🟢 WebSocket متصل', 'green');
+    addToFullLog('system', '🟢 WebSocket متصل');
+  };
+
+  ws.onmessage = (e) => {
+    try {
+      const { type, payload } = JSON.parse(e.data);
+      handleWsEvent(type, payload);
+    } catch(_) {}
+  };
+
+  ws.onclose = () => {
+    addLog('🔴 WebSocket انقطع - إعادة الاتصال...', 'red');
+    if (botConnected) setTimeout(connectWS, 3000);
+  };
+
+  ws.onerror = () => addLog('⚠️ خطأ في WebSocket', 'yellow');
+}
+
+function handleWsEvent(type, payload) {
+  switch(type) {
+    case 'init':
+    case 'botReady':
+      botConnected = true;
+      updateBotUI(payload);
+      addLog(`✅ البوت جاهز: ${payload.tag}`, 'green');
+      addToFullLog('system', `✅ البوت جاهز: ${payload.tag}`);
+      break;
+    case 'botDisconnected':
+      botConnected = false;
+      updateBotUI(null);
+      break;
+    case 'violation':
+      violStats[payload.type] = (violStats[payload.type] || 0) + 1;
+      updateViolationUI();
+      addEventLog(`🚨 مخالفة [${payload.type}]`, `<strong>${payload.user}</strong>`, '#ED4245');
+      addToFullLog('violation', `مخالفة [${payload.type}] من ${payload.user}`);
+      break;
+    case 'modAction':
+      addEventLog(`🛡️ ${payload.action.toUpperCase()}`, `${payload.target} بواسطة ${payload.mod || 'Dashboard'}`, '#5865F2');
+      addModLog(payload);
+      addToFullLog('modAction', `${payload.action} على ${payload.target} من ${payload.mod}`);
+      break;
+    case 'memberJoin':
+      addEventLog('📥 عضو جديد', `<strong>${payload.user}</strong> (${payload.count})`, '#57F287');
+      addToFullLog('member', `📥 انضم: ${payload.user}`);
+      break;
+    case 'memberLeave':
+      addEventLog('📤 مغادرة', `<strong>${payload.user}</strong> (${payload.count})`, '#ED4245');
+      addToFullLog('member', `📤 غادر: ${payload.user}`);
+      break;
+    case 'ticketCreated':
+      addEventLog('🎫 تذكرة', `#${payload.number} - <strong>${payload.user}</strong>`, '#9B59B6');
+      addToFullLog('ticket', `تذكرة #${payload.number} من ${payload.user}`);
+      break;
+    case 'warnAdded':
+      addEventLog('⚠️ تحذير', `<strong>${payload.user}</strong> - ${payload.reason}`, '#FEE75C');
+      updateWarnsCount();
+      addToFullLog('violation', `تحذير لـ ${payload.user}: ${payload.reason}`);
+      break;
+    case 'giveaway':
+      addGwLog(payload);
+      addToFullLog('system', `🎉 مسابقة انتهت: ${payload.prize} → ${payload.winner}`);
+      break;
+    case 'botError':
+      addLog(`❌ خطأ: ${payload.message}`, 'red');
+      break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BOT UI UPDATE
+// ═══════════════════════════════════════════════════════════
+function updateBotUI(data) {
+  const connected = data && (data.connected !== false);
+  document.getElementById('statusDot').className = `status-dot ${connected ? 'online' : 'offline'}`;
+  document.getElementById('sideTag').textContent  = data?.tag || 'غير متصل';
+  document.getElementById('botStatusTag').textContent = connected ? 'متصل' : 'منقطع';
+  document.getElementById('botStatusTag').className   = `tag ${connected ? 'tag-green' : 'tag-red'}`;
+
+  if (data?.tag) {
+    document.getElementById('botTagBig').textContent    = data.tag;
+    document.getElementById('botIdBig').textContent     = `ID: ${data.id || '—'}`;
+    document.getElementById('botGuildsBig').textContent = `سيرفرات: ${data.guilds || '—'}`;
+    document.getElementById('infoName').textContent   = data.tag;
+    document.getElementById('infoId').textContent     = data.id || '—';
+    document.getElementById('infoGuilds').textContent = data.guilds || '—';
+
+    if (data.avatar) {
+      document.getElementById('sideAvatar').innerHTML =
+        `<img src="${data.avatar}" alt="avatar"/><span class="status-dot online"></span>`;
+      document.getElementById('botAvatarBig').innerHTML =
+        `<img src="${data.avatar}" alt="avatar" style="width:100%;height:100%;border-radius:50%;"/>`;
     }
+  }
+}
 
-    // ─── Particles ───────────────────────────────────────────────
-    function createParticles() {
-      const container = $('particles');
-      for (let i = 0; i < 20; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size  = Math.random() * 4 + 1;
-        const left  = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const dur   = Math.random() * 15 + 10;
-        const colors = ['rgba(88,101,242,0.3)', 'rgba(87,242,135,0.2)', 'rgba(254,231,92,0.2)', 'rgba(114,137,218,0.3)'];
-        p.style.cssText = `width:${size}px;height:${size}px;left:${left}%;bottom:0;animation-delay:${delay}s;animation-duration:${dur}s;background:${colors[Math.floor(Math.random()*colors.length)]};`;
-        container.appendChild(p);
-      }
-    }
+// ═══════════════════════════════════════════════════════════
+//  STATUS REFRESH
+// ═══════════════════════════════════════════════════════════
+function startRefreshTimer() {
+  refreshTimer = setInterval(refreshStatus, 5000);
+  refreshStatus();
+}
 
-    // ─── Sync color picker ───────────────────────────────────────
-    $('newRoleColor')?.addEventListener('input', e => {
-      $('newRoleColorHex').value = e.target.value;
+async function refreshStatus() {
+  const data = await api('/api/status');
+  if (!data || data.error) return;
+
+  // Stats
+  document.getElementById('statMembers').textContent   = data.members || '—';
+  document.getElementById('statViolations').textContent= data.violations || 0;
+  document.getElementById('statTickets').textContent   = data.tickets || 0;
+  document.getElementById('statUptime').textContent    = data.uptime || '—';
+  document.getElementById('infoUptime').textContent    = data.uptime || '—';
+  document.getElementById('qs_guilds').textContent     = data.guilds || '—';
+  document.getElementById('qs_joins').textContent      = data.stats?.joins || 0;
+  document.getElementById('qs_leaves').textContent     = data.stats?.leaves || 0;
+  document.getElementById('qs_deleted').textContent    = data.stats?.messagesDeleted || 0;
+  document.getElementById('qs_ar').textContent         = autoResponses.length;
+
+  const ping = data.ping || 0;
+  document.getElementById('statPing').textContent  = `${ping}ms`;
+  document.getElementById('pingNumber').textContent= `${ping}ms`;
+  document.getElementById('sidePing').textContent  = `🏓 ${ping}ms`;
+  document.getElementById('infoPing').textContent  = `${ping}ms`;
+
+  const pingTrend = document.getElementById('pingStatus');
+  pingTrend.textContent = ping < 100 ? '🟢 ممتاز' : ping < 200 ? '🟡 جيد' : '🔴 بطيء';
+  pingTrend.className   = `stat-trend ${ping < 200 ? 'up' : 'down'}`;
+
+  // Ping chart
+  pingHistory.push(ping);
+  if (pingHistory.length > 20) pingHistory.shift();
+  renderPingChart();
+
+  updateBotUI(data);
+  await updateWarnsCount();
+}
+
+async function reloadData() {
+  await refreshStatus();
+  await loadAutoResponses();
+  await loadAutomodSettings();
+  await populateChannelSelects();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PING CHART
+// ═══════════════════════════════════════════════════════════
+function renderPingChart() {
+  const chart  = document.getElementById('pingChart');
+  const maxVal = Math.max(...pingHistory, 200);
+  chart.innerHTML = pingHistory.map(p => {
+    const h    = Math.max(4, (p / maxVal) * 50);
+    const color= p < 100 ? 'var(--green)' : p < 200 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="ping-bar" style="height:${h}px;background:${color};"></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EVENT LOG
+// ═══════════════════════════════════════════════════════════
+let eventLogEntries = [];
+
+function addEventLog(title, detail, color = '#7D8590') {
+  eventLogEntries.unshift({ title, detail, color, time: now() });
+  if (eventLogEntries.length > 50) eventLogEntries.pop();
+  renderEventLog();
+}
+
+function renderEventLog() {
+  const el = document.getElementById('eventLog');
+  if (!eventLogEntries.length) {
+    el.innerHTML = '<div class="no-data"><div class="nd-icon">📡</div>في انتظار الأحداث...</div>';
+    return;
+  }
+  el.innerHTML = eventLogEntries.map(e =>
+    `<div class="event-item">
+      <div class="event-icon" style="color:${e.color};">●</div>
+      <div class="event-text"><strong>${e.title}</strong>: ${e.detail}</div>
+      <div class="event-time">${e.time}</div>
+    </div>`
+  ).join('');
+}
+
+function clearEventLog() { eventLogEntries = []; renderEventLog(); }
+
+// ═══════════════════════════════════════════════════════════
+//  TERMINAL LOG
+// ═══════════════════════════════════════════════════════════
+function addLog(msg, cls = 'green') {
+  const box = document.getElementById('fullLog');
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = `<span class="log-time">${now()}</span><span class="log-${cls}">${msg}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FULL LOG
+// ═══════════════════════════════════════════════════════════
+function addToFullLog(type, msg) {
+  allLogs.unshift({ type, msg, time: now() });
+  if (allLogs.length > 200) allLogs.pop();
+  filterLogs();
+}
+
+function filterLogs() {
+  const filter = document.getElementById('logFilter')?.value || 'all';
+  const box    = document.getElementById('fullLog');
+  const filtered = filter === 'all' ? allLogs : allLogs.filter(l => l.type === filter);
+  if (!filtered.length) { box.innerHTML = '<div class="no-data" style="padding:30px;">لا توجد سجلات</div>'; return; }
+  const colors = { system:'cyan', violation:'red', modAction:'blue', member:'green', ticket:'yellow' };
+  box.innerHTML = filtered.map(l =>
+    `<div class="log-line"><span class="log-time">${l.time}</span><span class="log-${colors[l.type]||'green'}">[${l.type.toUpperCase()}]</span><span class="log-green"> ${l.msg}</span></div>`
+  ).join('');
+  box.scrollTop = 0;
+}
+
+function clearAllLogs() { allLogs = []; filterLogs(); }
+
+// ═══════════════════════════════════════════════════════════
+//  MODERATION LOG
+// ═══════════════════════════════════════════════════════════
+function addModLog(payload) {
+  const box = document.getElementById('modLog');
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = `<span class="log-time">${now()}</span><span class="log-yellow">[${(payload.action||'').toUpperCase()}]</span><span class="log-green"> ${payload.target} ← ${payload.mod || 'Dashboard'}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VIOLATION UI
+// ═══════════════════════════════════════════════════════════
+function updateViolationUI() {
+  document.getElementById('vBadword').textContent = violStats.badword  || 0;
+  document.getElementById('vLink').textContent    = violStats.link     || 0;
+  document.getElementById('vMention').textContent = violStats.mention  || 0;
+  document.getElementById('vSpam').textContent    = violStats.spam     || 0;
+  document.getElementById('vRepeat').textContent  = violStats.repeat   || 0;
+  document.getElementById('vGhost').textContent   = violStats.ghostping|| 0;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHANNEL SELECTS POPULATION
+// ═══════════════════════════════════════════════════════════
+async function populateChannelSelects() {
+  if (!selectedGuild) return;
+  const channels = await api(`/api/guilds/${selectedGuild}/channels`);
+  if (!Array.isArray(channels)) return;
+  const opts = channels.map(c => `<option value="${c.id}">#${c.name}</option>`).join('');
+  ['sendChannel','modChannel','welcomeChannel','leaveChannel','ticketPanelChannel','gwChannel','logChannelSelect']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = opts; });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GUILDS
+// ═══════════════════════════════════════════════════════════
+async function loadGuilds() {
+  const guilds = await api('/api/guilds');
+  const el = document.getElementById('guildList');
+  if (!Array.isArray(guilds) || !guilds.length) {
+    el.innerHTML = '<div class="no-data"><div class="nd-icon">🌐</div>لا يوجد سيرفرات</div>';
+    return;
+  }
+  el.innerHTML = guilds.map(g =>
+    `<div class="guild-card ${selectedGuild===g.id?'selected':''}" onclick="selectGuild('${g.id}','${g.name}',${g.members})">
+      <div class="guild-icon">${g.icon ? `<img src="${g.icon}"/>` : '🌐'}</div>
+      <div>
+        <div class="guild-name">${g.name}</div>
+        <div class="guild-members">👥 ${g.members} عضو</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function selectGuild(id, name, members) {
+  selectedGuild = id;
+  document.getElementById('selectedGuildBadge').innerHTML =
+    `<span class="tag tag-blue">🌐 ${name}</span>`;
+  await loadGuilds();
+  await populateChannelSelects();
+  await loadRoles();
+
+  // Show guild details
+  const channels = await api(`/api/guilds/${id}/channels`);
+  const roles    = await api(`/api/guilds/${id}/roles`);
+  const details  = document.getElementById('guildDetails');
+  details.innerHTML = `
+    <div class="grid grid-2" style="margin-bottom:14px;">
+      <div class="stat-card blue" style="padding:14px;">
+        <div class="stat-label">👥 الأعضاء</div>
+        <div class="stat-value">${members}</div>
+      </div>
+      <div class="stat-card purple" style="padding:14px;">
+        <div class="stat-label">👑 الرتب</div>
+        <div class="stat-value">${roles.length||0}</div>
+      </div>
+    </div>
+    <div class="section-title">القنوات (${channels.length||0})</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+      ${(channels||[]).map(c=>`<span class="tag tag-blue">#${c.name}</span>`).join('')}
+    </div>
+    <div class="section-title">الرتب (${roles.length||0})</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${(roles||[]).map(r=>`<span class="tag tag-purple" style="border-color:${r.color};">
+        <span class="role-color" style="background:${r.color};"></span> ${r.name}
+      </span>`).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MODERATION ACTIONS
+// ═══════════════════════════════════════════════════════════
+async function modAction(action) {
+  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
+  const userId   = document.getElementById('modUserId').value.trim();
+  const reason   = document.getElementById('modReason').value.trim();
+  const duration = document.getElementById('modDuration').value.trim();
+  if (!userId) return notify('أدخل معرف العضو!', 'warning');
+
+  const res = await api(`/api/guilds/${selectedGuild}/mod`, 'POST', { action, userId, reason, duration });
+  if (res.success) {
+    notify(`✅ تم تنفيذ إجراء: ${action}`, 'success');
+    addModLog({ action, target: userId, mod: 'Dashboard', reason });
+  } else {
+    notify(`❌ ${res.error}`, 'error');
+  }
+}
+
+async function lockChannel(lock) {
+  const channelId = document.getElementById('modChannel').value;
+  if (!channelId) return notify('اختر قناة!', 'warning');
+  const res = await api('/api/channel/lock', 'POST', { channelId, lock });
+  notify(res.success ? `✅ تم ${lock ? 'قفل' : 'فتح'} القناة` : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+async function clearMessages() {
+  const channelId = document.getElementById('modChannel').value;
+  const count     = parseInt(document.getElementById('clearCount').value) || 10;
+  if (!channelId) return notify('اختر قناة!', 'warning');
+  const res = await api('/api/clear', 'POST', { channelId, count });
+  notify(res.success ? `✅ تم مسح ${res.deleted} رسالة` : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WARNS
+// ═══════════════════════════════════════════════════════════
+async function updateWarnsCount() {
+  const warns = await api('/api/warns');
+  const total = Object.values(warns || {}).reduce((a, b) => a + (b?.length || 0), 0);
+  document.getElementById('warnsCount').textContent = total;
+}
+
+async function loadAllWarns() {
+  const warns = await api('/api/warns');
+  const total = Object.values(warns || {}).reduce((a, b) => a + (b?.length || 0), 0);
+  document.getElementById('warnsCount').textContent = total;
+}
+
+async function checkWarns() {
+  const uid = document.getElementById('warnUserId').value.trim();
+  if (!uid) return notify('أدخل معرف العضو!', 'warning');
+  const warns = await api(`/api/warns/${uid}`);
+  const el    = document.getElementById('warnsDisplay');
+  if (!warns.length) {
+    el.innerHTML = `<div class="alert alert-success"><span>✅</span> لا يوجد تحذيرات للعضو ${uid}</div>`;
+    return;
+  }
+  el.innerHTML = warns.map((w, i) =>
+    `<div class="warn-entry">
+      <div class="warn-number">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${w.reason}</div>
+        <div style="font-size:11px;color:var(--text-muted);">بواسطة: ${w.mod} | ${w.date}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function clearUserWarns() {
+  const uid = document.getElementById('warnUserId').value.trim();
+  if (!uid) return notify('أدخل معرف العضو!', 'warning');
+  const res = await api(`/api/warns/${uid}`, 'DELETE');
+  notify(res.success ? '✅ تم مسح جميع التحذيرات' : '❌ فشل', res.success ? 'success' : 'error');
+  if (res.success) document.getElementById('warnsDisplay').innerHTML = '<div class="alert alert-success"><span>✅</span> تم مسح التحذيرات!</div>';
+  updateWarnsCount();
+}
+
+async function addWarnDash() {
+  const uid    = document.getElementById('warnUserId').value.trim();
+  const reason = document.getElementById('warnReason').value.trim();
+  if (!uid || !reason) return notify('أدخل معرف العضو والسبب!', 'warning');
+  notify('لإضافة تحذير من اللوحة، استخدم الأمر !warn في الديسكورد', 'info');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTOMOD SETTINGS
+// ═══════════════════════════════════════════════════════════
+async function loadAutomodSettings() {
+  const data = await api('/api/settings');
+  if (!data) return;
+
+  setToggle('toggle-antilinks', data.antiLinks !== false);
+  setToggle('toggle-antiGhostPing', data.antiGhostPing !== false);
+  setToggle('toggle-antiMention', data.antiMention?.enabled !== false);
+  setToggle('toggle-antiRepeat', data.antiRepeat?.enabled !== false);
+
+  document.getElementById('mentionMax').value      = data.antiMention?.max || 3;
+  document.getElementById('repeatThreshold').value = data.antiRepeat?.threshold || 3;
+
+  badWords = data.badWords || [];
+  renderBadWords();
+
+  allowedRoles = data.allowedRoles || [];
+  renderAllowedRoles();
+}
+
+function setToggle(id, on) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.toggle('on', on); }
+}
+
+function toggleSetting(el, key) {
+  el.classList.toggle('on');
+  const val = el.classList.contains('on');
+  const body = {};
+  body[key] = val;
+  api('/api/settings', 'POST', body);
+}
+function toggleMention(el) {
+  el.classList.toggle('on');
+  api('/api/settings', 'POST', { antiMention: { enabled: el.classList.contains('on') } });
+}
+function toggleRepeat(el) {
+  el.classList.toggle('on');
+  api('/api/settings', 'POST', { antiRepeat: { enabled: el.classList.contains('on') } });
+}
+
+async function saveAutomodSettings() {
+  const body = {
+    antiLinks:    document.getElementById('toggle-antilinks').classList.contains('on'),
+    antiGhostPing:document.getElementById('toggle-antiGhostPing').classList.contains('on'),
+    antiMention: {
+      enabled:   document.getElementById('toggle-antiMention').classList.contains('on'),
+      max:       parseInt(document.getElementById('mentionMax').value) || 3,
+    },
+    antiRepeat: {
+      enabled:   document.getElementById('toggle-antiRepeat').classList.contains('on'),
+      threshold: parseInt(document.getElementById('repeatThreshold').value) || 3,
+    },
+    badWords,
+    allowedRoles,
+  };
+  const res = await api('/api/settings', 'POST', body);
+  notify(res.success ? '✅ تم حفظ الإعدادات' : '❌ فشل الحفظ', res.success ? 'success' : 'error');
+}
+
+// Bad Words
+function addBadWord() {
+  const w = document.getElementById('newBadWord').value.trim();
+  if (!w) return;
+  if (!badWords.includes(w)) { badWords.push(w); renderBadWords(); }
+  document.getElementById('newBadWord').value = '';
+}
+function removeBadWord(w) {
+  badWords = badWords.filter(b => b !== w);
+  renderBadWords();
+}
+function renderBadWords() {
+  document.getElementById('badWordsList').innerHTML = badWords.map(w =>
+    `<span class="tag tag-red" style="cursor:pointer;" onclick="removeBadWord('${w}')">
+      ${w} <span style="margin-right:4px;">✕</span>
+    </span>`
+  ).join('') || '<div class="no-data" style="padding:10px;font-size:12px;">لا توجد كلمات محظورة</div>';
+}
+
+// Allowed Roles
+function addAllowedRole() {
+  const id = document.getElementById('allowedRoleId').value.trim();
+  if (!id) return;
+  if (!allowedRoles.includes(id)) { allowedRoles.push(id); renderAllowedRoles(); }
+  document.getElementById('allowedRoleId').value = '';
+}
+function removeAllowedRole(id) {
+  allowedRoles = allowedRoles.filter(r => r !== id);
+  renderAllowedRoles();
+}
+function renderAllowedRoles() {
+  document.getElementById('allowedRolesList').innerHTML = allowedRoles.map(r =>
+    `<span class="tag tag-green" style="cursor:pointer;" onclick="removeAllowedRole('${r}')">
+      ${r} <span style="margin-right:4px;">✕</span>
+    </span>`
+  ).join('') || '<div style="font-size:12px;color:var(--text-muted);">لا توجد أدوار معفاة</div>';
+}
+
+// Log Channel
+async function saveLogChannel() {
+  const channelId = document.getElementById('logChannelSelect').value;
+  const res = await api('/api/settings', 'POST', { logChannel: channelId });
+  notify(res.success ? '✅ تم حفظ قناة اللوق' : '❌ فشل', res.success ? 'success' : 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ROLES
+// ═══════════════════════════════════════════════════════════
+async function loadRoles() {
+  if (!selectedGuild) return;
+  const roles = await api(`/api/guilds/${selectedGuild}/roles`);
+  const el    = document.getElementById('rolesList');
+  if (!Array.isArray(roles) || !roles.length) {
+    el.innerHTML = '<div class="no-data"><div class="nd-icon">👑</div>لا توجد رتب</div>';
+    return;
+  }
+  el.innerHTML = `<table class="table">
+    <thead><tr><th>اللون</th><th>الاسم</th><th>الأعضاء</th><th>المعرف</th></tr></thead>
+    <tbody>${roles.map(r =>
+      `<tr>
+        <td><span class="role-color" style="background:${r.color};width:16px;height:16px;border-radius:4px;display:inline-block;"></span></td>
+        <td style="font-weight:600;color:${r.color};">${r.name}</td>
+        <td><span class="tag tag-blue">${r.members}</span></td>
+        <td><code style="font-size:11px;color:var(--text-muted);">${r.id}</code></td>
+      </tr>`
+    ).join('')}</tbody>
+  </table>`;
+}
+
+async function createRole() {
+  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
+  const name  = document.getElementById('newRoleName').value.trim();
+  const color = document.getElementById('newRoleColor').value;
+  if (!name) return notify('أدخل اسم الرتبة!', 'warning');
+  const res = await api(`/api/guilds/${selectedGuild}/roles`, 'POST', { name, color });
+  if (res.success) {
+    notify(`✅ تم إنشاء رتبة "${name}"`, 'success');
+    document.getElementById('newRoleName').value = '';
+    loadRoles();
+  } else {
+    notify(`❌ ${res.error}`, 'error');
+  }
+}
+
+async function giveRole() {
+  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
+  const uid    = document.getElementById('roleUserId').value.trim();
+  const roleId = document.getElementById('roleRoleId').value.trim();
+  if (!uid || !roleId) return notify('أدخل معرف العضو والرتبة!', 'warning');
+  const res = await api(`/api/guilds/${selectedGuild}/members/${uid}/roles`, 'POST', { roleId, action: 'add' });
+  notify(res.success ? '✅ تم إعطاء الرتبة' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+async function removeRole() {
+  if (!selectedGuild) return notify('اختر سيرفراً أولاً!', 'warning');
+  const uid    = document.getElementById('roleUserId').value.trim();
+  const roleId = document.getElementById('roleRoleId').value.trim();
+  if (!uid || !roleId) return notify('أدخل معرف العضو والرتبة!', 'warning');
+  const res = await api(`/api/guilds/${selectedGuild}/members/${uid}/roles`, 'POST', { roleId, action: 'remove' });
+  notify(res.success ? '✅ تم سحب الرتبة' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+// Auto Roles
+async function addAutoRole() {
+  const roleId = document.getElementById('autoRoleId').value.trim();
+  if (!roleId) return notify('أدخل معرف الرتبة!', 'warning');
+  const res = await api('/api/autoroles', 'POST', { roleId });
+  if (res.success) {
+    autoRoles = res.autoRoles;
+    renderAutoRoles();
+    document.getElementById('autoRoleId').value = '';
+    notify('✅ تم إضافة الرتبة التلقائية', 'success');
+  }
+}
+
+async function removeAutoRole(roleId) {
+  const res = await api(`/api/autoroles/${roleId}`, 'DELETE');
+  if (res.success) { autoRoles = res.autoRoles; renderAutoRoles(); }
+}
+
+function renderAutoRoles() {
+  const el = document.getElementById('autoRolesList');
+  el.innerHTML = autoRoles.map(r =>
+    `<span class="tag tag-purple" style="cursor:pointer;" onclick="removeAutoRole('${r}')">
+      ${r} <span style="margin-right:4px;">✕</span>
+    </span>`
+  ).join('') || '<div class="no-data" style="padding:10px;font-size:12px;">لا توجد رتب تلقائية</div>';
+}
+
+// Role color preview
+document.addEventListener('DOMContentLoaded', () => {
+  const colorPicker = document.getElementById('newRoleColor');
+  const colorHex    = document.getElementById('newRoleColorHex');
+  if (colorPicker) {
+    colorPicker.addEventListener('input', () => {
+      colorHex.value = colorPicker.value;
+      document.getElementById('rolePreviewName').style.color = colorPicker.value;
     });
-    $('newRoleColorHex')?.addEventListener('input', e => {
-      if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) $('newRoleColor').value = e.target.value;
+    colorHex.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(colorHex.value)) {
+        colorPicker.value = colorHex.value;
+        document.getElementById('rolePreviewName').style.color = colorHex.value;
+      }
     });
+  }
 
-    // ─── Commands Reference ───────────────────────────────────────
-    const COMMANDS = [
-      { cmd: '/ban', desc: 'حظر عضو', color: 'red' },
-      { cmd: '/kick', desc: 'طرد عضو', color: 'orange' },
-      { cmd: '/mute', desc: 'كتم عضو مؤقتاً', color: 'yellow' },
-      { cmd: '/unmute', desc: 'رفع الكتم', color: 'green' },
-      { cmd: '/warn', desc: 'إنذار عضو', color: 'yellow' },
-      { cmd: '/unban', desc: 'رفع الحظر', color: 'green' },
-      { cmd: '/purge', desc: 'مسح الرسائل', color: 'purple' },
-      { cmd: '/createrole', desc: 'إنشاء رتبة', color: 'blue' },
-      { cmd: '/deleterole', desc: 'حذف رتبة', color: 'red' },
-      { cmd: '/giverole', desc: 'إعطاء رتبة', color: 'green' },
-      { cmd: '/removerole', desc: 'إزالة رتبة', color: 'red' },
-      { cmd: '/ticket', desc: 'نظام التذاكر', color: 'blue' },
-      { cmd: '/announce', desc: 'إرسال إعلان', color: 'yellow' },
-      { cmd: '/slowmode', desc: 'وضع بطيء', color: 'blue' },
-      { cmd: '/lock', desc: 'قفل القناة', color: 'red' },
-      { cmd: '/unlock', desc: 'فتح القناة', color: 'green' },
-      { cmd: '/serverinfo', desc: 'معلومات السيرفر', color: 'purple' },
-      { cmd: '/userinfo', desc: 'معلومات عضو', color: 'purple' },
-      { cmd: '/ping', desc: 'سرعة البوت', color: 'green' },
-      { cmd: '/setlog', desc: 'قناة السجلات', color: 'blue' },
-      { cmd: '/antispam', desc: 'الحماية من السبام', color: 'purple' },
-    ];
-    function renderCommandsRef() {
-      const colorMap = {
-        red: 'bg-red-500/15 text-red-400 border-red-500/20',
-        orange: 'bg-orange-500/15 text-orange-400 border-orange-500/20',
-        yellow: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20',
-        green: 'bg-green-500/15 text-green-400 border-green-500/20',
-        blue: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-        purple: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-      };
-      $('commandsRef').innerHTML = COMMANDS.map(c => `
-        <div class="flex items-center gap-2 p-2.5 rounded-xl border ${colorMap[c.color] || colorMap.purple}">
-          <code class="font-mono font-bold text-xs">${c.cmd}</code>
-          <span class="text-white/50 text-xs">— ${c.desc}</span>
-        </div>`).join('');
-    }
+  // Auto response preview
+  const arResp = document.getElementById('arResponse');
+  if (arResp) {
+    arResp.addEventListener('input', () => {
+      document.getElementById('arPreviewText').textContent = arResp.value || 'سيظهر الرد هنا...';
+    });
+  }
 
-    // ─── Load Stats ───────────────────────────────────────────────
-    async function loadStats() {
-      try {
-        const res  = await fetch(`${API}/api/stats`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
+  // Welcome preview
+  const wMsg = document.getElementById('welcomeMessage');
+  if (wMsg) {
+    wMsg.addEventListener('input', () => {
+      document.getElementById('welcomePreview').innerHTML =
+        `<div class="ep-title">👋 عضو جديد!</div><div class="ep-desc">${wMsg.value || ''}</div>`;
+    });
+  }
 
-        const bot = data.bot;
-        // Navbar status
-        $('botStatus').innerHTML = `<div class="status-dot"></div><span class="text-xs text-green-400 font-bold">${bot.tag || 'Online'}</span>`;
+  // Giveaway preview
+  const gwPrize = document.getElementById('gwPrize');
+  const gwDur   = document.getElementById('gwDuration');
+  if (gwPrize) {
+    const updateGwPreview = () => {
+      document.getElementById('gwPreviewText').innerHTML =
+        `الجائزة: ${gwPrize.value || '—'}<br>المدة: ${gwDur.value || '—'}`;
+    };
+    gwPrize.addEventListener('input', updateGwPreview);
+    gwDur.addEventListener('input', updateGwPreview);
+  }
 
-        // Stats cards
-        $('statGuilds').textContent  = bot.guilds;
-        $('statMembers').textContent = bot.totalMembers?.toLocaleString('ar-SA');
-        $('statPing').textContent    = `${bot.ping}ms`;
-        $('statCmds').textContent    = bot.commands;
+  // Role preview
+  const roleName = document.getElementById('newRoleName');
+  if (roleName) {
+    roleName.addEventListener('input', () => {
+      document.getElementById('rolePreviewName').textContent = roleName.value || 'اسم الرتبة';
+    });
+  }
 
-        // Bot sidebar
-        if (bot.avatar) $('botAvatar').src = bot.avatar;
-        $('botTag').textContent    = bot.tag || '—';
-        $('botId').textContent     = bot.id  || '—';
-        $('antispamStatus').textContent = bot.antispam ? '✅ مفعل' : '❌ معطل';
-        $('antispamStatus').className   = bot.antispam ? 'text-green-400' : 'text-red-400';
-        if ($('antispamToggle')) $('antispamToggle').checked = bot.antispam;
+  // Check saved token
+  const savedToken  = localStorage.getItem('botToken');
+  const savedApiUrl = localStorage.getItem('apiUrl');
+  if (savedToken && savedApiUrl) {
+    document.getElementById('tokenInput').value  = savedToken;
+    document.getElementById('apiUrlInput').value = savedApiUrl;
+  }
+});
 
-        // Uptime
-        const up  = Math.floor(bot.uptime || 0);
-        const h   = Math.floor(up / 3600);
-        const m   = Math.floor((up % 3600) / 60);
-        const s   = up % 60;
-        $('botUptime').textContent = `${h}h ${m}m ${s}s`;
+// ═══════════════════════════════════════════════════════════
+//  WELCOME / LEAVE
+// ═══════════════════════════════════════════════════════════
+async function loadWelcomeConfig() {
+  const [wc, lc] = await Promise.all([api('/api/welcome'), api('/api/leave')]);
+  if (wc) {
+    setToggle('toggle-welcome', wc.enabled);
+    document.getElementById('welcomeMessage').value = wc.message || '';
+    document.getElementById('welcomeColor').value   = wc.embedColor || '#5865F2';
+  }
+  if (lc) {
+    setToggle('toggle-leave', lc.enabled);
+    document.getElementById('leaveMessage').value = lc.message || '';
+    document.getElementById('leaveColor').value   = lc.embedColor || '#ED4245';
+  }
+  await populateChannelSelects();
+}
 
-        // Guild list
-        renderGuildList(data.guilds);
+async function saveWelcome() {
+  const res = await api('/api/welcome', 'POST', {
+    enabled:    document.getElementById('toggle-welcome').classList.contains('on'),
+    channelId:  document.getElementById('welcomeChannel').value,
+    message:    document.getElementById('welcomeMessage').value,
+    embedColor: document.getElementById('welcomeColor').value,
+  });
+  notify(res.success ? '✅ تم حفظ إعدادات الترحيب' : '❌ فشل', res.success ? 'success' : 'error');
+}
 
-        // Hide loading
-        $('loadingOverlay').style.display = 'none';
+async function saveLeave() {
+  const res = await api('/api/leave', 'POST', {
+    enabled:    document.getElementById('toggle-leave').classList.contains('on'),
+    channelId:  document.getElementById('leaveChannel').value,
+    message:    document.getElementById('leaveMessage').value,
+    embedColor: document.getElementById('leaveColor').value,
+  });
+  notify(res.success ? '✅ تم حفظ إعدادات المغادرة' : '❌ فشل', res.success ? 'success' : 'error');
+}
 
-      } catch (err) {
-        $('botStatus').innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-xs text-red-400">غير متصل</span>`;
-        $('loadingOverlay').innerHTML = `
-          <div class="text-center">
-            <div class="text-5xl mb-4">❌</div>
-            <div class="text-xl font-bold text-red-400 mb-2">لا يمكن الاتصال بالسيرفر</div>
-            <div class="text-white/50 text-sm mb-4">تأكد من تشغيل server.js أولاً:<br/><code class="text-purple-400">node server.js</code></div>
-            <button onclick="location.reload()" class="btn-primary rounded-xl px-6 py-3 font-bold">🔄 إعادة المحاولة</button>
-          </div>`;
-      }
-    }
+// ═══════════════════════════════════════════════════════════
+//  TICKETS
+// ═══════════════════════════════════════════════════════════
+async function loadTicketConfig() {
+  const res = await api('/api/tickets');
+  if (res.config) {
+    document.getElementById('ticketCategory').value    = res.config.categoryId    || '';
+    document.getElementById('ticketSupportRole').value = res.config.supportRoleId || '';
+    document.getElementById('ticketTotal').textContent = res.config.count || 0;
+    document.getElementById('ticketOpen').textContent  = (res.config.list || []).length;
+    renderTicketList(res.config.list || []);
+  }
+  await populateChannelSelects();
+}
 
-    // ─── Render Guild List ────────────────────────────────────────
-    function renderGuildList(guilds) {
-      $('guildCountBadge').textContent = guilds.length;
-      if (!guilds.length) {
-        $('guildList').innerHTML = `<div class="text-center text-white/30 py-6 text-sm">
-          <div class="text-3xl mb-2">😔</div>
-          <div>البوت غير موجود في أي سيرفر</div>
-          <div class="text-xs mt-1">أضف البوت لسيرفرك أولاً</div>
-        </div>`;
+function renderTicketList(list) {
+  const el = document.getElementById('ticketList');
+  if (!list.length) { el.innerHTML = '<div class="no-data" style="padding:20px;"><div class="nd-icon">🎫</div>لا توجد تذاكر</div>'; return; }
+  el.innerHTML = list.map(t =>
+    `<div class="event-item">
+      <div class="event-icon">🎫</div>
+      <div class="event-text">تذكرة #${t.number} - <strong>${t.topic}</strong></div>
+      <div class="event-time">ID: ${t.userId}</div>
+    </div>`
+  ).join('');
+}
+
+async function saveTicketConfig() {
+  const res = await api('/api/tickets', 'POST', {
+    categoryId:    document.getElementById('ticketCategory').value,
+    supportRoleId: document.getElementById('ticketSupportRole').value,
+  });
+  notify(res.success ? '✅ تم حفظ إعدادات التذاكر' : '❌ فشل', res.success ? 'success' : 'error');
+}
+
+async function postTicketPanel() {
+  const channelId = document.getElementById('ticketPanelChannel').value;
+  if (!channelId) return notify('اختر قناة!', 'warning');
+  const res = await api('/api/tickets/panel', 'POST', { channelId });
+  notify(res.success ? '✅ تم نشر لوحة التذاكر' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTO RESPONSES
+// ═══════════════════════════════════════════════════════════
+async function loadAutoResponses() {
+  const data = await api('/api/autoresponses');
+  autoResponses = Array.isArray(data) ? data : [];
+  renderAutoResponses();
+  document.getElementById('arCount').textContent   = autoResponses.length;
+  document.getElementById('qs_ar').textContent     = autoResponses.length;
+}
+
+async function addAutoResponse() {
+  const trigger  = document.getElementById('arTrigger').value.trim();
+  const response = document.getElementById('arResponse').value.trim();
+  const exact    = document.getElementById('toggle-arExact').classList.contains('on');
+  if (!trigger || !response) return notify('أدخل الكلمة المحفزة والرد!', 'warning');
+  const res = await api('/api/autoresponses', 'POST', { trigger, response, exact });
+  if (res.success) {
+    autoResponses = res.autoResponses;
+    renderAutoResponses();
+    document.getElementById('arTrigger').value  = '';
+    document.getElementById('arResponse').value = '';
+    document.getElementById('arCount').textContent = autoResponses.length;
+    notify('✅ تم إضافة الرد التلقائي', 'success');
+  } else notify(`❌ ${res.error}`, 'error');
+}
+
+async function deleteAutoResponse(i) {
+  const res = await api(`/api/autoresponses/${i}`, 'DELETE');
+  if (res.success) {
+    autoResponses = res.autoResponses;
+    renderAutoResponses();
+    document.getElementById('arCount').textContent = autoResponses.length;
+    notify('✅ تم حذف الرد', 'success');
+  }
+}
+
+function renderAutoResponses() {
+  const el = document.getElementById('arList');
+  if (!autoResponses.length) {
+    el.innerHTML = '<div class="no-data"><div class="nd-icon">💬</div>لا توجد ردود تلقائية</div>';
+    return;
+  }
+  el.innerHTML = autoResponses.map((ar, i) =>
+    `<div class="warn-entry" style="border-color:rgba(87,242,135,0.3);background:rgba(87,242,135,0.05);">
+      <div class="warn-number" style="background:rgba(87,242,135,0.15);color:var(--green);">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">🔑 ${ar.trigger}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">💬 ${ar.response}</div>
+        <div style="margin-top:4px;">
+          <span class="tag ${ar.exact?'tag-yellow':'tag-blue'}" style="font-size:10px;">
+            ${ar.exact ? '🎯 مطابقة تامة' : '🔍 يحتوي على'}
+          </span>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="deleteAutoResponse(${i})">🗑️</button>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GIVEAWAY
+// ═══════════════════════════════════════════════════════════
+async function startGiveaway() {
+  const channelId = document.getElementById('gwChannel').value;
+  const prize     = document.getElementById('gwPrize').value.trim();
+  const duration  = document.getElementById('gwDuration').value.trim();
+  if (!channelId || !prize || !duration) return notify('أكمل جميع الحقول!', 'warning');
+
+  const res = await api('/api/send', 'POST', {
+    channelId,
+    content: `!giveaway ${duration} ${prize}`
+  });
+  notify(res.success ? '✅ تم بدء المسابقة!' : `❌ ${res.error}`, res.success ? 'success' : 'error');
+}
+
+function addGwLog(payload) {
+  gwHistory.unshift(payload);
+  const el = document.getElementById('gwLog');
+  el.innerHTML = gwHistory.map(g =>
+    `<div class="event-item">
+      <div class="event-icon">🏆</div>
+      <div class="event-text">
+        <strong>${g.prize}</strong><br>
+        الفائز: <strong>${g.winner}</strong> | المشاركون: ${g.participants}
+      </div>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEND MESSAGE
+// ═══════════════════════════════════════════════════════════
+async function sendMessage() {
+  const channelId = document.getElementById('sendChannel').value;
+  const content   = document.getElementById('sendContent').value.trim();
+  if (!channelId || !content) return notify('اختر قناة واكتب رسالة!', 'warning');
+  const res = await api('/api/send', 'POST', { channelId, content });
+  if (res.success) {
+    notify('✅ تم إرسال الرسالة', 'success');
+    document.getElementById('sendContent').value = '';
+  } else notify(`❌ ${res.error}`, 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BOT APPEARANCE
+// ═══════════════════════════════════════════════════════════
+async function saveBotAppearance() {
+  const body = {
+    username:   document.getElementById('newBotName').value.trim()    || undefined,
+    status:     document.getElementById('botStatus').value,
+    statusText: document.getElementById('botStatusText').value.trim() || undefined,
+    avatarUrl:  document.getElementById('botAvatarUrl').value.trim()  || undefined,
+  };
+  const res = await api('/api/bot/appearance', 'POST', body);
+  if (res.success) {
+    notify(`✅ تم تحديث مظهر البوت`, 'success');
+    if (res.tag) { document.getElementById('sideTag').textContent = res.tag; document.getElementById('botTagBig').textContent = res.tag; }
+  } else notify(`❌ ${res.error}`, 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════
+function now() {
+  return new Date().toLocaleTimeString('ar', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+(async function init() {
+  // Try to auto-connect if token is saved
+  const savedToken  = localStorage.getItem('botToken');
+  const savedApiUrl = localStorage.getItem('apiUrl');
+
+  if (savedToken && savedApiUrl) {
+    API_URL = savedApiUrl;
+    // Check if server is already running
+    try {
+      const status = await api('/api/status');
+      if (status && status.connected) {
+        document.getElementById('connectOverlay').style.display = 'none';
+        botConnected = true;
+        connectWS();
+        startRefreshTimer();
+        await reloadData();
+        updateBotUI(status);
         return;
       }
-      $('guildList').innerHTML = guilds.map(g => `
-        <div class="guild-select glass-dark rounded-xl p-3 flex items-center gap-3 ${selectedGuildId === g.id ? 'selected' : ''}"
-             onclick="selectGuild('${g.id}')" data-guild-id="${g.id}">
-          <img src="${g.icon || 'https://cdn.discordapp.com/embed/avatars/0.png'}"
-               alt="${g.name}" class="w-10 h-10 rounded-xl object-cover"
-               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-          <div class="min-w-0 flex-1">
-            <div class="font-bold text-sm truncate">${g.name}</div>
-            <div class="text-white/40 text-xs">${g.memberCount.toLocaleString('ar-SA')} عضو</div>
-          </div>
-          ${selectedGuildId === g.id ? '<div class="w-2 h-2 rounded-full bg-purple-400 flex-shrink-0"></div>' : ''}
-        </div>`).join('');
-    }
-
-    // ─── Select Guild ─────────────────────────────────────────────
-    async function selectGuild(guildId) {
-      selectedGuildId = guildId;
-      // Update sidebar highlights
-      document.querySelectorAll('[data-guild-id]').forEach(el => {
-        el.classList.toggle('selected', el.dataset.guildId === guildId);
-      });
-      $('noGuildMsg').classList.add('hidden');
-      $('guildHeader').classList.remove('hidden');
-      await loadGuildData();
-    }
-
-    // ─── Load Guild Data ──────────────────────────────────────────
-    async function loadGuildData() {
-      if (!selectedGuildId) return;
-      try {
-        const res  = await fetch(`${API}/api/guild/${selectedGuildId}`);
-        guildData  = await res.json();
-        if (guildData.error) throw new Error(guildData.error);
-
-        // Header
-        $('selectedGuildName').textContent    = guildData.name;
-        $('selectedGuildMembers').textContent = guildData.memberCount?.toLocaleString('ar-SA');
-        $('selectedGuildChannels').textContent = guildData.channels?.length;
-        $('selectedGuildRoles').textContent   = guildData.roles?.length;
-        if (guildData.icon) $('selectedGuildIcon').src = guildData.icon;
-
-        // Populate dropdowns
-        const textChannels = (guildData.channels || []).filter(c => c.type === 0);
-        const channelOptions = textChannels.map(c => `<option value="${c.id}">#${c.name}</option>`).join('');
-        const noOpt = '<option value="">— اختر قناة —</option>';
-
-        ['purgeChannelId','lockChannelId','slowmodeChannelId','ticketChannelId',
-         'announceChannelId','sendMsgChannelId','logChannelId'].forEach(id => {
-          const el = $(id);
-          if (el) el.innerHTML = noOpt + channelOptions;
-        });
-
-        // Roles
-        const roles = (guildData.roles || []).filter(r => r.name !== '@everyone');
-        const roleOptions = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-        ['giveRoleId','removeRoleId'].forEach(id => {
-          const el = $(id);
-          if (el) el.innerHTML = '<option value="">— اختر رتبة —</option>' + roleOptions;
-        });
-
-        renderRolesList(roles);
-        renderChannelsList(guildData.channels || []);
-        renderMembersList(guildData.members || []);
-        allMembers = guildData.members || [];
-
-      } catch (err) {
-        showToast('خطأ', err.message, 'error');
-      }
-    }
-
-    // ─── Render Roles List ────────────────────────────────────────
-    function renderRolesList(roles) {
-      if (!roles.length) {
-        $('rolesList').innerHTML = '<div class="text-white/30 text-sm text-center py-4">لا توجد رتب</div>';
-        return;
-      }
-      $('rolesList').innerHTML = roles.map(r => `
-        <div class="flex items-center justify-between p-2.5 glass-dark rounded-xl">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:${r.color || '#99aab5'}"></div>
-            <span class="text-sm font-medium">${r.name}</span>
-            <span class="text-xs text-white/40">${r.members} عضو</span>
-          </div>
-          <button onclick="doAction('deleterole', {roleId:'${r.id}'})" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded-lg hover:bg-red-500/10 transition-colors">حذف</button>
-        </div>`).join('');
-    }
-
-    // ─── Render Channels List ─────────────────────────────────────
-    function renderChannelsList(channels) {
-      const typeIcon = { 0: '💬', 2: '🔊', 4: '📂', 5: '📢', 13: '🎙️', 15: '📋' };
-      $('channelsList').innerHTML = channels.map(c => `
-        <div class="flex items-center gap-2 p-2 rounded-lg member-row">
-          <span>${typeIcon[c.type] || '💬'}</span>
-          <span class="text-sm">${c.name}</span>
-          <span class="text-xs text-white/30 ml-auto">${c.id}</span>
-        </div>`).join('') || '<div class="text-white/30 text-sm text-center py-4">لا توجد قنوات</div>';
-    }
-
-    // ─── Render Members List ──────────────────────────────────────
-    function renderMembersList(members) {
-      allMembers = members;
-      $('memberCountBadge').textContent = members.length;
-      $('membersList').innerHTML = members.slice(0, 100).map(m => `
-        <div class="member-row flex items-center gap-3 p-2 rounded-xl" data-tag="${m.tag?.toLowerCase()}">
-          <img src="${m.avatar}" alt="" class="w-8 h-8 rounded-full" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate">${m.tag}</div>
-            <div class="text-xs text-white/30 truncate">${m.roles.slice(0,3).map(r=>`<span style="color:${r.color || '#99aab5'}">${r.name}</span>`).join(', ') || 'بدون رتبة'}</div>
-          </div>
-          <div class="flex items-center gap-1.5 flex-shrink-0">
-            ${m.muted ? '<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">مكتوم</span>' : ''}
-            <button onclick="quickBan('${m.id}')" class="btn-danger text-xs px-2 py-1 rounded-lg font-bold">حظر</button>
-            <button onclick="quickKick('${m.id}')" class="btn-warning text-xs px-2 py-1 rounded-lg font-bold">طرد</button>
-          </div>
-        </div>`).join('') || '<div class="text-white/30 text-sm text-center py-8">لا توجد أعضاء</div>';
-      if (members.length > 100) {
-        $('membersList').innerHTML += `<div class="text-center text-white/30 text-sm py-3">+ ${members.length - 100} عضو آخر</div>`;
-      }
-    }
-
-    function filterMembers(q) {
-      const filtered = allMembers.filter(m => m.tag?.toLowerCase().includes(q.toLowerCase()));
-      renderMembersList(filtered);
-    }
-
-    function quickBan(userId) {
-      if (confirm(`حظر العضو ${userId}؟`)) doAction('ban', { userId, reason: 'Dashboard quick ban' });
-    }
-    function quickKick(userId) {
-      if (confirm(`طرد العضو ${userId}؟`)) doAction('kick', { userId, reason: 'Dashboard quick kick' });
-    }
-
-    // ─── Tab Switcher ─────────────────────────────────────────────
-    function switchTab(tab) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      $(`tab-${tab}`)?.classList.add('active');
-      document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-    }
-
-    // ─── Do Action (API Call) ─────────────────────────────────────
-    async function doAction(action, data = {}) {
-      if (!selectedGuildId) {
-        showToast('تنبيه', 'اختر سيرفراً أولاً', 'warning');
-        return;
-      }
-      // Validate required fields
-      if (data.userId === '' && ['ban','kick','mute','unmute','warn','unban','giverole','removerole'].includes(action)) {
-        showToast('خطأ', 'أدخل معرف العضو', 'error');
-        return;
-      }
-      if (data.channelId === '' && ['purge','lock','unlock','slowmode','ticket','announce','sendmsg','setlog'].includes(action)) {
-        showToast('خطأ', 'اختر قناة أولاً', 'error');
-        return;
-      }
-
-      try {
-        const res    = await fetch(`${API}/api/action`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ guildId: selectedGuildId, action, data }),
-        });
-        const result = await res.json();
-        if (!res.ok || result.error) throw new Error(result.error || 'فشل التنفيذ');
-        showToast('تم بنجاح ✅', result.message || 'تم تنفيذ الأمر', 'success');
-        // Refresh guild data after action
-        setTimeout(loadGuildData, 1000);
-      } catch (err) {
-        showToast('خطأ ❌', err.message, 'error');
-      }
-    }
-
-    // ─── Create Role ──────────────────────────────────────────────
-    function createRole() {
-      const name  = v('newRoleName');
-      const color = $('newRoleColorHex').value || '#99AAB5';
-      const hoist = $('newRoleHoist').checked;
-      if (!name) { showToast('خطأ', 'أدخل اسم الرتبة', 'error'); return; }
-      doAction('createrole', { name, color, hoist });
-    }
-
-    // ─── Toggle Antispam ──────────────────────────────────────────
-    function toggleAntispam(enabled) {
-      doAction('antispam', { enabled });
-    }
-
-    // ─── Init ─────────────────────────────────────────────────────
-    createParticles();
-    renderCommandsRef();
-    loadStats();
-    statsInterval = setInterval(loadStats, 30000); // refresh every 30s
-  </script>
+    } catch(_) {}
+  }
+})();
+</script>
 </body>
 </html>
