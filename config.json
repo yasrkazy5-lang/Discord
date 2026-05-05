@@ -1,7 +1,0 @@
-{
-  "token": "MTUwMDkyMTI2NzMxNjk4MTg1MQ.GssfNM.Mrt3kUqepjsO0FolKwLM4ZEejhsdd41uTJ6OaU",
-  "clientId": "1500921267316981851",
-  "port": 3000,
-  "dashboardSecret": "discord-dashboard-secret-2024",
-  "inviteUrl": "https://discord.com/api/oauth2/authorize?client_id=1500921267316981851&permissions=8&scope=bot%20applications.commands"
-}
