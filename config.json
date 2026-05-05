@@ -1,0 +1,26 @@
+{
+  "token": "MTUwMDkyMTI2NzMxNjk4MTg1MQ.GAmSKW.sxudcoae0UTfg2ZdUima-lnthMtbG3b01uBx_c",
+  "clientId": "1500921267316981851",
+  "port": 3000,
+  "prefix": "!",
+  "dashboard": {
+    "title": "Discord Dashboard Pro",
+    "theme": "dark",
+    "accentColor": "#7c3aed"
+  },
+  "autoRole": "",
+  "protectionRole": "",
+  "welcomeChannelId": "",
+  "leaveChannelId": "",
+  "logsChannelId": "",
+  "ticketCategoryId": "",
+  "badWords": ["spam", "hate", "abuse", "toxic"],
+  "allowedLinks": ["discord.gg", "youtube.com", "github.com"],
+  "antiSpam": true,
+  "antiLinks": true,
+  "antiMention": true,
+  "antiBots": true,
+  "antiGhostPing": true,
+  "levelingEnabled": true,
+  "giveawayEnabled": true
+}
