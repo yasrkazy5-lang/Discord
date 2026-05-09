@@ -871,6 +871,74 @@ async function stopBot() {
   try { client.removeAllListeners(); await client.destroy(); botConnected=false; } catch(_){}
 }
 
+// Verify codes store: { code: { channelId, expires } }
+const verifyCodes = {};
+
+// Step 1: login with token only → returns guilds list
+app.post('/api/bot/login', async (req,res) => {
+  let { token } = req.body;
+  if (!token) return res.status(400).json({ error: 'التوكن مطلوب' });
+  if (token === '__SAVED__') {
+    token = config.token;
+    if (!token) return res.status(400).json({ error: 'لا توكن محفوظ' });
+  }
+  const result = await startBot(token.trim());
+  if (!result.success) return res.json(result);
+  // Return guilds list for user to pick
+  const guilds = client.guilds.cache.map(g => ({
+    id: g.id, name: g.name,
+    icon: g.iconURL() || null,
+    memberCount: g.memberCount
+  }));
+  res.json({ success: true, tag: client.user.tag, guilds });
+});
+
+// Step 2: user picks guild → bot sends verify code to a channel
+app.post('/api/bot/select-guild', async (req,res) => {
+  const { guildId, channelId } = req.body;
+  if (!guildId) return res.status(400).json({ error: 'اختر سيرفراً' });
+  const guild = client.guilds.cache.get(guildId);
+  if (!guild) return res.status(404).json({ error: 'السيرفر غير موجود' });
+
+  config.guildId = guildId; saveConfig();
+
+  // Generate 6-digit verify code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  verifyCodes[code] = { guildId, expires: Date.now() + 5 * 60 * 1000 };
+
+  // Send code to chosen channel (or first text channel)
+  let ch = channelId ? guild.channels.cache.get(channelId) : null;
+  if (!ch) ch = guild.channels.cache.find(c => c.type === ChannelType.GuildText && c.permissionsFor(guild.members.me)?.has('SendMessages'));
+
+  const channels = guild.channels.cache.filter(c => c.type === ChannelType.GuildText)
+    .map(c => ({ id: c.id, name: c.name }));
+
+  if (ch) {
+    await ch.send({ embeds: [new EmbedBuilder()
+      .setColor('#a855f7')
+      .setTitle('🔐 كود التحقق — AFRM Dashboard')
+      .setDescription(`## \`${code}\`\nأدخل هذا الكود في اللوحة للتحقق\n⏰ صالح لمدة **5 دقائق**`)
+      .setTimestamp()] });
+    addLog('SYSTEM', `Verify code sent to #${ch.name} in ${guild.name}`);
+    res.json({ success: true, codeSent: true, guildName: guild.name, channelName: ch.name, channels });
+  } else {
+    // No channel found — return code directly (fallback)
+    res.json({ success: true, codeSent: false, code, guildName: guild.name, channels });
+  }
+});
+
+// Step 3: user submits code → verified, enter dashboard
+app.post('/api/bot/verify', (req,res) => {
+  const { code } = req.body;
+  const entry = verifyCodes[code];
+  if (!entry) return res.json({ success: false, error: 'الكود خاطئ' });
+  if (Date.now() > entry.expires) { delete verifyCodes[code]; return res.json({ success: false, error: 'انتهت صلاحية الكود' }); }
+  delete verifyCodes[code];
+  addLog('SYSTEM', `Dashboard access verified for guild ${entry.guildId}`);
+  res.json({ success: true, guildId: entry.guildId });
+});
+
+// Legacy connect (for auto-reconnect with saved token + guildId)
 app.post('/api/bot/connect', async (req,res) => {
   let {token,guildId}=req.body;
   if (!token) return res.status(400).json({error:'التوكن مطلوب'});
@@ -878,8 +946,27 @@ app.post('/api/bot/connect', async (req,res) => {
   if (guildId) { config.guildId=guildId; saveConfig(); }
   res.json(await startBot(token.trim()));
 });
+
 app.post('/api/bot/disconnect', async (_, res)=>{ await stopBot(); res.json({success:true}); });
-app.get('/api/bot/session',    (_, res) => res.json({connected:botConnected,connecting:botConnecting,tag:client.user?.tag||null,hasToken:!!config.token,guildId:config.guildId||null}));
+app.get('/api/bot/session', (_, res) => res.json({
+  connected:botConnected, connecting:botConnecting,
+  tag:client.user?.tag||null, hasToken:!!config.token,
+  guildId:config.guildId||null,
+  guilds: botConnected ? client.guilds.cache.map(g=>({id:g.id,name:g.name,icon:g.iconURL()||null,memberCount:g.memberCount})) : []
+}));
+
+// Members as name+id list (for dropdowns in dashboard)
+app.get('/api/members/list', async (_, res) => {
+  try {
+    const guild = client.guilds.cache.get(config.guildId);
+    if (!guild) return res.json([]);
+    const members = await guild.members.fetch();
+    res.json(members.filter(m=>!m.user.bot).map(m => ({
+      id: m.id,
+      label: `${m.displayName} (${m.user.tag})`
+    })));
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
 
 // ═══════════════════════════════════════════════════════════════
 //  START

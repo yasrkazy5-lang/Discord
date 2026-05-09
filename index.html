@@ -171,7 +171,7 @@ select.inp option{background:#0f0a1e;}
   <div id="mp-member" class="glass" style="padding:22px;margin-bottom:14px">
     <div style="font-weight:800;font-size:14px;color:var(--c);margin-bottom:14px">🎯 إجراءات على الأعضاء</div>
     <div class="g2" style="margin-bottom:12px">
-      <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">معرّف العضو (ID)</label><input class="inp" id="mod-uid" placeholder="123456789..."/></div>
+      <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">العضو</label><select class="inp" id="mod-uid-sel" onchange="$('mod-uid').value=this.value"><option value="">-- اختر عضواً --</option></select><input id="mod-uid" type="hidden"/></div>
       <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">السبب</label><input class="inp" id="mod-reason" placeholder="السبب..."/></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
@@ -260,7 +260,7 @@ select.inp option{background:#0f0a1e;}
     <div class="glass" style="padding:22px">
       <div style="font-weight:800;font-size:14px;color:var(--p);margin-bottom:14px">🎁 توزيع الرتب</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">ID العضو</label><input class="inp" id="give-uid" placeholder="User ID"/></div>
+        <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">العضو</label><select class="inp" id="give-uid-sel" onchange="$('give-uid').value=this.value"><option value="">-- اختر --</option></select><input id="give-uid" type="hidden"/></div>
         <div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">الرتبة</label><select class="inp" id="give-role-sel"><option value="">-- اختر --</option></select></div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-g" onclick="giveRole()"><i data-lucide="plus" style="width:13px;height:13px"></i> منح</button>
@@ -355,7 +355,7 @@ select.inp option{background:#0f0a1e;}
     <div class="glass" style="padding:22px">
       <div style="font-weight:800;font-size:14px;color:var(--c);margin-bottom:14px">💸 إدارة الرصيد</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <input class="inp" id="eco-uid" placeholder="User ID"/>
+        <select class="inp" id="eco-uid-sel" onchange="$('eco-uid').value=this.value"><option value="">-- اختر عضواً --</option></select><input id="eco-uid" type="hidden"/>
         <input class="inp" id="eco-amount" type="number" placeholder="المبلغ"/>
         <div style="display:flex;gap:8px">
           <button class="btn btn-g" onclick="ecoGive()"><i data-lucide="plus" style="width:13px;height:13px"></i> إضافة</button>
@@ -381,7 +381,7 @@ select.inp option{background:#0f0a1e;}
     <div class="glass" style="padding:22px">
       <div style="font-weight:800;font-size:14px;color:var(--g);margin-bottom:14px">🎫 فتح تذكرة</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <input class="inp" id="tkt-uid" placeholder="User ID"/>
+        <select class="inp" id="tkt-uid-sel" onchange="$('tkt-uid').value=this.value"><option value="">-- اختر عضواً --</option></select><input id="tkt-uid" type="hidden"/>
         <input class="inp" id="tkt-topic" placeholder="موضوع التذكرة..."/>
         <button class="btn btn-g" onclick="createTicket()"><i data-lucide="plus-circle" style="width:14px;height:14px"></i> فتح</button>
       </div>
@@ -550,34 +550,64 @@ select.inp option{background:#0f0a1e;}
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- CONNECT OVERLAY -->
-<div id="ov" style="position:fixed;inset:0;z-index:9000;background:radial-gradient(ellipse 80% 70% at 50% 40%,rgba(168,85,247,.18) 0%,#050510 70%);display:flex;align-items:center;justify-content:center">
-  <div style="width:460px;animation:fadeIn .5s ease">
-    <div style="text-align:center;margin-bottom:26px">
-      <div style="width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,#a855f7,#22d3ee);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 50px rgba(168,85,247,.55)"><i data-lucide="shield-check" style="width:36px;height:36px;color:#fff"></i></div>
-      <div style="font-size:28px;font-weight:900;background:linear-gradient(135deg,#a855f7,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AFRM Dashboard</div>
-      <div style="color:#64748b;margin-top:5px;font-size:14px">وصّل بوتك للبدء</div>
+<!-- CONNECT OVERLAY — 3 Steps -->
+<div id="ov" style="position:fixed;inset:0;z-index:9000;background:radial-gradient(ellipse 80% 70% at 50% 40%,rgba(168,85,247,.18) 0%,#050510 70%);display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px 0">
+  <div style="width:480px;animation:fadeIn .5s ease">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="width:66px;height:66px;border-radius:20px;background:linear-gradient(135deg,#a855f7,#22d3ee);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 50px rgba(168,85,247,.55)"><i data-lucide="shield-check" style="width:34px;height:34px;color:#fff"></i></div>
+      <div style="font-size:26px;font-weight:900;background:linear-gradient(135deg,#a855f7,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AFRM Dashboard</div>
     </div>
-    <div class="glass" style="padding:26px">
-      <div id="ov-status" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);margin-bottom:18px;transition:.3s">
-        <i data-lucide="wifi-off" id="ov-icon" style="width:16px;height:16px;color:#fb923c;flex-shrink:0"></i>
-        <span id="ov-text" style="font-size:13px;font-weight:700;color:#fb923c">البوت غير متصل</span>
-      </div>
-      <div style="margin-bottom:12px"><label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:6px;font-weight:700">🔑 توكن البوت *</label>
-        <div style="position:relative"><input class="inp" id="ov-token" type="password" placeholder="MTAxMjM0..." style="padding-left:42px;font-family:'JetBrains Mono';font-size:13px" onkeydown="if(event.key==='Enter')connectBot()"/>
-          <button onclick="toggleTok()" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#64748b"><i data-lucide="eye-off" id="tok-eye" style="width:15px;height:15px"></i></button>
-        </div>
-        <div style="font-size:11px;color:#475569;margin-top:4px">⚠️ يُحفظ في config.json محلياً فقط</div>
-      </div>
-      <div style="margin-bottom:18px"><label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:6px;font-weight:700">🏠 Guild ID</label>
-        <input class="inp" id="ov-guild" placeholder="123456789012345678" style="font-family:'JetBrains Mono';font-size:13px" onkeydown="if(event.key==='Enter')connectBot()"/>
-      </div>
-      <button id="ov-btn" class="btn btn-g" onclick="connectBot()" style="width:100%;justify-content:center;padding:12px;font-size:15px;border-radius:12px;margin-bottom:10px"><i data-lucide="zap" style="width:16px;height:16px"></i> اتصل بالبوت</button>
-      <div style="text-align:center"><button onclick="checkSession(true)" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:13px;font-family:'Cairo';text-decoration:underline">يوجد توكن محفوظ — ادخل مباشرةً ←</button></div>
+
+    <!-- Step indicators -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:20px">
+      <div id="si-1" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--p)"><div style="width:28px;height:28px;border-radius:50%;background:rgba(168,85,247,.3);border:2px solid var(--p);display:flex;align-items:center;justify-content:center;font-size:12px">1</div> التوكن</div>
+      <div style="width:40px;height:2px;background:rgba(168,85,247,.2);margin:0 8px" id="si-line-1"></div>
+      <div id="si-2" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569"><div style="width:28px;height:28px;border-radius:50%;background:rgba(100,116,139,.1);border:2px solid #475569;display:flex;align-items:center;justify-content:center;font-size:12px">2</div> السيرفر</div>
+      <div style="width:40px;height:2px;background:rgba(168,85,247,.2);margin:0 8px" id="si-line-2"></div>
+      <div id="si-3" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#475569"><div style="width:28px;height:28px;border-radius:50%;background:rgba(100,116,139,.1);border:2px solid #475569;display:flex;align-items:center;justify-content:center;font-size:12px">3</div> التحقق</div>
     </div>
-    <div style="margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.15)">
-      <div style="font-size:12px;font-weight:700;color:var(--c);margin-bottom:6px">📋 كيف أحصل على التوكن؟</div>
-      <div style="font-size:12px;color:#64748b;line-height:1.9">1. <a href="https://discord.com/developers/applications" target="_blank" style="color:var(--p)">discord.com/developers</a> → تطبيقك<br/>2. قسم <b style="color:#94a3b8">Bot</b> → <b style="color:#94a3b8">Reset Token</b><br/>3. فعّل <b style="color:#94a3b8">Message Content Intent</b> + <b style="color:#94a3b8">Server Members Intent</b></div>
+
+    <!-- STEP 1: Token -->
+    <div id="step-1" class="glass" style="padding:26px">
+      <div style="font-weight:800;font-size:15px;color:var(--c);margin-bottom:16px">🔑 أدخل توكن البوت</div>
+      <div id="ov-status" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);margin-bottom:16px;transition:.3s">
+        <i data-lucide="wifi-off" id="ov-icon" style="width:15px;height:15px;color:#fb923c;flex-shrink:0"></i>
+        <span id="ov-text" style="font-size:13px;font-weight:700;color:#fb923c">غير متصل</span>
+      </div>
+      <div style="position:relative;margin-bottom:14px">
+        <input class="inp" id="ov-token" type="password" placeholder="MTAxMjM0NTY3ODkwMTIz..." style="padding-left:42px;font-family:'JetBrains Mono';font-size:13px" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button onclick="toggleTok()" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#64748b"><i data-lucide="eye-off" id="tok-eye" style="width:15px;height:15px"></i></button>
+      </div>
+      <div style="font-size:11px;color:#475569;margin-bottom:16px">⚠️ يُحفظ محلياً فقط — لا يُرسل لأي خادم خارجي</div>
+      <button id="ov-btn" class="btn btn-g" onclick="doLogin()" style="width:100%;justify-content:center;padding:12px;font-size:15px;border-radius:12px;margin-bottom:10px"><i data-lucide="zap" style="width:16px;height:16px"></i> تسجيل الدخول</button>
+      <div style="text-align:center"><button onclick="checkSession(true)" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:13px;font-family:'Cairo';text-decoration:underline">يوجد جلسة محفوظة ←</button></div>
+      <div style="margin-top:14px;padding:12px;border-radius:10px;background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.15)">
+        <div style="font-size:12px;font-weight:700;color:var(--c);margin-bottom:5px">📋 كيف أحصل على التوكن؟</div>
+        <div style="font-size:11px;color:#64748b;line-height:1.9"><a href="https://discord.com/developers/applications" target="_blank" style="color:var(--p)">discord.com/developers</a> → تطبيقك → <b style="color:#94a3b8">Bot</b> → <b style="color:#94a3b8">Reset Token</b><br/>فعّل <b style="color:#94a3b8">Message Content Intent</b> + <b style="color:#94a3b8">Server Members Intent</b></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Guild picker -->
+    <div id="step-2" class="glass" style="padding:26px;display:none">
+      <div style="font-weight:800;font-size:15px;color:var(--g);margin-bottom:6px">🏠 اختر السيرفر</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px">البوت موجود في هذه السيرفرات — اختر الذي تريد إدارته</div>
+      <div id="guilds-list" style="display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto;margin-bottom:16px"></div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:6px;font-weight:700">📺 الروم اللي يوصله الكود</label>
+        <select class="inp" id="verify-ch"><option value="">-- اختر روم --</option></select>
+        <div style="font-size:11px;color:#475569;margin-top:4px">اختياري — لو ما اخترت، يرسل لأول روم متاح</div>
+      </div>
+      <button id="send-code-btn" class="btn btn-p" onclick="sendVerifyCode()" style="width:100%;justify-content:center;padding:12px;font-size:15px;border-radius:12px" disabled><i data-lucide="send" style="width:16px;height:16px"></i> أرسل كود التحقق</button>
+    </div>
+
+    <!-- STEP 3: Verify code -->
+    <div id="step-3" class="glass" style="padding:26px;display:none">
+      <div style="font-weight:800;font-size:15px;color:var(--o);margin-bottom:6px">🔐 أدخل كود التحقق</div>
+      <div id="code-hint" style="font-size:13px;color:#64748b;margin-bottom:16px;padding:12px;border-radius:10px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2)">تحقق من الروم الذي اخترته — البوت أرسل كود مكوّن من 6 أرقام</div>
+      <input class="inp" id="verify-code" placeholder="123456" maxlength="6" style="font-family:'JetBrains Mono';font-size:24px;text-align:center;letter-spacing:8px;margin-bottom:14px" oninput="if(this.value.length===6)verifyCode()" onkeydown="if(event.key==='Enter')verifyCode()"/>
+      <button class="btn btn-o" onclick="verifyCode()" style="width:100%;justify-content:center;padding:12px;font-size:15px;border-radius:12px;margin-bottom:10px"><i data-lucide="check-circle" style="width:16px;height:16px"></i> تحقق ودخول</button>
+      <div style="text-align:center"><button onclick="goStep(2)" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:13px;font-family:'Cairo'">← رجوع</button></div>
     </div>
   </div>
 </div>
@@ -931,8 +961,23 @@ async function loadChannels(){
   ['mod-ch-sel','emb-ch','gw-ch','poll-ch','cfg-welcome','cfg-leave','cfg-logs','cfg-req','auc-ch'].forEach(id=>{const el=$(id);if(el)el.innerHTML=`<option value="">-- اختر --</option>${opts}`;});
 }
 
-// ══ BOT CONNECTION ════════════════════════════════════════════
-let dashIntervals=[];
+// ══ BOT CONNECTION — 3 Steps ══════════════════════════════════
+let dashIntervals=[], selectedGuildId='', selectedGuildChannels=[];
+
+function goStep(n){
+  [1,2,3].forEach(i=>{ $(`step-${i}`).style.display=i===n?'block':'none'; });
+  // Update step indicators
+  [1,2,3].forEach(i=>{
+    const el=$(`si-${i}`); if(!el) return;
+    const done=i<n, active=i===n;
+    el.style.color=done||active?'var(--p)':'#475569';
+    el.querySelector('div').style.background=done?'rgba(168,85,247,.5)':active?'rgba(168,85,247,.3)':'rgba(100,116,139,.1)';
+    el.querySelector('div').style.borderColor=done||active?'var(--p)':'#475569';
+    el.querySelector('div').textContent=done?'✓':i;
+  });
+  if($('si-line-1')) $('si-line-1').style.background=n>1?'rgba(168,85,247,.5)':'rgba(168,85,247,.2)';
+  if($('si-line-2')) $('si-line-2').style.background=n>2?'rgba(168,85,247,.5)':'rgba(168,85,247,.2)';
+}
 
 function setOvStatus(ok,text){
   const bar=$('ov-status'),txt=$('ov-text'),icon=$('ov-icon');
@@ -949,25 +994,110 @@ function toggleTok(){
   $('tok-eye').setAttribute('data-lucide',show?'eye-off':'eye'); lucide.createIcons();
 }
 
-async function connectBot(){
-  const token=$('ov-token').value.trim(); const guildId=$('ov-guild').value.trim();
+async function doLogin(){
+  const token=$('ov-token').value.trim();
   if(!token) return toast('أدخل التوكن',false);
   const btn=$('ov-btn'); btn.disabled=true;
   btn.innerHTML='<i data-lucide="loader" style="width:16px;height:16px;animation:spin 1s linear infinite"></i> جاري الاتصال...';
   lucide.createIcons(); setOvStatus(false,'جاري الاتصال...');
   try {
-    const r=await api('/api/bot/connect',{token,guildId:guildId||undefined});
-    if(r.success){ setOvStatus(true,`متصل: ${r.tag}`); toast(`✅ ${r.tag}`); setTimeout(openDash,800); }
-    else { setOvStatus(false,'فشل الاتصال'); toast('❌ '+(r.error||'توكن خاطئ'),false); btn.disabled=false; btn.innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> اتصل بالبوت'; lucide.createIcons(); }
-  } catch(_){ setOvStatus(false,'خطأ'); toast('❌ تعذّر الاتصال بالسيرفر',false); btn.disabled=false; btn.innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> اتصل بالبوت'; lucide.createIcons(); }
+    const r=await api('/api/bot/login',{token});
+    if(r.success){
+      setOvStatus(true,`متصل: ${r.tag}`);
+      renderGuilds(r.guilds||[]);
+      goStep(2);
+    } else {
+      setOvStatus(false,'فشل الاتصال');
+      toast('❌ '+(r.error||'توكن خاطئ'),false);
+      btn.disabled=false;
+      btn.innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> تسجيل الدخول';
+      lucide.createIcons();
+    }
+  } catch(_){
+    setOvStatus(false,'خطأ'); toast('❌ تعذّر الاتصال',false);
+    btn.disabled=false; btn.innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> تسجيل الدخول'; lucide.createIcons();
+  }
+}
+
+function renderGuilds(guilds){
+  $('guilds-list').innerHTML=guilds.map(g=>`
+    <div onclick="selectGuild('${g.id}')" id="guild-card-${g.id}" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid rgba(168,85,247,.2);cursor:pointer;transition:all .3s;background:rgba(168,85,247,.05)" onmouseover="this.style.borderColor='rgba(168,85,247,.5)';this.style.background='rgba(168,85,247,.12)'" onmouseout="if('${g.id}'!==selectedGuildId){this.style.borderColor='rgba(168,85,247,.2)';this.style.background='rgba(168,85,247,.05)'}">
+      ${g.icon?`<img src="${g.icon}" style="width:44px;height:44px;border-radius:12px;border:2px solid rgba(168,85,247,.4)"/>`:`<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#a855f7,#22d3ee);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff">${g.name[0]}</div>`}
+      <div style="flex:1"><div style="font-weight:800;font-size:14px">${g.name}</div><div style="font-size:12px;color:#64748b">${g.memberCount} عضو</div></div>
+      <i data-lucide="check-circle" id="check-${g.id}" style="width:18px;height:18px;color:var(--g);display:none"></i>
+    </div>`).join('');
+  lucide.createIcons();
+}
+
+function selectGuild(id){
+  // Deselect previous
+  if(selectedGuildId){
+    const prev=document.getElementById(`guild-card-${selectedGuildId}`);
+    if(prev){ prev.style.borderColor='rgba(168,85,247,.2)'; prev.style.background='rgba(168,85,247,.05)'; }
+    const prevCheck=document.getElementById(`check-${selectedGuildId}`);
+    if(prevCheck) prevCheck.style.display='none';
+  }
+  selectedGuildId=id;
+  const card=document.getElementById(`guild-card-${id}`);
+  if(card){ card.style.borderColor='var(--g)'; card.style.background='rgba(74,222,128,.1)'; }
+  const check=document.getElementById(`check-${id}`);
+  if(check) check.style.display='block';
+  $('send-code-btn').disabled=false;
+  // Load channels for this guild
+  loadGuildChannels(id);
+  lucide.createIcons();
+}
+
+async function loadGuildChannels(guildId){
+  try {
+    // Temporarily set guildId to get channels
+    await api('/api/bot/connect',{token:'__SAVED__',guildId});
+    const chs=await api('/api/channels');
+    selectedGuildChannels=chs;
+    const opts=chs.map(c=>`<option value="${c.id}">#${c.name}</option>`).join('');
+    $('verify-ch').innerHTML=`<option value="">-- اختياري --</option>${opts}`;
+  } catch(_){}
+}
+
+async function sendVerifyCode(){
+  if(!selectedGuildId) return toast('اختر سيرفراً أولاً',false);
+  const btn=$('send-code-btn'); btn.disabled=true;
+  btn.innerHTML='<i data-lucide="loader" style="width:16px;height:16px;animation:spin 1s linear infinite"></i> جاري الإرسال...';
+  lucide.createIcons();
+  const r=await api('/api/bot/select-guild',{guildId:selectedGuildId,channelId:$('verify-ch').value});
+  if(r.success){
+    let hint='';
+    if(r.codeSent) hint=`تم إرسال الكود إلى <b style="color:var(--c)">#${r.channelName}</b> في <b style="color:var(--p)">${r.guildName}</b>`;
+    else hint=`لم يجد البوت روماً — الكود المباشر: <b style="font-family:'JetBrains Mono';font-size:18px;color:var(--o)">${r.code}</b>`;
+    $('code-hint').innerHTML=hint;
+    goStep(3);
+  } else {
+    toast('❌ '+(r.error||'خطأ'),false);
+    btn.disabled=false; btn.innerHTML='<i data-lucide="send" style="width:16px;height:16px"></i> أرسل كود التحقق'; lucide.createIcons();
+  }
+}
+
+async function verifyCode(){
+  const code=$('verify-code').value.trim();
+  if(code.length!==6) return toast('الكود 6 أرقام',false);
+  const r=await api('/api/bot/verify',{code});
+  if(r.success){ toast('✅ تم التحقق! جاري الدخول...'); setTimeout(openDash,800); }
+  else { toast('❌ '+(r.error||'كود خاطئ'),false); $('verify-code').value=''; $('verify-code').focus(); }
 }
 
 async function checkSession(manual=false){
   try {
     const s=await api('/api/bot/session');
-    if(s.connected){ setOvStatus(true,`متصل: ${s.tag}`); if(s.guildId)$('ov-guild').value=s.guildId; setTimeout(openDash,600); }
-    else if(s.hasToken&&manual){ toast('⏳ جاري إعادة الاتصال...'); const r=await api('/api/bot/connect',{token:'__SAVED__',guildId:s.guildId}); r.success?setTimeout(openDash,600):toast('❌ التوكن المحفوظ انتهت صلاحيته',false); }
-    else if(manual) toast('لا توكن محفوظ',false);
+    if(s.connected && s.guildId){ toast(`✅ جلسة محفوظة: ${s.tag}`); setTimeout(openDash,600); }
+    else if(s.connected && !s.guildId && s.guilds?.length){
+      // Connected but no guild selected — show guild picker
+      renderGuilds(s.guilds); goStep(2);
+    } else if(s.hasToken && manual){
+      toast('⏳ جاري الاتصال بالتوكن المحفوظ...','');
+      const r=await api('/api/bot/login',{token:'__SAVED__'});
+      if(r.success){ renderGuilds(r.guilds||[]); goStep(2); }
+      else toast('❌ التوكن المحفوظ انتهت صلاحيته',false);
+    } else if(manual){ toast('لا جلسة محفوظة',false); }
   } catch(_){}
 }
 
@@ -982,17 +1112,32 @@ async function disconnectBot(){
   await api('/api/bot/disconnect',{});
   toast('🔌 تم قطع الاتصال');
   dashIntervals.forEach(clearInterval); dashIntervals=[];
+  selectedGuildId=''; selectedGuildChannels=[];
   const ov=$('ov'); ov.style.display='flex'; ov.style.opacity='0';
   setTimeout(()=>{ov.style.transition='opacity .4s';ov.style.opacity='1';},50);
-  setOvStatus(false,'البوت غير متصل');
-  $('ov-btn').disabled=false; $('ov-btn').innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> اتصل بالبوت';
+  goStep(1); setOvStatus(false,'غير متصل');
+  $('ov-btn').disabled=false; $('ov-btn').innerHTML='<i data-lucide="zap" style="width:16px;height:16px"></i> تسجيل الدخول';
   lucide.createIcons();
+}
+
+// Member dropdown helper — fills any select with member names
+let membersList=[];
+async function loadMemberDropdowns(){
+  try {
+    membersList=await api('/api/members/list');
+    const opts=membersList.map(m=>`<option value="${m.id}">${m.label}</option>`).join('');
+    // Mod dropdowns
+    ['mod-uid-sel','tkt-uid-sel','eco-uid-sel','give-uid-sel'].forEach(id=>{
+      const el=$(id); if(el) el.innerHTML=`<option value="">-- اختر عضواً --</option>${opts}`;
+    });
+  } catch(_){}
 }
 
 async function initDash(){
   await loadChannels(); await loadRoles(); await loadProtConfig();
+  await loadMemberDropdowns();
   pollStatus(); pollStats(); pollLogs();
-  dashIntervals=[setInterval(pollStatus,5000),setInterval(pollStats,15000),setInterval(pollLogs,8000)];
+  dashIntervals=[setInterval(pollStatus,5000),setInterval(pollStats,15000),setInterval(pollLogs,8000),setInterval(loadMemberDropdowns,60000)];
 }
 
 // ── Startup ────────────────────────────────────────────────────
